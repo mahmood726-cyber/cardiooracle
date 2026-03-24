@@ -2155,6 +2155,410 @@ function getDesignFeatures() {
     endpoint_text:       '(designed)'
   };
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 7 — DESIGN TAB LIVE PREDICTION (Phase 2.2)
+════════════════════════════════════════════════════════════════════ */
+
+/* ── 7A: Debounce Timer ─────────────────────────────────────────── */
+let _designTimer = null;
+
+/**
+ * Debounced wrapper — delays prediction by 80 ms to avoid lag on
+ * continuous slider drags.
+ */
+function debouncedDesignPredict() {
+  if (_designTimer) clearTimeout(_designTimer);
+  _designTimer = setTimeout(updateDesignPrediction, 80);
+}
+
+/* ── 7B: Core Live-Prediction Renderer ──────────────────────────── */
+
+/**
+ * Run the full prediction pipeline against the current Design tab
+ * parameters and update the right-column result divs.
+ */
+function updateDesignPrediction() {
+  const features = getDesignFeatures();
+  const trainingTrials = TRAINING_DATA.trials ?? [];
+
+  // Score all training trials (reuse same structure as fetchAndPredict)
+  const scoredTrials = trainingTrials.map(t => ({
+    trial: t,
+    sim: computeSimilarity(features, t)
+  }));
+
+  const bayesian   = bayesianBorrowing(features, trainingTrials);
+  const power      = conditionalPower(features, scoredTrials);
+  const regression = metaRegressionPredict(features);
+  const ensemble   = ensemblePredict(bayesian, power, regression);
+
+  // ── Gauge (traffic light + percentage) ──
+  const gaugeEl = document.getElementById('designPredictionGauge');
+  if (gaugeEl) {
+    const pPct = (ensemble.p * 100).toFixed(1);
+    const levelIcon = ensemble.level === 'high' ? '&#9646;' : ensemble.level === 'moderate' ? '&#9646;' : '&#9646;';
+    gaugeEl.innerHTML =
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">' +
+        '<span class="traffic-light ' + escapeHtml(ensemble.level) + '" style="font-size:1.1rem;">' +
+          levelIcon + ' ' + escapeHtml(ensemble.levelLabel) + ' &mdash; ' + pPct + '%' +
+        '</span>' +
+        '<span class="text-muted" style="font-size:0.85rem;">P(significant primary outcome)</span>' +
+      '</div>';
+  }
+
+  // ── Credible interval display ──
+  const ciEl = document.getElementById('designCIDisplay');
+  if (ciEl) {
+    const ciLo = bayesian && bayesian.ci ? (bayesian.ci[0] * 100).toFixed(1) : null;
+    const ciHi = bayesian && bayesian.ci ? (bayesian.ci[1] * 100).toFixed(1) : null;
+    const ciText = ciLo !== null
+      ? 'Bayesian 80% CI: ' + ciLo + '%&ndash;' + ciHi + '%'
+      : 'Bayesian CI: insufficient similar trials';
+    const confBadge = bayesian && bayesian.confidence
+      ? ' <span class="badge">' + escapeHtml(bayesian.confidence) + ' confidence (' + (bayesian.effN ?? 0) + ' analogues)</span>'
+      : '';
+    const bayPct  = bayesian && bayesian.p !== null ? ' | Bayesian: '  + (bayesian.p    * 100).toFixed(1) + '%' : '';
+    const powPct  = power    && power.power  !== null ? ' | Power: '    + (power.power   * 100).toFixed(1) + '%' : '';
+    const regPct  = regression && regression.p !== null ? ' | Regression: ' + (regression.p * 100).toFixed(1) + '%' : '';
+    ciEl.innerHTML =
+      '<span>' + ciText + confBadge + '</span>' +
+      '<div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">' + bayPct + powPct + regPct + '</div>';
+  }
+
+  // ── Power curve (Plotly) ──
+  const powerDivId = 'designPowerCurve';
+  const powerEl = document.getElementById(powerDivId);
+  if (powerEl && power && power.curve && power.curve.length) {
+    const fontColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#212529';
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#dee2e6';
+    const xArr = power.curve.map(p => p.x);
+    const yArr = power.curve.map(p => Math.max(0, Math.min(1, p.power)) * 100);
+    const traces = [
+      { x: xArr, y: yArr, mode: 'lines', type: 'scatter', name: 'Power (%)', line: { color: '#0d6efd', width: 2 } },
+      { x: [power.estimated_hr, power.estimated_hr], y: [0, 100], mode: 'lines', type: 'scatter',
+        name: 'Estimated effect', line: { color: '#198754', width: 1.5, dash: 'dash' } },
+      { x: [xArr[0], xArr[xArr.length - 1]], y: [80, 80], mode: 'lines', type: 'scatter',
+        name: '80% threshold', line: { color: '#fd7e14', width: 1, dash: 'dot' } }
+    ];
+    const layout = {
+      paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+      font: { color: fontColor, size: 12 },
+      margin: { t: 20, r: 20, b: 50, l: 55 },
+      xaxis: { title: power.curveLabel ?? 'Effect Size', gridcolor: gridColor, zerolinecolor: gridColor,
+               range: power.curveLabel === 'SMD' ? [0, 0.85] : [0.55, 1.1] },
+      yaxis: { title: 'Power (%)', range: [0, 105], gridcolor: gridColor, zerolinecolor: gridColor },
+      legend: { orientation: 'h', y: -0.2 }, showlegend: true
+    };
+    const fn = powerEl._hasPlot ? Plotly.react : Plotly.newPlot;
+    fn(powerEl, traces, layout, { responsive: true, displayModeBar: false });
+    powerEl._hasPlot = true;
+  }
+
+  // ── Risk factors bar chart (Plotly) ──
+  const riskDivId = 'designRiskFactors';
+  const riskEl = document.getElementById(riskDivId);
+  if (riskEl && regression && regression.contributions) {
+    const fontColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#212529';
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#dee2e6';
+    const entries = Object.entries(regression.contributions)
+      .filter(([, v]) => v !== 0)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+      .slice(0, 10);
+    const labels = entries.map(([name]) => name.replace(/_/g, ' '));
+    const values = entries.map(([, v]) => +v.toFixed(4));
+    const colors = values.map(v => v >= 0 ? '#198754' : '#dc3545');
+    const trace = { type: 'bar', orientation: 'h', x: values, y: labels,
+                    marker: { color: colors }, name: 'Log-odds contribution' };
+    const layout = {
+      paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+      font: { color: fontColor, size: 11 },
+      margin: { t: 20, r: 20, b: 50, l: 140 },
+      xaxis: { title: 'Log-odds contribution', gridcolor: gridColor, zerolinecolor: gridColor },
+      yaxis: { automargin: true },
+      showlegend: false
+    };
+    const fn = riskEl._hasPlot ? Plotly.react : Plotly.newPlot;
+    fn(riskEl, [trace], layout, { responsive: true, displayModeBar: false });
+    riskEl._hasPlot = true;
+  }
+
+  // Save current state to localStorage on every update
+  _saveDesignerState();
+
+  return { features, ensemble, bayesian, power, regression };
+}
+
+/* ── 7C: localStorage Persistence ──────────────────────────────── */
+
+const _DS_STATE_KEY     = 'cardiooracle_designer_state';
+const _DS_SNAPSHOTS_KEY = 'cardiooracle_snapshots';
+
+/**
+ * Save all Design tab control values to localStorage.
+ */
+function _saveDesignerState() {
+  try {
+    const state = {
+      enrollment:    document.getElementById('designEnrollment')?.value,
+      duration:      document.getElementById('designDuration')?.value,
+      sites:         document.getElementById('designSites')?.value,
+      drugClass:     document.getElementById('designDrugClass')?.value,
+      endpoint:      document.getElementById('designEndpoint')?.value,
+      comparator:    document.getElementById('designComparator')?.value,
+      blinding:      document.getElementById('designBlinding')?.value,
+      sponsor:       document.getElementById('designSponsor')?.value,
+      multiRegional: document.getElementById('designMultiRegional')?.checked,
+      tagHFrEF:      document.getElementById('designTagHFrEF')?.checked,
+      tagHFpEF:      document.getElementById('designTagHFpEF')?.checked,
+      tagDiabetic:   document.getElementById('designTagDiabetic')?.checked,
+      tagCKD:        document.getElementById('designTagCKD')?.checked,
+      tagElderly:    document.getElementById('designTagElderly')?.checked
+    };
+    localStorage.setItem(_DS_STATE_KEY, JSON.stringify(state));
+  } catch (_) { /* quota errors — ignore */ }
+}
+
+/**
+ * Restore Design tab control values from localStorage if available.
+ */
+function _restoreDesignerState() {
+  try {
+    const raw = localStorage.getItem(_DS_STATE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && val !== null) el.value = val;
+    };
+    const setChk = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && val !== null) el.checked = Boolean(val);
+    };
+
+    setVal('designEnrollment', state.enrollment);
+    setVal('designDuration',   state.duration);
+    setVal('designSites',      state.sites);
+    setVal('designDrugClass',  state.drugClass);
+    setVal('designEndpoint',   state.endpoint);
+    setVal('designComparator', state.comparator);
+    setVal('designBlinding',   state.blinding);
+    setVal('designSponsor',    state.sponsor);
+    setChk('designMultiRegional', state.multiRegional);
+    setChk('designTagHFrEF',   state.tagHFrEF);
+    setChk('designTagHFpEF',   state.tagHFpEF);
+    setChk('designTagDiabetic',state.tagDiabetic);
+    setChk('designTagCKD',     state.tagCKD);
+    setChk('designTagElderly', state.tagElderly);
+
+    updateSliderDisplays();
+    return true;
+  } catch (_) { return false; }
+}
+
+/* ── 7D: What-If Snapshot ───────────────────────────────────────── */
+
+/**
+ * Take a snapshot of current features + prediction, persist to
+ * localStorage (max 5 FIFO), and render comparison table.
+ */
+function takeDesignSnapshot() {
+  const result = updateDesignPrediction();
+  if (!result) return;
+
+  const snap = {
+    ts:       Date.now(),
+    label:    new Date().toLocaleTimeString(),
+    features: result.features,
+    p:        result.ensemble.p,
+    level:    result.ensemble.level,
+    levelLabel: result.ensemble.levelLabel
+  };
+
+  let snaps = [];
+  try {
+    snaps = JSON.parse(localStorage.getItem(_DS_SNAPSHOTS_KEY) ?? '[]');
+    if (!Array.isArray(snaps)) snaps = [];
+  } catch (_) { snaps = []; }
+
+  snaps.push(snap);
+  if (snaps.length > 5) snaps = snaps.slice(snaps.length - 5);
+
+  try {
+    localStorage.setItem(_DS_SNAPSHOTS_KEY, JSON.stringify(snaps));
+  } catch (_) { /* ignore */ }
+
+  _renderWhatIf(snaps);
+}
+
+/**
+ * Build and render the what-if comparison table from snapshots array.
+ * @param {Array} snaps
+ */
+function _renderWhatIf(snaps) {
+  const el = document.getElementById('designWhatIf');
+  if (!el || snaps.length < 1) return;
+
+  if (snaps.length === 1) {
+    el.innerHTML =
+      '<div class="alert alert-info visible" style="display:block;" role="note">' +
+      'Snapshot saved. Take a second snapshot after changing parameters to compare.' +
+      '</div>';
+    return;
+  }
+
+  // Build comparison between consecutive snapshots (and current vs last)
+  const rows = [];
+  const paramLabels = {
+    enrollment:        'Sample size',
+    duration_months:   'Duration (months)',
+    drug_class:        'Drug class',
+    endpoint_type:     'Endpoint',
+    comparator_type:   'Comparator',
+    double_blind:      'Double-blind',
+    is_industry:       'Industry sponsor',
+    num_sites:         'Sites',
+    multi_regional:    'Multi-regional'
+  };
+
+  for (let i = 1; i < snaps.length; i++) {
+    const prev = snaps[i - 1];
+    const curr = snaps[i];
+    const deltaP = ((curr.p - prev.p) * 100).toFixed(1);
+    const deltaSign = curr.p >= prev.p ? '+' : '';
+    const deltaColor = curr.p > prev.p ? 'var(--success)' : curr.p < prev.p ? 'var(--danger)' : 'var(--text-muted)';
+
+    // Identify changed parameters
+    const changed = [];
+    Object.keys(paramLabels).forEach(key => {
+      const a = prev.features[key];
+      const b = curr.features[key];
+      if (String(a) !== String(b)) {
+        changed.push(
+          '<strong>' + escapeHtml(paramLabels[key]) + '</strong>: ' +
+          escapeHtml(String(a)) + ' &rarr; ' + escapeHtml(String(b))
+        );
+      }
+    });
+
+    const changedHtml = changed.length > 0
+      ? changed.join('; ')
+      : '<em>No parameter changes detected</em>';
+
+    rows.push(
+      '<tr>' +
+        '<td>' + escapeHtml(prev.label) + '</td>' +
+        '<td>' + escapeHtml(curr.label) + '</td>' +
+        '<td>' + (prev.p * 100).toFixed(1) + '%</td>' +
+        '<td>' + (curr.p * 100).toFixed(1) + '%</td>' +
+        '<td style="color:' + deltaColor + ';font-weight:600;">' + deltaSign + deltaP + '%</td>' +
+        '<td style="font-size:0.82rem;">' + changedHtml + '</td>' +
+      '</tr>'
+    );
+  }
+
+  el.innerHTML =
+    '<div class="card" style="margin-top:12px;">' +
+      '<div class="card-title">What-If Comparison (' + snaps.length + ' snapshots)</div>' +
+      '<div style="overflow-x:auto;">' +
+        '<table>' +
+          '<thead><tr>' +
+            '<th>From</th><th>To</th>' +
+            '<th>P(success) before</th><th>P(success) after</th>' +
+            '<th>&Delta;</th><th>Parameters changed</th>' +
+          '</tr></thead>' +
+          '<tbody>' + rows.join('') + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">' +
+        'Snapshots stored: ' + snaps.length + '/5. ' +
+        '<button type="button" onclick="_clearSnapshots()" ' +
+          'style="background:none;border:none;color:var(--text-accent);cursor:pointer;font-size:0.8rem;padding:0;">' +
+          'Clear all' +
+        '</button>' +
+      '</p>' +
+    '</div>';
+}
+
+/**
+ * Clear all snapshots from localStorage and reset the what-if area.
+ */
+function _clearSnapshots() {
+  try { localStorage.removeItem(_DS_SNAPSHOTS_KEY); } catch (_) { /* ignore */ }
+  const el = document.getElementById('designWhatIf');
+  if (el) el.innerHTML = '';
+}
+
+/* ── 7E: Event Wiring + Lazy Init ───────────────────────────────── */
+
+(function initDesignTab() {
+  let _designTabInitialised = false;
+
+  // ── Snapshot button ──
+  const snapBtn = document.getElementById('designSnapshotBtn');
+  if (snapBtn) {
+    snapBtn.addEventListener('click', takeDesignSnapshot);
+  }
+
+  // ── Restore any persisted snapshots on page load (display only) ──
+  try {
+    const savedSnaps = JSON.parse(localStorage.getItem(_DS_SNAPSHOTS_KEY) ?? '[]');
+    if (Array.isArray(savedSnaps) && savedSnaps.length >= 2) {
+      // Defer to after DOM is ready
+      setTimeout(() => _renderWhatIf(savedSnaps), 0);
+    }
+  } catch (_) { /* ignore */ }
+
+  // ── All design controls → debounced predict ──
+  const selectIds   = ['designDrugClass', 'designEndpoint', 'designComparator', 'designBlinding', 'designSponsor'];
+  const rangeIds    = ['designEnrollment', 'designDuration', 'designSites'];
+  const checkboxIds = ['designMultiRegional', 'designTagHFrEF', 'designTagHFpEF', 'designTagDiabetic', 'designTagCKD', 'designTagElderly'];
+
+  selectIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', debouncedDesignPredict);
+  });
+
+  rangeIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => { updateSliderDisplays(); debouncedDesignPredict(); });
+    }
+  });
+
+  checkboxIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', debouncedDesignPredict);
+  });
+
+  // ── Reset button also triggers prediction ──
+  // The existing reset handler calls updateSliderDisplays(); we patch it to
+  // also run prediction after reset completes.
+  const resetBtn = document.getElementById('designResetBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      // Clear snapshots on reset for a fresh start
+      try { localStorage.removeItem(_DS_SNAPSHOTS_KEY); } catch (_) { /* ignore */ }
+      const wiEl = document.getElementById('designWhatIf');
+      if (wiEl) wiEl.innerHTML = '';
+      // Prediction fires after the existing reset handler restores defaults
+      setTimeout(updateDesignPrediction, 0);
+    });
+  }
+
+  // ── Lazy init: fire one prediction when Design tab is first activated ──
+  const designTabBtn = document.getElementById('tab-design');
+  if (designTabBtn) {
+    designTabBtn.addEventListener('click', () => {
+      if (_designTabInitialised) return;
+      _designTabInitialised = true;
+      // Restore persisted state (if any), then predict
+      _restoreDesignerState();
+      setTimeout(updateDesignPrediction, 0);
+    });
+  }
+})();
 </script>
 
 </body>
