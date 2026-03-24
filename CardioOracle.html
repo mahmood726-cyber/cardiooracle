@@ -656,6 +656,17 @@
     .footer-about-link:hover { text-decoration: underline; }
     .footer-about-link:focus { outline: 2px solid var(--text-accent); border-radius: 2px; }
 
+    /* ── Patient Mode ──────────────────────────────────────────────── */
+    body.patient-mode .clinician-only { display: none; }
+    body.patient-mode .patient-only { display: block; }
+    .patient-only { display: none; }
+
+    body.patient-mode .traffic-light { font-size: 2.4rem; padding: 24px 32px; }
+    body.patient-mode .patient-explanation {
+      font-size: 1.1rem; line-height: 1.8; padding: 16px;
+      background: var(--bg-card); border-radius: var(--radius); margin-top: 16px;
+    }
+
     /* ── Print / PDF Export ────────────────────────────────────────── */
     .print-header { display: none; }
 
@@ -703,6 +714,7 @@
       <select id="configSelect" class="config-select" aria-label="Select configuration">
         <!-- populated by init() from CONFIG_LIBRARY -->
       </select>
+      <button id="patientModeBtn" class="theme-toggle dark-mode-btn" aria-pressed="false" type="button">Patient Mode</button>
       <button id="darkModeBtn" class="dark-mode-btn" aria-label="Toggle dark mode" type="button">
         ☀ Light
       </button>
@@ -1332,6 +1344,25 @@ const CONFIG = CONFIG_LIBRARY[window._configKey] ?? CONFIG_LIBRARY.cardiorenal;
     const next    = current === 'dark' ? 'light' : 'dark';
     localStorage.setItem(LS_KEY, next);
     applyTheme(next);
+  });
+})();
+
+(function initPatientMode() {
+  const btn = document.getElementById('patientModeBtn');
+  if (!btn) return;
+
+  const saved = localStorage.getItem('cardiooracle_patient_mode');
+  if (saved === 'true') {
+    document.body.classList.add('patient-mode');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.textContent = 'Clinician Mode';
+  }
+
+  btn.addEventListener('click', () => {
+    const isPatient = document.body.classList.toggle('patient-mode');
+    btn.setAttribute('aria-pressed', String(isPatient));
+    btn.textContent = isPatient ? 'Clinician Mode' : 'Patient Mode';
+    try { localStorage.setItem('cardiooracle_patient_mode', String(isPatient)); } catch(e) {}
   });
 })();
 
@@ -2168,8 +2199,21 @@ function renderPrediction(nctId, features, bayesian, power, regression, ensemble
       </div>
     </div>
 
+    <!-- Patient-friendly explanation (shown only in patient mode) -->
+    <div class="patient-only patient-explanation">
+      ${ensemble.p > 0.6
+        ? `<p><strong>What this means:</strong> Based on similar past trials, this type of study has a <strong>good chance</strong> of showing the treatment works. About ${pPct} out of 100 similar studies in the past have succeeded.</p>
+           <p>This does NOT mean the treatment will definitely work for you. It means the study design looks promising based on history.</p>`
+        : ensemble.p > 0.3
+        ? `<p><strong>What this means:</strong> Based on similar past trials, this type of study has a <strong>moderate chance</strong> of showing the treatment works. About ${pPct} out of 100 similar studies have succeeded.</p>
+           <p>The result could go either way. The study might succeed or might not show a clear benefit.</p>`
+        : `<p><strong>What this means:</strong> Based on similar past trials, this type of study faces <strong>significant challenges</strong>. Only about ${pPct} out of 100 similar studies have succeeded.</p>
+           <p>This doesn&#39;t mean the treatment is bad — it means the study may need a different design (larger size, different endpoint, longer duration) to demonstrate a benefit.</p>`
+      }
+    </div>
+
     <!-- Panel 1: Historical Twins -->
-    <div style="margin-top:0.75rem;">
+    <div class="clinician-only" style="margin-top:0.75rem;">
       <div class="collapsible-header" role="button" tabindex="0"
            aria-expanded="false"
            onclick="toggleCollapsible(this)"
@@ -2186,7 +2230,7 @@ function renderPrediction(nctId, features, bayesian, power, regression, ensemble
     </div>
 
     <!-- Panel 2: Power Assessment -->
-    <div style="margin-top:0.5rem;">
+    <div class="clinician-only" style="margin-top:0.5rem;">
       <div class="collapsible-header" role="button" tabindex="0"
            aria-expanded="false"
            onclick="toggleCollapsible(this)"
@@ -2200,7 +2244,7 @@ function renderPrediction(nctId, features, bayesian, power, regression, ensemble
     </div>
 
     <!-- Panel 3: Design Risk Factors -->
-    <div style="margin-top:0.5rem;">
+    <div class="clinician-only" style="margin-top:0.5rem;">
       <div class="collapsible-header" role="button" tabindex="0"
            aria-expanded="false"
            onclick="toggleCollapsible(this)"
@@ -2454,15 +2498,17 @@ async function fetchAndPredict(nctId, _retried) {
 (function init() {
   /* ── localStorage schema migration ── */
   const CURRENT_SCHEMA = 1;
-  const SCHEMA_KEY     = 'cardiooracle_schema';
-  const THEME_KEY      = 'cardiooracle_theme';
+  const SCHEMA_KEY       = 'cardiooracle_schema';
+  const THEME_KEY        = 'cardiooracle_theme';
+  const PATIENT_MODE_KEY = 'cardiooracle_patient_mode';
 
   const storedSchema = parseInt(localStorage.getItem(SCHEMA_KEY) ?? '0', 10);
 
   if (storedSchema < CURRENT_SCHEMA) {
-    // Preserve only the theme key; clear all stale cardiooracle_ keys
+    // Preserve theme and patient-mode keys; clear all other stale cardiooracle_ keys
     const preserved = {
-      [THEME_KEY]: localStorage.getItem(THEME_KEY)
+      [THEME_KEY]:        localStorage.getItem(THEME_KEY),
+      [PATIENT_MODE_KEY]: localStorage.getItem(PATIENT_MODE_KEY)
     };
 
     // Remove all keys with cardiooracle_ prefix
