@@ -488,6 +488,24 @@
       .tab-btn { padding: 0.65rem 0.875rem; font-size: 0.82rem; }
       .card { padding: 1rem; }
     }
+
+    /* ── Design Tab Layout ──────────────────────────────────────────── */
+    .design-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+    .design-params { }
+    .design-results { }
+    .param-group { margin-bottom: 16px; }
+    .param-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .param-group select, .param-group input[type="range"] { width: 100%; }
+    .param-group select { padding: 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-input); color: var(--text); }
+    .param-group .range-row { display: flex; align-items: center; gap: 8px; }
+    .param-group .range-val { min-width: 60px; text-align: right; font-weight: 600; font-size: 0.9rem; }
+    .param-group input[type="range"] { flex: 1; accent-color: var(--tab-active); }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; font-weight: normal; cursor: pointer; }
+    .snapshot-bar { display: flex; gap: 8px; margin-top: 16px; }
+    .snapshot-bar button { padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-input); color: var(--text); cursor: pointer; font-size: 0.85rem; }
+    .snapshot-bar button:hover { background: var(--tab-hover); }
+    @media (max-width: 768px) { .design-layout { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -633,14 +651,167 @@
     aria-labelledby="tab-design"
   >
     <div class="card">
-      <div class="placeholder-block">
-        <div class="placeholder-icon">🔬</div>
-        <div class="placeholder-title">Trial Design Optimizer</div>
-        <p class="placeholder-desc">
-          Power calculations, sample size estimation, and endpoint selection guidance.
-          Coming in <strong>Phase 2</strong>.
-        </p>
-      </div>
+      <div class="card-title">Trial Design Optimizer</div>
+      <div class="design-layout">
+
+        <!-- Left column: parameters -->
+        <div class="design-params">
+
+          <div class="param-group">
+            <label for="designDrugClass">Drug Class</label>
+            <select id="designDrugClass">
+              <option value="sglt2i">SGLT2i</option>
+              <option value="mra_steroidal">MRA (steroidal)</option>
+              <option value="mra_nonsteroidal">MRA (non-steroidal)</option>
+              <option value="arni">ARNi</option>
+              <option value="arb">ARB</option>
+              <option value="acei">ACEi</option>
+              <option value="beta_blocker">Beta-blocker</option>
+              <option value="glp1ra">GLP-1 RA</option>
+              <option value="pcsk9i">PCSK9i</option>
+              <option value="statin">Statin</option>
+              <option value="anticoagulant">Anticoagulant</option>
+              <option value="antiplatelet">Antiplatelet</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="param-group">
+            <label for="designEndpoint">Primary Endpoint</label>
+            <select id="designEndpoint">
+              <option value="mace">MACE</option>
+              <option value="hf_hosp">HF Hospitalization</option>
+              <option value="cv_death">CV Death</option>
+              <option value="allcause_mortality">All-cause Mortality</option>
+              <option value="renal_composite">Renal Composite</option>
+              <option value="surrogate">Surrogate/Biomarker</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="param-group">
+            <label for="designComparator">Comparator</label>
+            <select id="designComparator">
+              <option value="placebo">Placebo</option>
+              <option value="active">Active Control</option>
+            </select>
+          </div>
+
+          <div class="param-group">
+            <label for="designEnrollment">Sample Size</label>
+            <div class="range-row">
+              <input
+                type="range"
+                id="designEnrollment"
+                min="100"
+                max="20000"
+                value="2000"
+                role="slider"
+                aria-valuemin="100"
+                aria-valuemax="20000"
+                aria-valuenow="2000"
+                aria-label="Sample size"
+                oninput="updateSliderDisplays()"
+              >
+              <span class="range-val" id="designEnrollmentVal">2000</span>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <label for="designDuration">Duration (months)</label>
+            <div class="range-row">
+              <input
+                type="range"
+                id="designDuration"
+                min="6"
+                max="84"
+                value="24"
+                role="slider"
+                aria-valuemin="6"
+                aria-valuemax="84"
+                aria-valuenow="24"
+                aria-label="Trial duration in months"
+                oninput="updateSliderDisplays()"
+              >
+              <span class="range-val" id="designDurationVal">24</span>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <label for="designBlinding">Blinding</label>
+            <select id="designBlinding">
+              <option value="double">Double-blind</option>
+              <option value="single">Single-blind</option>
+              <option value="open">Open-label</option>
+            </select>
+          </div>
+
+          <div class="param-group">
+            <label for="designSponsor">Sponsor</label>
+            <select id="designSponsor">
+              <option value="industry">Industry</option>
+              <option value="academic">Academic</option>
+              <option value="government">Government</option>
+            </select>
+          </div>
+
+          <div class="param-group">
+            <label for="designSites">Number of Sites</label>
+            <div class="range-row">
+              <input
+                type="range"
+                id="designSites"
+                min="1"
+                max="500"
+                value="100"
+                role="slider"
+                aria-valuemin="1"
+                aria-valuemax="500"
+                aria-valuenow="100"
+                aria-label="Number of trial sites"
+                oninput="updateSliderDisplays()"
+              >
+              <span class="range-val" id="designSitesVal">100</span>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <label>
+              <input type="checkbox" id="designMultiRegional" checked>
+              Multi-regional trial
+            </label>
+          </div>
+
+          <div class="param-group">
+            <label>Population Tags</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" id="designTagHFrEF"> HFrEF</label>
+              <label><input type="checkbox" id="designTagHFpEF"> HFpEF</label>
+              <label><input type="checkbox" id="designTagDiabetic"> Diabetic</label>
+              <label><input type="checkbox" id="designTagCKD"> CKD</label>
+              <label><input type="checkbox" id="designTagElderly"> Elderly</label>
+            </div>
+          </div>
+
+          <div class="snapshot-bar">
+            <button id="designSnapshotBtn" type="button">Snapshot</button>
+            <button id="designResetBtn" type="button">Reset</button>
+          </div>
+
+        </div><!-- /.design-params -->
+
+        <!-- Right column: live prediction (Phase 2.2) -->
+        <div class="design-results">
+          <div id="designPredictionGauge"></div>
+          <div id="designCIDisplay" style="margin: 12px 0; font-size: 0.9rem; color: var(--text-muted);">
+            Configure parameters and run prediction (Phase 2.2).
+          </div>
+          <div id="designPowerCurve" style="height:280px;"></div>
+          <div id="designRiskFactors" style="height:280px;"></div>
+          <div id="designWhatIf"></div>
+        </div><!-- /.design-results -->
+
+      </div><!-- /.design-layout -->
     </div>
   </section>
 
@@ -1874,7 +2045,116 @@ async function fetchAndPredict(nctId, _retried) {
       CONFIG.id = configSelect.value;
     });
   }
+
+  /* ── Design tab: reset button ── */
+  const designResetBtn = document.getElementById('designResetBtn');
+  if (designResetBtn) {
+    designResetBtn.addEventListener('click', () => {
+      const enroll   = document.getElementById('designEnrollment');
+      const duration = document.getElementById('designDuration');
+      const sites    = document.getElementById('designSites');
+      if (enroll)   { enroll.value   = '2000'; enroll.setAttribute('aria-valuenow',   '2000'); }
+      if (duration) { duration.value = '24';   duration.setAttribute('aria-valuenow', '24'); }
+      if (sites)    { sites.value    = '100';  sites.setAttribute('aria-valuenow',    '100'); }
+
+      const drugClass  = document.getElementById('designDrugClass');
+      const endpoint   = document.getElementById('designEndpoint');
+      const comparator = document.getElementById('designComparator');
+      const blinding   = document.getElementById('designBlinding');
+      const sponsor    = document.getElementById('designSponsor');
+      if (drugClass)  drugClass.value  = 'sglt2i';
+      if (endpoint)   endpoint.value   = 'mace';
+      if (comparator) comparator.value = 'placebo';
+      if (blinding)   blinding.value   = 'double';
+      if (sponsor)    sponsor.value    = 'industry';
+
+      const multiReg = document.getElementById('designMultiRegional');
+      if (multiReg) multiReg.checked = true;
+
+      ['designTagHFrEF','designTagHFpEF','designTagDiabetic','designTagCKD','designTagElderly']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+
+      updateSliderDisplays();
+    });
+  }
 })();
+
+/* ── 5I: Design Tab Helpers ─────────────────────────────────────── */
+
+/**
+ * Update the visible span values for all range sliders in the Design tab.
+ */
+function updateSliderDisplays() {
+  const enrollment = document.getElementById('designEnrollment');
+  const duration   = document.getElementById('designDuration');
+  const sites      = document.getElementById('designSites');
+
+  const enrollVal  = document.getElementById('designEnrollmentVal');
+  const durationVal = document.getElementById('designDurationVal');
+  const sitesVal   = document.getElementById('designSitesVal');
+
+  if (enrollment && enrollVal) {
+    enrollVal.textContent = enrollment.value;
+    enrollment.setAttribute('aria-valuenow', enrollment.value);
+  }
+  if (duration && durationVal) {
+    durationVal.textContent = duration.value;
+    duration.setAttribute('aria-valuenow', duration.value);
+  }
+  if (sites && sitesVal) {
+    sitesVal.textContent = sites.value;
+    sites.setAttribute('aria-valuenow', sites.value);
+  }
+}
+
+/**
+ * Read all Design tab form values and return a features object
+ * compatible with the prediction engine's expected format.
+ * @returns {Object}
+ */
+function getDesignFeatures() {
+  const enrollment       = parseInt(document.getElementById('designEnrollment')?.value ?? '2000', 10);
+  const duration_months  = parseInt(document.getElementById('designDuration')?.value ?? '24', 10);
+  const num_sites        = parseInt(document.getElementById('designSites')?.value ?? '100', 10);
+
+  const drug_class       = document.getElementById('designDrugClass')?.value ?? 'sglt2i';
+  const endpoint_type    = document.getElementById('designEndpoint')?.value ?? 'mace';
+  const comparator_type  = document.getElementById('designComparator')?.value ?? 'placebo';
+  const blinding_val     = document.getElementById('designBlinding')?.value ?? 'double';
+  const sponsor_val      = document.getElementById('designSponsor')?.value ?? 'industry';
+
+  const multi_regional   = document.getElementById('designMultiRegional')?.checked ?? true;
+
+  const placebo_controlled = comparator_type === 'placebo';
+  const double_blind       = blinding_val === 'double';
+  const is_industry        = sponsor_val === 'industry';
+
+  const population_tags = [];
+  if (document.getElementById('designTagHFrEF')?.checked)    population_tags.push('HFrEF');
+  if (document.getElementById('designTagHFpEF')?.checked)    population_tags.push('HFpEF');
+  if (document.getElementById('designTagDiabetic')?.checked) population_tags.push('Diabetic');
+  if (document.getElementById('designTagCKD')?.checked)      population_tags.push('CKD');
+  if (document.getElementById('designTagElderly')?.checked)  population_tags.push('Elderly');
+
+  return {
+    title:               'Hypothetical Trial Design',
+    enrollment,
+    duration_months,
+    placebo_controlled,
+    double_blind,
+    is_industry,
+    num_sites,
+    multi_regional,
+    drug_class,
+    endpoint_type,
+    comparator_type,
+    num_arms:            2,
+    has_dsmb:            true,
+    start_year:          new Date().getFullYear(),
+    population_tags,
+    endpoint_text:       '(designed)'
+  };
+}
 </script>
 
 </body>
