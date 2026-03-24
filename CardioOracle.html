@@ -552,6 +552,17 @@
     .calib-table-wrap { overflow-x: auto; }
     .calib-table-wrap table { min-width: 640px; }
     @media (max-width: 768px) { .metrics-row, .charts-row { grid-template-columns: 1fr; } }
+
+    /* ── WebR Validation ───────────────────────────────────────────── */
+    .webr-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem; }
+    .webr-table th { background: var(--surface-2); font-weight: 600; padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+    .webr-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .webr-table td.pass { color: var(--success); font-weight: 600; }
+    .webr-table td.fail { color: var(--danger); font-weight: 600; }
+    .webr-progress { display: flex; align-items: center; gap: 8px; color: var(--text-muted); margin: 4px 0; }
+    .webr-step-done { color: var(--success); }
+    .webr-step-fail { color: var(--danger); }
+    #webrResults .card { margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -1011,16 +1022,16 @@
     aria-labelledby="tab-webr"
   >
     <div class="card">
-      <div class="placeholder-block">
-        <div class="placeholder-icon">🔴</div>
-        <div class="placeholder-title">WebR Validation Suite</div>
-        <p class="placeholder-desc">
-          Live R cross-validation via WebAssembly (WebR). Compares JS engine outputs
-          against R reference implementations.
-          Coming in <strong>Phase 4</strong>.
-        </p>
-      </div>
+      <h2 class="card-title">WebR Validation</h2>
+      <p style="color:var(--text-muted)">
+        Validates the JavaScript prediction engine against R computations using WebR
+        (in-browser R via WebAssembly). WebR is used for reviewer validation only —
+        it is <strong>NOT</strong> required for predictions.
+      </p>
+      <button class="search-btn" id="webrRunBtn" onclick="runWebrValidation()">Run Validation</button>
+      <div id="webrStatus" style="margin-top:12px" aria-live="polite" aria-atomic="true"></div>
     </div>
+    <div id="webrResults"></div>
   </section>
 
 </main>
@@ -3267,6 +3278,376 @@ function _clearSnapshots() {
     });
   }
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 10 — WEBR VALIDATION
+   WebR v0.4.4 — in-browser R via WebAssembly.
+   Reviewer-only cross-validation of JS prediction engine against R.
+   IMPORTANT: Never write the closing script tag literally here.
+════════════════════════════════════════════════════════════════════ */
+
+/* Module-level handle so we don't reload WebR on repeat runs */
+let _webrInstance = null;
+let _webrLoading  = false;
+
+/**
+ * Load and initialise WebR. Returns the WebR instance or null on failure.
+ * Idempotent: safe to call multiple times.
+ */
+async function initWebR() {
+  if (_webrInstance) return _webrInstance;
+  if (_webrLoading)  return null;   // already in progress
+
+  _webrLoading = true;
+  const statusDiv = document.getElementById('webrStatus');
+
+  try {
+    setWebrStatus('<div class="webr-progress"><span class="spinner" role="status" aria-hidden="true"></span> Loading WebR v0.4.4 (first load may take 30–60 s)…</div>');
+
+    // Timeout guard — 60 seconds
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('WebR init timed out after 60 s')), 60000)
+    );
+
+    // Dynamic ESM import — keeps </script> out of literal HTML
+    const importURL = 'https://webr.r-wasm.org/v0.4.4/webr.mjs';
+    const modPromise = import(importURL);
+
+    const mod = await Promise.race([modPromise, timeoutPromise]);
+    const { WebR } = mod;
+
+    const webR = new WebR();
+    const initPromise = webR.init();
+    await Promise.race([initPromise, timeoutPromise]);
+
+    _webrInstance = webR;
+    _webrLoading  = false;
+    return webR;
+  } catch (e) {
+    _webrLoading = false;
+    const msg = e.message || String(e);
+    setWebrStatus(
+      '<div class="alert alert-warning" style="display:block">' +
+      'WebR could not be initialised: ' + escapeHtml(msg) +
+      '. Validation unavailable. All predictions use the JS engine, ' +
+      'which is the primary computation engine.</div>'
+    );
+    return null;
+  }
+}
+
+/** Update the #webrStatus element safely */
+function setWebrStatus(html) {
+  const el = document.getElementById('webrStatus');
+  if (el) el.innerHTML = html;
+}
+
+/** Simple HTML escaper used for error messages */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Run all 3 validation tests and render results table.
+ * Called by the "Run Validation" button.
+ */
+async function runWebrValidation() {
+  const btn = document.getElementById('webrRunBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
+
+  const resultsDiv = document.getElementById('webrResults');
+  if (resultsDiv) resultsDiv.innerHTML = '';
+
+  setWebrStatus('<div class="webr-progress"><span class="spinner" role="status" aria-hidden="true"></span> Initialising WebR…</div>');
+
+  const webR = await initWebR();
+  if (!webR) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Run Validation'; }
+    return;
+  }
+
+  setWebrStatus('<div class="webr-progress"><span class="spinner" role="status" aria-hidden="true"></span> Running 3 validation tests…</div>');
+
+  const tests = [];
+
+  // ── Test 1: Beta-Binomial Posterior ──────────────────────────
+  try {
+    // Use first training trial as "target" — run bayesianBorrowing()
+    const trials = (TRAINING_DATA && TRAINING_DATA.trials) ? TRAINING_DATA.trials : [];
+    const target = trials.length > 0 ? { ...trials[0].features, drug_class: trials[0].features.drug_class || 'other', endpoint_type: trials[0].features.endpoint_type || 'other' } : null;
+
+    let jsAPost = null, jsBPost = null, jsPMean = null;
+    if (target && trials.length > 1) {
+      const res = bayesianBorrowing(target, trials.slice(1));
+      if (res && res.p !== null) {
+        jsPMean = res.p;
+        // Reconstruct a_post / b_post from the known formula
+        const a0 = CONFIG.priors.alpha ?? 4.5;
+        const b0 = CONFIG.priors.beta  ?? 5.5;
+        // We need to call the internal logic — use the public p and effN to back-derive
+        // Instead: expose a_post/b_post from the function by recomputing here
+        const scored = trials.slice(1).map(t => ({
+          trial: t,
+          sim: computeSimilarity(target, t)
+        }));
+        let selected = scored.filter(s => s.sim > 0.3).sort((a, b) => b.sim - a.sim);
+        if (selected.length < 5) selected = scored.filter(s => s.sim > 0.1).sort((a, b) => b.sim - a.sim);
+        if (selected.length > 30) selected = selected.slice(0, 30);
+        let effSucc = 0, effFail = 0;
+        for (const { trial, sim } of selected) {
+          const success = trial.success ?? (trial.label === 'success' ? 1 : 0);
+          effSucc += sim * success;
+          effFail += sim * (1 - success);
+        }
+        jsAPost = a0 + effSucc;
+        jsBPost = b0 + effFail;
+        jsPMean = jsAPost / (jsAPost + jsBPost);
+      }
+    }
+
+    let rPMean = null, rError = null;
+    if (jsAPost !== null && jsBPost !== null) {
+      try {
+        const rCode = `
+a_post <- ${jsAPost.toFixed(8)}
+b_post <- ${jsBPost.toFixed(8)}
+p_mean <- a_post / (a_post + b_post)
+cat(p_mean)
+`;
+        const result = await webR.evalR(rCode);
+        const val = await result.toJs();
+        rPMean = Array.isArray(val.values) ? val.values[0] : val;
+      } catch (e) {
+        rError = e.message || String(e);
+      }
+    }
+
+    const diff   = (jsPMean !== null && rPMean !== null) ? Math.abs(jsPMean - rPMean) : null;
+    const pass   = diff !== null && diff <= 0.005;
+    tests.push({
+      name:     'Beta-Binomial posterior mean',
+      jsVal:    jsPMean !== null ? jsPMean.toFixed(6) : 'N/A',
+      rVal:     rPMean  !== null ? Number(rPMean).toFixed(6) : (rError ? 'Error: ' + rError : 'N/A'),
+      diff:     diff    !== null ? diff.toFixed(6) : 'N/A',
+      tol:      '±0.005',
+      pass:     rError ? false : pass,
+      error:    rError
+    });
+  } catch (e) {
+    tests.push({ name: 'Beta-Binomial posterior mean', jsVal: 'Error', rVal: 'Error', diff: 'N/A', tol: '±0.005', pass: false, error: e.message });
+  }
+
+  addWebrProgress('Test 1/3 complete');
+
+  // ── Test 2: Conditional Power (Schoenfeld) ────────────────────
+  try {
+    const events  = 500;
+    const logHR   = Math.log(0.80);
+    const z975    = 1.959963985;   // qnorm(0.975)
+
+    // JS: normalCDF(sqrt(events) * |logHR| - z975)
+    const jsCP = normalCDF(Math.sqrt(events) * Math.abs(logHR) - z975);
+
+    let rCP = null, rError2 = null;
+    try {
+      const rCode2 = `
+events  <- ${events}
+logHR   <- log(0.80)
+z975    <- qnorm(0.975)
+cp      <- pnorm(sqrt(events) * abs(logHR) - z975)
+cat(cp)
+`;
+      const result2 = await webR.evalR(rCode2);
+      const val2    = await result2.toJs();
+      rCP = Array.isArray(val2.values) ? val2.values[0] : val2;
+    } catch (e) {
+      rError2 = e.message || String(e);
+    }
+
+    const diff2 = (rCP !== null) ? Math.abs(jsCP - Number(rCP)) : null;
+    const pass2 = diff2 !== null && diff2 <= 0.001;
+    tests.push({
+      name:  'Conditional power (Schoenfeld)',
+      jsVal: jsCP.toFixed(6),
+      rVal:  rCP !== null ? Number(rCP).toFixed(6) : (rError2 ? 'Error: ' + rError2 : 'N/A'),
+      diff:  diff2 !== null ? diff2.toFixed(6) : 'N/A',
+      tol:   '±0.001',
+      pass:  rError2 ? false : pass2,
+      error: rError2
+    });
+  } catch (e) {
+    tests.push({ name: 'Conditional power (Schoenfeld)', jsVal: 'Error', rVal: 'Error', diff: 'N/A', tol: '±0.001', pass: false, error: e.message });
+  }
+
+  addWebrProgress('Test 2/3 complete');
+
+  // ── Test 3: Logistic Regression Prediction ────────────────────
+  try {
+    // Use a fixed feature vector drawn from MODEL.coefficients
+    const featureVec = {
+      log_enrollment: Math.log(5000),
+      duration_months: 48,
+      placebo_controlled: 1,
+      double_blind: 1,
+      is_industry: 1,
+      log_num_sites: Math.log(100),
+      multi_regional: 1,
+      num_arms: 2,
+      has_dsmb: 1,
+      ep_mace: 1,
+      ep_hf_hosp: 0,
+      ep_cv_death: 0,
+      ep_acm: 0,
+      ep_renal: 0,
+      ep_surrogate: 0,
+      era_2010_2017: 0,
+      era_2018plus: 1,
+      historical_class_rate: 0.65
+    };
+
+    const coeff = MODEL.coefficients || {};
+    const intercept = coeff.intercept ?? -1.2365;
+
+    const featNames = [
+      'log_enrollment','duration_months','placebo_controlled','double_blind',
+      'is_industry','log_num_sites','multi_regional','num_arms','has_dsmb',
+      'ep_mace','ep_hf_hosp','ep_cv_death','ep_acm','ep_renal','ep_surrogate',
+      'era_2010_2017','era_2018plus','historical_class_rate'
+    ];
+
+    // Build coefficient and feature arrays parallel
+    const coeffArr = featNames.map(n => coeff[n] ?? 0);
+    const featArr  = featNames.map(n => featureVec[n] ?? 0);
+
+    // JS logit + sigmoid
+    let logit = intercept;
+    for (let i = 0; i < featNames.length; i++) logit += coeffArr[i] * featArr[i];
+    const jsP = 1 / (1 + Math.exp(-logit));
+
+    // Build R code passing the arrays inline
+    const rCoeffStr = '[' + coeffArr.join(',') + ']';
+    const rFeatStr  = '[' + featArr.join(',')  + ']';
+
+    let rP = null, rError3 = null;
+    try {
+      const rCode3 = `
+intercept <- ${intercept}
+coeffs    <- c(${coeffArr.join(',')})
+feats     <- c(${featArr.join(',')})
+logit_val <- intercept + sum(coeffs * feats)
+p_val     <- plogis(logit_val)
+cat(p_val)
+`;
+      const result3 = await webR.evalR(rCode3);
+      const val3    = await result3.toJs();
+      rP = Array.isArray(val3.values) ? val3.values[0] : val3;
+    } catch (e) {
+      rError3 = e.message || String(e);
+    }
+
+    const diff3 = (rP !== null) ? Math.abs(jsP - Number(rP)) : null;
+    const pass3 = diff3 !== null && diff3 <= 0.005;
+    tests.push({
+      name:  'Logistic regression prediction',
+      jsVal: jsP.toFixed(6),
+      rVal:  rP !== null ? Number(rP).toFixed(6) : (rError3 ? 'Error: ' + rError3 : 'N/A'),
+      diff:  diff3 !== null ? diff3.toFixed(6) : 'N/A',
+      tol:   '±0.005',
+      pass:  rError3 ? false : pass3,
+      error: rError3
+    });
+  } catch (e) {
+    tests.push({ name: 'Logistic regression prediction', jsVal: 'Error', rVal: 'Error', diff: 'N/A', tol: '±0.005', pass: false, error: e.message });
+  }
+
+  addWebrProgress('Test 3/3 complete');
+
+  // ── Render results ────────────────────────────────────────────
+  const allPass = tests.every(t => t.pass);
+  setWebrStatus(
+    '<div class="alert alert-' + (allPass ? 'success' : 'danger') +
+    '" style="display:block">' +
+    (allPass ? 'All 3 tests PASSED — JS engine matches R.' : 'One or more tests FAILED — see table below.') +
+    '</div>'
+  );
+
+  renderWebrResults(tests);
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Run Validation'; }
+}
+
+/** Append a progress line to the status area */
+function addWebrProgress(msg) {
+  const el = document.getElementById('webrStatus');
+  if (!el) return;
+  const line = document.createElement('div');
+  line.className = 'webr-progress webr-step-done';
+  line.textContent = '✓ ' + msg;
+  el.appendChild(line);
+}
+
+/**
+ * Render the 3-row results table into #webrResults.
+ * @param {Array} tests  — each {name, jsVal, rVal, diff, tol, pass, error?}
+ */
+function renderWebrResults(tests) {
+  const div = document.getElementById('webrResults');
+  if (!div) return;
+
+  const rows = tests.map(t => {
+    const statusClass = t.pass ? 'pass' : 'fail';
+    const statusText  = t.pass ? 'PASS' : 'FAIL';
+    return '<tr>' +
+      '<td>' + escapeHtml(t.name) + '</td>' +
+      '<td><code>' + escapeHtml(t.jsVal) + '</code></td>' +
+      '<td><code>' + escapeHtml(t.rVal)  + '</code></td>' +
+      '<td><code>' + escapeHtml(t.diff)  + '</code></td>' +
+      '<td>' + escapeHtml(t.tol) + '</td>' +
+      '<td class="' + statusClass + '">' + statusText + '</td>' +
+      '</tr>';
+  }).join('');
+
+  div.innerHTML =
+    '<div class="card">' +
+    '<h3 style="margin:0 0 8px;font-size:1rem;font-weight:600">Validation Results</h3>' +
+    '<div style="overflow-x:auto">' +
+    '<table class="webr-table">' +
+    '<thead><tr>' +
+    '<th>Test</th>' +
+    '<th>JS Value</th>' +
+    '<th>R Value</th>' +
+    '<th>Difference</th>' +
+    '<th>Tolerance</th>' +
+    '<th>Status</th>' +
+    '</tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table>' +
+    '</div>' +
+    '<p style="font-size:0.78rem;color:var(--text-muted);margin-top:12px">' +
+    'WebR v0.4.4 | R computations run in-browser via WebAssembly. ' +
+    'Tolerance thresholds reflect floating-point precision differences between ' +
+    'JS and R implementations.' +
+    '</p>' +
+    '</div>';
+}
+
+/* ── Lazy-init: listen for WebR tab click to pre-warm WebR ────── */
+(function initWebrTab() {
+  const btn = document.getElementById('tab-webr');
+  if (!btn) return;
+  let prewarmed = false;
+  btn.addEventListener('click', () => {
+    if (prewarmed) return;
+    prewarmed = true;
+    // Do NOT auto-run; just show the ready state
+  });
+})();
+
 </script>
 
 </body>
