@@ -945,15 +945,60 @@
     role="tabpanel"
     aria-labelledby="tab-calibration"
   >
+    <!-- Acceptance banner (shown if any metric fails) -->
+    <div id="calibAcceptanceBanner" class="alert alert-warning" role="alert" aria-atomic="true"></div>
+
+    <!-- Metrics row -->
+    <div class="metrics-row" id="calibMetricsRow">
+      <div class="card metric-card" id="calibAucCard">
+        <div class="text-muted" style="font-size:0.82rem;text-transform:uppercase;letter-spacing:.04em;">AUC</div>
+        <div class="metric-value" id="calibAucValue">—</div>
+        <div class="metric-threshold">Threshold: &ge;0.65</div>
+        <span class="metric-badge" id="calibAucBadge"></span>
+        <div class="split-info" id="calibSplitInfo"></div>
+      </div>
+      <div class="card metric-card" id="calibBrierCard">
+        <div class="text-muted" style="font-size:0.82rem;text-transform:uppercase;letter-spacing:.04em;">Brier Score</div>
+        <div class="metric-value" id="calibBrierValue">—</div>
+        <div class="metric-threshold">Threshold: &lt;0.25 (lower is better)</div>
+        <span class="metric-badge" id="calibBrierBadge"></span>
+      </div>
+      <div class="card metric-card" id="calibSlopeCard">
+        <div class="text-muted" style="font-size:0.82rem;text-transform:uppercase;letter-spacing:.04em;">Calibration Slope</div>
+        <div class="metric-value" id="calibSlopeValue">—</div>
+        <div class="metric-threshold">Threshold: 0.8–1.2 (1.0 = perfect)</div>
+        <span class="metric-badge" id="calibSlopeBadge"></span>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">Calibration Plot</div>
+        <div class="chart-container" id="calibPlotDiv"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="rocTitle">ROC Curve</div>
+        <div class="chart-container" id="rocPlotDiv"></div>
+      </div>
+    </div>
+
+    <!-- Per-trial predictions table -->
     <div class="card">
-      <div class="placeholder-block">
-        <div class="placeholder-icon">📊</div>
-        <div class="placeholder-title">Model Calibration</div>
-        <p class="placeholder-desc">
-          Calibration curves, Brier score, and reliability diagrams will appear here
-          once the model corpus is populated.
-          Coming in <strong>Phase 3</strong>.
-        </p>
+      <div class="card-title">Per-Trial Predictions (Test Set)</div>
+      <div class="calib-table-wrap">
+        <table id="calibTrialTable">
+          <thead>
+            <tr>
+              <th scope="col">NCT ID</th>
+              <th scope="col">Predicted P(success)</th>
+              <th scope="col">Actual Outcome</th>
+              <th scope="col">Correct?</th>
+            </tr>
+          </thead>
+          <tbody id="calibTrialTbody">
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -2937,6 +2982,288 @@ function _clearSnapshots() {
       populateDropdowns();
       wireControls();
       applyFiltersAndSort();
+    });
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 9 — CALIBRATION TAB
+════════════════════════════════════════════════════════════════════ */
+
+(function initCalibrationTab() {
+  let _calibRendered = false;
+
+  /* ── 9A: Compute calibration bins ───────────────────────────── */
+  function computeCalibrationData(predictions) {
+    // Use only test-split predictions
+    const testPreds = predictions.filter(p => p.split === 'test');
+    const bins = [
+      { lo: 0.0, hi: 0.2, preds: [], obs: [] },
+      { lo: 0.2, hi: 0.4, preds: [], obs: [] },
+      { lo: 0.4, hi: 0.6, preds: [], obs: [] },
+      { lo: 0.6, hi: 0.8, preds: [], obs: [] },
+      { lo: 0.8, hi: 1.0, preds: [], obs: [] }
+    ];
+
+    testPreds.forEach(p => {
+      const prob = p.y_prob;
+      for (let i = 0; i < bins.length; i++) {
+        const b = bins[i];
+        const inBin = prob >= b.lo && (prob < b.hi || (i === bins.length - 1 && prob <= b.hi));
+        if (inBin) {
+          b.preds.push(prob);
+          b.obs.push(p.y_true);
+          break;
+        }
+      }
+    });
+
+    return bins
+      .filter(b => b.preds.length > 0)
+      .map(b => ({
+        meanPred: b.preds.reduce((a, v) => a + v, 0) / b.preds.length,
+        obsRate:  b.obs.reduce((a, v) => a + v, 0) / b.obs.length,
+        n:        b.preds.length
+      }));
+  }
+
+  /* ── 9B: Compute ROC curve ──────────────────────────────────── */
+  function computeROC(predictions) {
+    const testPreds = predictions.filter(p => p.split === 'test');
+    const totalPos  = testPreds.filter(p => p.y_true === 1).length;
+    const totalNeg  = testPreds.length - totalPos;
+
+    if (totalPos === 0 || totalNeg === 0) {
+      return { tpr: [0, 1], fpr: [0, 1] };
+    }
+
+    // Unique thresholds descending + sentinels
+    let thresholds = [...new Set(testPreds.map(p => p.y_prob))].sort((a, b) => b - a);
+    thresholds = [1.01, ...thresholds, -0.01];
+
+    const tprArr = [];
+    const fprArr = [];
+    thresholds.forEach(thresh => {
+      let tp = 0, fp = 0;
+      testPreds.forEach(p => {
+        if (p.y_prob >= thresh) {
+          if (p.y_true === 1) tp++; else fp++;
+        }
+      });
+      tprArr.push(tp / totalPos);
+      fprArr.push(fp / totalNeg);
+    });
+
+    return { tpr: tprArr, fpr: fprArr };
+  }
+
+  /* ── 9C: Render calibration plot ────────────────────────────── */
+  function renderCalibrationPlot(bins, isDark) {
+    const paperColor = isDark ? '#2b2f35' : '#ffffff';
+    const gridColor  = isDark ? '#495057' : '#dee2e6';
+    const textColor  = isDark ? '#e9ecef' : '#212529';
+
+    const tracePoints = {
+      x: bins.map(b => b.meanPred),
+      y: bins.map(b => b.obsRate),
+      mode: 'markers',
+      type: 'scatter',
+      name: 'Calibration bins',
+      marker: {
+        size:    bins.map(b => Math.max(12, Math.min(40, b.n * 4))),
+        color:   '#0d6efd',
+        opacity: 0.85,
+        line:    { width: 1, color: '#0a58ca' }
+      },
+      text: bins.map(b =>
+        'Mean predicted: ' + (b.meanPred * 100).toFixed(1) + '%<br>' +
+        'Observed: ' + (b.obsRate * 100).toFixed(1) + '%<br>' +
+        'n = ' + b.n
+      ),
+      hovertemplate: '%{text}<extra></extra>'
+    };
+
+    const tracePerfect = {
+      x: [0, 1], y: [0, 1],
+      mode: 'lines', type: 'scatter',
+      name: 'Perfect calibration',
+      line: { color: '#dc3545', dash: 'dash', width: 1.5 }
+    };
+
+    Plotly.newPlot('calibPlotDiv', [tracePoints, tracePerfect], {
+      paper_bgcolor: paperColor, plot_bgcolor: paperColor,
+      margin: { t: 20, r: 20, b: 55, l: 65 },
+      xaxis: {
+        title: { text: 'Mean Predicted Probability', font: { color: textColor, size: 12 } },
+        range: [0, 1], gridcolor: gridColor, color: textColor, tickformat: '.0%'
+      },
+      yaxis: {
+        title: { text: 'Observed Proportion', font: { color: textColor, size: 12 } },
+        range: [0, 1], gridcolor: gridColor, color: textColor, tickformat: '.0%'
+      },
+      legend: { font: { color: textColor, size: 11 }, bgcolor: 'rgba(0,0,0,0)' },
+      font: { color: textColor }
+    }, { responsive: true, displaylogo: false,
+         modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'] });
+  }
+
+  /* ── 9D: Render ROC curve ───────────────────────────────────── */
+  function renderROCPlot(roc, auc, isDark) {
+    const paperColor = isDark ? '#2b2f35' : '#ffffff';
+    const gridColor  = isDark ? '#495057' : '#dee2e6';
+    const textColor  = isDark ? '#e9ecef' : '#212529';
+
+    const traceROC = {
+      x: roc.fpr, y: roc.tpr,
+      mode: 'lines', type: 'scatter',
+      name: 'ROC (AUC = ' + auc.toFixed(3) + ')',
+      line: { color: '#0d6efd', width: 2 },
+      fill: 'tozeroy',
+      fillcolor: isDark ? 'rgba(13,110,253,0.15)' : 'rgba(13,110,253,0.08)'
+    };
+
+    const traceDiag = {
+      x: [0, 1], y: [0, 1],
+      mode: 'lines', type: 'scatter',
+      name: 'Random classifier',
+      line: { color: '#6c757d', dash: 'dot', width: 1.5 }
+    };
+
+    const rocTitle = document.getElementById('rocTitle');
+    if (rocTitle) rocTitle.textContent = 'ROC Curve (AUC = ' + auc.toFixed(3) + ')';
+
+    Plotly.newPlot('rocPlotDiv', [traceROC, traceDiag], {
+      paper_bgcolor: paperColor, plot_bgcolor: paperColor,
+      margin: { t: 20, r: 20, b: 55, l: 65 },
+      xaxis: {
+        title: { text: 'False Positive Rate (1 \u2212 Specificity)', font: { color: textColor, size: 12 } },
+        range: [0, 1], gridcolor: gridColor, color: textColor, tickformat: '.0%'
+      },
+      yaxis: {
+        title: { text: 'True Positive Rate (Sensitivity)', font: { color: textColor, size: 12 } },
+        range: [0, 1], gridcolor: gridColor, color: textColor, tickformat: '.0%'
+      },
+      legend: { font: { color: textColor, size: 11 }, bgcolor: 'rgba(0,0,0,0)' },
+      font: { color: textColor }
+    }, { responsive: true, displaylogo: false,
+         modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'] });
+  }
+
+  /* ── 9E: Render metrics cards + acceptance banner ───────────── */
+  function renderMetricCards(tv) {
+    const tm    = tv.test_metrics;
+    const auc   = tm.auc;
+    const brier = tm.brier;
+    const slope = tm.calibration_slope;
+
+    const aucPass   = auc   >= 0.65;
+    const brierPass = brier <  0.25;
+    const slopePass = slope >= 0.8 && slope <= 1.2;
+
+    const applyMetric = (valueId, badgeId, value, pass, fmt) => {
+      const valEl = document.getElementById(valueId);
+      if (valEl) {
+        valEl.textContent = fmt(value);
+        valEl.className = 'metric-value ' + (pass ? 'metric-pass' : 'metric-fail');
+      }
+      const badgeEl = document.getElementById(badgeId);
+      if (badgeEl) {
+        badgeEl.textContent = pass ? 'PASS' : 'FAIL';
+        badgeEl.className = 'metric-badge ' + (pass ? 'metric-badge-pass' : 'metric-badge-fail');
+      }
+    };
+
+    applyMetric('calibAucValue',   'calibAucBadge',   auc,   aucPass,   v => v.toFixed(3));
+    applyMetric('calibBrierValue', 'calibBrierBadge', brier, brierPass, v => v.toFixed(3));
+    applyMetric('calibSlopeValue', 'calibSlopeBadge', slope, slopePass, v => v.toFixed(3));
+
+    const splitEl = document.getElementById('calibSplitInfo');
+    if (splitEl) {
+      splitEl.textContent =
+        'Train: ' + tv.n_train + ' trials (pre-2020) | Test: ' + tv.n_test + ' trials (2020+)';
+    }
+
+    const failures = [];
+    if (!aucPass)   failures.push('AUC = ' + auc.toFixed(3)   + ' (threshold: \u22650.65)');
+    if (!brierPass) failures.push('Brier = ' + brier.toFixed(3) + ' (threshold: <0.25)');
+    if (!slopePass) failures.push('Calibration Slope = ' + slope.toFixed(3) + ' (threshold: 0.8\u20131.2)');
+
+    const banner = document.getElementById('calibAcceptanceBanner');
+    if (banner) {
+      if (failures.length > 0) {
+        banner.innerHTML =
+          '<strong>Warning:</strong> ' + failures.length + ' metric(s) failed acceptance threshold: ' +
+          failures.map(f => escapeHtml(f)).join('; ') + '.';
+        banner.classList.add('visible');
+      } else {
+        banner.classList.remove('visible');
+      }
+    }
+  }
+
+  /* ── 9F: Render per-trial predictions table ─────────────────── */
+  function renderTrialTable(predictions) {
+    const testPreds = predictions
+      .filter(p => p.split === 'test')
+      .slice()
+      .sort((a, b) => b.y_prob - a.y_prob);
+
+    const tbody = document.getElementById('calibTrialTbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = testPreds.map(p => {
+      const pred   = p.y_prob;
+      const actual = p.y_true;
+      const correct = (pred > 0.5 && actual === 1) || (pred <= 0.5 && actual === 0);
+      const nctLink = '<a href="https://clinicaltrials.gov/study/' + escapeHtml(p.nct_id) +
+        '" target="_blank" rel="noopener noreferrer">' + escapeHtml(p.nct_id) + '</a>';
+      const barW = Math.round(pred * 60);
+      const barColor = pred > 0.5 ? 'var(--success)' : 'var(--danger)';
+      const predCell =
+        '<span style="display:inline-block;width:' + barW + 'px;height:8px;background:' + barColor +
+        ';border-radius:4px;vertical-align:middle;margin-right:6px;opacity:0.8;"></span>' +
+        (pred * 100).toFixed(1) + '%';
+      const actualLabel = actual === 1
+        ? '<span class="label-badge label-success">Success</span>'
+        : '<span class="label-badge label-failure">Failure</span>';
+      const correctLabel = correct
+        ? '<span class="pred-correct">Yes</span>'
+        : '<span class="pred-incorrect">No</span>';
+
+      return '<tr>' +
+        '<td>' + nctLink + '</td>' +
+        '<td>' + predCell + '</td>' +
+        '<td>' + actualLabel + '</td>' +
+        '<td>' + correctLabel + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  /* ── 9G: Main render orchestrator ───────────────────────────── */
+  function renderCalibration() {
+    if (!window.MODEL || !MODEL.temporal_validation) return;
+    const tv          = MODEL.temporal_validation;
+    const predictions = tv.trial_predictions;
+    const isDark      = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    renderMetricCards(tv);
+
+    const bins = computeCalibrationData(predictions);
+    renderCalibrationPlot(bins, isDark);
+
+    const roc = computeROC(predictions);
+    renderROCPlot(roc, tv.test_metrics.auc, isDark);
+
+    renderTrialTable(predictions);
+  }
+
+  /* ── 9H: Lazy init — fire on first Calibration tab click ────── */
+  const calibTabBtn = document.getElementById('tab-calibration');
+  if (calibTabBtn) {
+    calibTabBtn.addEventListener('click', () => {
+      if (_calibRendered) return;
+      _calibRendered = true;
+      setTimeout(renderCalibration, 50);
     });
   }
 })();
