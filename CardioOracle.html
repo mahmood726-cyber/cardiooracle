@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardioOracle — Cardiovascular Trial Outcome Predictor</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    /* ── Custom Properties ─────────────────────────────────────────── */
+    :root {
+      --bg: #f8f9fa;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --text: #212529;
+      --text-muted: #6c757d;
+      --text-accent: #0d6efd;
+      --border: #dee2e6;
+      --shadow: rgba(0,0,0,0.08);
+      --success: #198754;
+      --warning: #fd7e14;
+      --danger: #dc3545;
+      --green-bg: #d1e7dd;
+      --amber-bg: #fff3cd;
+      --red-bg: #f8d7da;
+      --tab-active: #0d6efd;
+      --tab-hover: #e9ecef;
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1d21;
+      --bg-card: #2b2f35;
+      --bg-input: #343a40;
+      --text: #e9ecef;
+      --text-muted: #adb5bd;
+      --text-accent: #6ea8fe;
+      --border: #495057;
+      --shadow: rgba(0,0,0,0.3);
+      --success: #75b798;
+      --warning: #ffda6a;
+      --danger: #ea868f;
+      --green-bg: #0f3d2c;
+      --amber-bg: #3d3000;
+      --red-bg: #3d0a0a;
+      --tab-active: #6ea8fe;
+      --tab-hover: #343a40;
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      transition: background var(--transition), color var(--transition);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────────── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ── App Header ────────────────────────────────────────────────── */
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px var(--shadow);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-header .container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header-left { flex: 1; min-width: 0; }
+
+    .app-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .app-title span { color: var(--text-accent); }
+
+    .app-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .config-select {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+
+    .config-select:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+      border-color: var(--text-accent);
+    }
+
+    .dark-mode-btn {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.375rem 0.875rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+
+    .dark-mode-btn:hover { background: var(--tab-hover); }
+
+    .dark-mode-btn:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+    }
+
+    /* ── Tab Bar ───────────────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      background: var(--bg-card);
+      border-bottom: 2px solid var(--border);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+      flex-shrink: 0;
+      position: relative;
+      top: 2px;
+    }
+
+    .tab-btn:hover {
+      background: var(--tab-hover);
+      color: var(--text);
+    }
+
+    .tab-btn:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: -2px;
+    }
+
+    .tab-btn[aria-selected="true"] {
+      color: var(--tab-active);
+      border-bottom-color: var(--tab-active);
+      font-weight: 600;
+    }
+
+    /* ── Tab Panels ────────────────────────────────────────────────── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .tab-content {
+      padding: 1.5rem 0;
+    }
+
+    /* ── Cards ─────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px var(--shadow);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Traffic Light ─────────────────────────────────────────────── */
+    .traffic-light {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .traffic-light.high {
+      background: var(--green-bg);
+      color: var(--success);
+    }
+
+    .traffic-light.moderate {
+      background: var(--amber-bg);
+      color: var(--warning);
+    }
+
+    .traffic-light.low {
+      background: var(--red-bg);
+      color: var(--danger);
+    }
+
+    /* ── Search Bar ────────────────────────────────────────────────── */
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.875rem;
+      font-size: 1rem;
+      transition: border-color var(--transition);
+    }
+
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .search-input:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+      border-color: var(--text-accent);
+    }
+
+    .search-btn {
+      background: var(--text-accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.5rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity var(--transition);
+      white-space: nowrap;
+    }
+
+    .search-btn:hover { opacity: 0.87; }
+
+    .search-btn:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(13,110,253,0.25);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ── Collapsible ───────────────────────────────────────────────── */
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 0.75rem 1rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-weight: 600;
+      user-select: none;
+      transition: background var(--transition);
+    }
+
+    .collapsible-header:hover { background: var(--tab-hover); }
+
+    .collapsible-header:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+    }
+
+    .collapsible-header .caret {
+      font-size: 0.75rem;
+      transition: transform var(--transition);
+    }
+
+    .collapsible-header[aria-expanded="true"] .caret {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-body {
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 1rem;
+      display: none;
+    }
+
+    .collapsible-body.open { display: block; }
+
+    /* ── Tables ────────────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--bg-input);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover { background: var(--tab-hover); }
+
+    /* ── Spinner ───────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--text-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner-wrap {
+      display: none;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.75rem 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .spinner-wrap.visible { display: flex; }
+
+    /* ── Alerts ────────────────────────────────────────────────────── */
+    .alert {
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      border-left: 4px solid;
+      display: none;
+    }
+
+    .alert.visible { display: block; }
+
+    .alert-warning {
+      background: var(--amber-bg);
+      color: var(--warning);
+      border-color: var(--warning);
+    }
+
+    .alert-danger {
+      background: var(--red-bg);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .alert-info {
+      background: var(--green-bg);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    /* ── Misc ──────────────────────────────────────────────────────── */
+    .text-muted { color: var(--text-muted); font-size: 0.875rem; }
+    .text-accent { color: var(--text-accent); }
+    .badge {
+      display: inline-block;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    code {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.85em;
+      font-family: "Cascadia Code", "Consolas", monospace;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    .app-footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 1rem 0;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .app-footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .app-footer a {
+      color: var(--text-accent);
+      text-decoration: none;
+    }
+
+    .app-footer a:hover { text-decoration: underline; }
+    .app-footer a:focus {
+      outline: 2px solid var(--text-accent);
+      outline-offset: 2px;
+    }
+
+    /* ── Placeholder / Empty States ────────────────────────────────── */
+    .placeholder-block {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .placeholder-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .placeholder-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .placeholder-desc { font-size: 0.9rem; max-width: 420px; margin: 0 auto; }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .app-header .container { flex-direction: column; align-items: flex-start; }
+      .header-controls { width: 100%; justify-content: flex-end; }
+      .tab-btn { padding: 0.65rem 0.875rem; font-size: 0.82rem; }
+      .card { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     APP HEADER
+════════════════════════════════════════════════════════════════════ -->
+<header class="app-header" role="banner">
+  <div class="container">
+    <div class="header-left">
+      <h1 class="app-title">Cardio<span>Oracle</span></h1>
+      <p class="app-subtitle">Cardiovascular Trial Outcome Predictor — Hybrid Bayesian + ML</p>
+    </div>
+    <div class="header-controls">
+      <label for="configSelect" class="sr-only">Configuration</label>
+      <select id="configSelect" class="config-select" aria-label="Select configuration">
+        <option value="cardiorenal">Cardiorenal</option>
+        <option value="oncology">Oncology</option>
+      </select>
+      <button id="darkModeBtn" class="dark-mode-btn" aria-label="Toggle dark mode" type="button">
+        ☀ Light
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     TAB BAR
+════════════════════════════════════════════════════════════════════ -->
+<div class="tab-bar" role="tablist" aria-label="CardioOracle sections">
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-predict"
+    aria-selected="true"
+    aria-controls="panel-predict"
+    tabindex="0"
+    type="button"
+  >Predict</button>
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-design"
+    aria-selected="false"
+    aria-controls="panel-design"
+    tabindex="-1"
+    type="button"
+  >Design</button>
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-training"
+    aria-selected="false"
+    aria-controls="panel-training"
+    tabindex="-1"
+    type="button"
+  >Training Data</button>
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-calibration"
+    aria-selected="false"
+    aria-controls="panel-calibration"
+    tabindex="-1"
+    type="button"
+  >Calibration</button>
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-webr"
+    aria-selected="false"
+    aria-controls="panel-webr"
+    tabindex="-1"
+    type="button"
+  >WebR Validation</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     TAB PANELS
+════════════════════════════════════════════════════════════════════ -->
+<main class="container">
+
+  <!-- ── Predict Panel ──────────────────────────────────────────── -->
+  <section
+    id="panel-predict"
+    class="tab-panel active tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-predict"
+  >
+    <div class="card">
+      <div class="card-title">Trial Outcome Prediction</div>
+      <p class="text-muted" style="margin-bottom:1rem;">
+        Enter a ClinicalTrials.gov identifier to predict the likelihood of a significant primary outcome.
+      </p>
+      <div class="search-bar" role="search">
+        <label for="nctInput" class="sr-only">NCT Identifier</label>
+        <input
+          id="nctInput"
+          type="text"
+          class="search-input"
+          placeholder="NCT identifier — e.g. NCT01325337"
+          aria-label="ClinicalTrials.gov NCT identifier"
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="11"
+        />
+        <button id="predictBtn" class="search-btn" type="button" aria-label="Run prediction">
+          Predict
+        </button>
+      </div>
+
+      <!-- Spinner -->
+      <div id="predictSpinner" class="spinner-wrap" aria-live="polite" aria-atomic="true">
+        <span class="spinner" role="status" aria-hidden="true"></span>
+        <span>Fetching trial data and running prediction…</span>
+      </div>
+
+      <!-- Error alert -->
+      <div id="predictionError" class="alert alert-danger" role="alert" aria-atomic="true"></div>
+
+      <!-- Result area -->
+      <div id="predictionResult" aria-live="polite" aria-atomic="false"></div>
+    </div>
+
+    <!-- Example / guidance card -->
+    <div class="card">
+      <div class="card-title">How it works</div>
+      <ol style="padding-left:1.25rem; color:var(--text-muted); font-size:0.9rem; line-height:2;">
+        <li>Enter a valid NCT ID (format: <code>NCT</code> followed by 8 digits).</li>
+        <li>The engine retrieves trial metadata from the embedded training corpus.</li>
+        <li>Similarity scores are computed across drug class, endpoint type, comparator, population, and era.</li>
+        <li>A Bayesian ensemble (Bayesian prior + conditional power + meta-regression) produces a probability estimate.</li>
+        <li>Output includes a traffic-light confidence band and the top similar trials used as evidence.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Design Panel ──────────────────────────────────────────── -->
+  <section
+    id="panel-design"
+    class="tab-panel tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-design"
+  >
+    <div class="card">
+      <div class="placeholder-block">
+        <div class="placeholder-icon">🔬</div>
+        <div class="placeholder-title">Trial Design Optimizer</div>
+        <p class="placeholder-desc">
+          Power calculations, sample size estimation, and endpoint selection guidance.
+          Coming in <strong>Phase 2</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Training Data Panel ───────────────────────────────────── -->
+  <section
+    id="panel-training"
+    class="tab-panel tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-training"
+  >
+    <div class="card">
+      <div class="card-title">Embedded Training Corpus</div>
+      <table>
+        <tbody>
+          <tr>
+            <th>Trials embedded</th>
+            <td><span id="trainingCount">—</span></td>
+          </tr>
+          <tr>
+            <th>Corpus version</th>
+            <td><code>1.0.0-placeholder</code></td>
+          </tr>
+          <tr>
+            <th>Content hash (SHA-256)</th>
+            <td><code id="trainingHash">—</code></td>
+          </tr>
+          <tr>
+            <th>Source</th>
+            <td>ClinicalTrials.gov / AACT (public domain)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-warning visible" role="note">
+      Training data is currently a placeholder. The full curated corpus will be embedded by the Python pipeline in Phase 2.
+    </div>
+  </section>
+
+  <!-- ── Calibration Panel ─────────────────────────────────────── -->
+  <section
+    id="panel-calibration"
+    class="tab-panel tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-calibration"
+  >
+    <div class="card">
+      <div class="placeholder-block">
+        <div class="placeholder-icon">📊</div>
+        <div class="placeholder-title">Model Calibration</div>
+        <p class="placeholder-desc">
+          Calibration curves, Brier score, and reliability diagrams will appear here
+          once the model corpus is populated.
+          Coming in <strong>Phase 3</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WebR Validation Panel ─────────────────────────────────── -->
+  <section
+    id="panel-webr"
+    class="tab-panel tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-webr"
+  >
+    <div class="card">
+      <div class="placeholder-block">
+        <div class="placeholder-icon">🔴</div>
+        <div class="placeholder-title">WebR Validation Suite</div>
+        <p class="placeholder-desc">
+          Live R cross-validation via WebAssembly (WebR). Compares JS engine outputs
+          against R reference implementations.
+          Coming in <strong>Phase 4</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════════ -->
+<footer class="app-footer" role="contentinfo">
+  <div class="container">
+    <span>
+      CardioOracle v1.0.0-alpha &mdash; build hash: <code id="footerHash">—</code>
+    </span>
+    <span>
+      Data: <a href="https://clinicaltrials.gov" target="_blank" rel="noopener noreferrer">
+        ClinicalTrials.gov
+      </a>
+      (OA, public domain)
+    </span>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 1 — CONFIGURATION + DATA
+════════════════════════════════════════════════════════════════════ */
+const TRAINING_DATA = {
+  version: "1.0.0-placeholder",
+  trials: [],
+  content_hash: "placeholder",
+  class_base_rates: {}
+};
+
+const MODEL = {
+  coefficients: {},
+  insample_metrics: {},
+  temporal_validation: {}
+};
+
+const CONFIG = {
+  id: "cardiorenal",
+  priors: { alpha: 4.5, beta: 5.5 },
+  similarity_weights: {
+    drug_class: 0.30,
+    endpoint_type: 0.25,
+    comparator_type: 0.15,
+    population: 0.15,
+    era: 0.15
+  },
+  ensemble_weights: {
+    bayesian: 0.40,
+    conditional_power: 0.35,
+    meta_regression: 0.25
+  }
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 2 — TAB NAVIGATION
+════════════════════════════════════════════════════════════════════ */
+(function initTabs() {
+  const tabBar   = document.querySelector('[role="tablist"]');
+  const tabs     = Array.from(tabBar.querySelectorAll('[role="tab"]'));
+  const panels   = tabs.map(t => document.getElementById(t.getAttribute('aria-controls')));
+
+  function switchTab(targetTab) {
+    tabs.forEach((tab, i) => {
+      const isTarget = tab === targetTab;
+      tab.setAttribute('aria-selected', String(isTarget));
+      tab.tabIndex = isTarget ? 0 : -1;
+      panels[i].classList.toggle('active', isTarget);
+    });
+    targetTab.focus();
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => switchTab(tab));
+    tab.addEventListener('keydown', (e) => {
+      let next = null;
+      if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+      else if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === 'Home') next = tabs[0];
+      else if (e.key === 'End') next = tabs[tabs.length - 1];
+      if (next) { e.preventDefault(); switchTab(next); }
+    });
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 3 — DARK MODE
+════════════════════════════════════════════════════════════════════ */
+(function initDarkMode() {
+  const LS_KEY = 'cardiooracle_theme';
+  const btn    = document.getElementById('darkModeBtn');
+  const html   = document.documentElement;
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      html.setAttribute('data-theme', 'dark');
+      btn.textContent = '☽ Dark';
+      btn.setAttribute('aria-label', 'Switch to light mode');
+    } else {
+      html.removeAttribute('data-theme');
+      btn.textContent = '☀ Light';
+      btn.setAttribute('aria-label', 'Switch to dark mode');
+    }
+  }
+
+  const stored = localStorage.getItem(LS_KEY) ?? 'light';
+  applyTheme(stored);
+
+  btn.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next    = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(LS_KEY, next);
+    applyTheme(next);
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 4 — UTILITY FUNCTIONS
+════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Escape HTML special characters for safe DOM insertion.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Standard normal CDF via Abramowitz & Stegun approximation 26.2.17.
+ * Max error: 7.5e-8
+ * @param {number} x
+ * @returns {number}
+ */
+function normalCDF(x) {
+  const t  = 1 / (1 + 0.2316419 * Math.abs(x));
+  const t2 = t * t;
+  const t3 = t2 * t;
+  const t4 = t3 * t;
+  const t5 = t4 * t;
+  const poly = t  * 0.319381530
+             - t2 * 0.356563782
+             + t3 * 1.781477937
+             - t4 * 1.821255978
+             + t5 * 1.330274429;
+  const phi = 1 - (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x) * poly;
+  return x >= 0 ? phi : 1 - phi;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 5 — PREDICTION ENGINE
+════════════════════════════════════════════════════════════════════ */
+
+const NCT_RE = /^NCT\d{8}$/;
+
+/**
+ * Validate NCT format, show spinner, delegate to fetchAndPredict.
+ */
+function runPrediction() {
+  const input   = document.getElementById('nctInput');
+  const errEl   = document.getElementById('predictionError');
+  const spinner = document.getElementById('predictSpinner');
+  const result  = document.getElementById('predictionResult');
+  const btn     = document.getElementById('predictBtn');
+
+  const nctId = input.value.trim().toUpperCase();
+
+  // Reset state
+  errEl.classList.remove('visible');
+  errEl.textContent = '';
+  result.innerHTML  = '';
+
+  if (!NCT_RE.test(nctId)) {
+    errEl.textContent = 'Invalid NCT ID format. Expected: NCT followed by exactly 8 digits (e.g. NCT01325337).';
+    errEl.classList.add('visible');
+    input.focus();
+    return;
+  }
+
+  spinner.classList.add('visible');
+  btn.disabled = true;
+
+  fetchAndPredict(nctId).finally(() => {
+    spinner.classList.remove('visible');
+    btn.disabled = false;
+  });
+}
+
+/**
+ * Fetch trial metadata and run the prediction ensemble.
+ * Phase 1 placeholder — full implementation in Task 7.
+ * @param {string} nctId
+ * @returns {Promise<void>}
+ */
+async function fetchAndPredict(nctId) {
+  const result = document.getElementById('predictionResult');
+  const errEl  = document.getElementById('predictionError');
+
+  try {
+    // Simulate brief async work
+    await new Promise(resolve => setTimeout(resolve, 350));
+
+    result.innerHTML = `
+      <div class="alert alert-info visible" role="status" style="margin-top:0.75rem;">
+        <strong>${escapeHtml(nctId)}</strong> — Prediction engine will be implemented in Task 7.
+        The similarity scoring, Bayesian ensemble, and traffic-light output will appear here.
+      </div>`;
+  } catch (err) {
+    errEl.textContent = 'An unexpected error occurred: ' + escapeHtml(String(err));
+    errEl.classList.add('visible');
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SECTION 6 — INITIALIZATION
+════════════════════════════════════════════════════════════════════ */
+(function init() {
+  /* ── localStorage schema migration ── */
+  const CURRENT_SCHEMA = 1;
+  const SCHEMA_KEY     = 'cardiooracle_schema';
+  const THEME_KEY      = 'cardiooracle_theme';
+
+  const storedSchema = parseInt(localStorage.getItem(SCHEMA_KEY) ?? '0', 10);
+
+  if (storedSchema < CURRENT_SCHEMA) {
+    // Preserve only the theme key; clear all stale cardiooracle_ keys
+    const preserved = {
+      [THEME_KEY]: localStorage.getItem(THEME_KEY)
+    };
+
+    // Remove all keys with cardiooracle_ prefix
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('cardiooracle_')) toRemove.push(k);
+    }
+    toRemove.forEach(k => localStorage.removeItem(k));
+
+    // Restore preserved values
+    Object.entries(preserved).forEach(([k, v]) => {
+      if (v !== null) localStorage.setItem(k, v);
+    });
+
+    localStorage.setItem(SCHEMA_KEY, String(CURRENT_SCHEMA));
+  }
+
+  /* ── Populate training data UI ── */
+  const countEl = document.getElementById('trainingCount');
+  const hashEl  = document.getElementById('trainingHash');
+  const footerH = document.getElementById('footerHash');
+
+  if (countEl) countEl.textContent = String(TRAINING_DATA.trials.length ?? 0);
+  if (hashEl)  hashEl.textContent  = TRAINING_DATA.content_hash ?? '—';
+  if (footerH) footerH.textContent = TRAINING_DATA.content_hash ?? '—';
+
+  /* ── Enter key on search input ── */
+  const nctInput = document.getElementById('nctInput');
+  if (nctInput) {
+    nctInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        runPrediction();
+      }
+    });
+  }
+
+  /* ── Predict button ── */
+  const predictBtn = document.getElementById('predictBtn');
+  if (predictBtn) {
+    predictBtn.addEventListener('click', runPrediction);
+  }
+
+  /* ── Config select (future use) ── */
+  const configSelect = document.getElementById('configSelect');
+  if (configSelect) {
+    configSelect.addEventListener('change', () => {
+      CONFIG.id = configSelect.value;
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
