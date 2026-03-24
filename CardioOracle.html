@@ -1738,27 +1738,31 @@ function extractFeatures(ctgovData) {
  */
 function computeSimilarity(target, candidate) {
   const W = CONFIG.similarity_weights;
+  // Resolve .features if candidate is a training trial (has nested features object)
+  const c = candidate.features ?? candidate;
+  const tYear = target.year ?? target.start_year;
+  const cYear = c.year ?? c.start_year;
 
   // 1. Drug class (0.30)
   let drugSim = 0;
-  if (target.drug_class && candidate.drug_class) {
-    if (target.drug_class === candidate.drug_class) {
+  if (target.drug_class && c.drug_class) {
+    if (target.drug_class === c.drug_class) {
       drugSim = 1.0;
     } else {
       const tm = BROAD_MECH_JS[target.drug_class];
-      const cm = BROAD_MECH_JS[candidate.drug_class];
+      const cm = BROAD_MECH_JS[c.drug_class];
       if (tm && cm && tm === cm) drugSim = 0.5;
     }
   }
 
   // 2. Endpoint type (0.25)
   let epSim = 0;
-  if (target.endpoint_type && candidate.endpoint_type) {
-    if (target.endpoint_type === candidate.endpoint_type) {
+  if (target.endpoint_type && c.endpoint_type) {
+    if (target.endpoint_type === c.endpoint_type) {
       epSim = 1.0;
     } else {
       const hardTypes = new Set(['mace', 'mortality', 'hf', 'renal']);
-      if (hardTypes.has(target.endpoint_type) && hardTypes.has(candidate.endpoint_type)) {
+      if (hardTypes.has(target.endpoint_type) && hardTypes.has(c.endpoint_type)) {
         epSim = 0.3;
       }
     }
@@ -1766,14 +1770,15 @@ function computeSimilarity(target, candidate) {
 
   // 3. Comparator type (0.15)
   let compSim = 0;
-  if (target.comparator_type && candidate.comparator_type) {
-    compSim = (target.comparator_type === candidate.comparator_type) ? 1.0 : 0;
+  const cCompType = c.comparator_type ?? (c.placebo_controlled ? 'placebo' : 'active');
+  if (target.comparator_type && cCompType) {
+    compSim = (target.comparator_type === cCompType) ? 1.0 : 0;
   }
 
   // 4. Population (0.15) — Jaccard of tags
   let popSim = 0;
   const tTags = new Set(target.population_tags ?? []);
-  const cTags = new Set(candidate.population_tags ?? []);
+  const cTags = new Set(c.population_tags ?? []);
   if (tTags.size > 0 || cTags.size > 0) {
     let inter = 0;
     tTags.forEach(t => { if (cTags.has(t)) inter++; });
@@ -1785,8 +1790,8 @@ function computeSimilarity(target, candidate) {
 
   // 5. Era (0.15) — half-life 10 years
   let eraSim = 0.5; // default if year unknown
-  if (target.year && candidate.year) {
-    const diff = Math.abs(target.year - candidate.year);
+  if (tYear && cYear) {
+    const diff = Math.abs(tYear - cYear);
     eraSim = Math.exp(-diff * Math.LN2 / 10);
   }
 
@@ -1832,7 +1837,7 @@ function bayesianBorrowing(target, trainingTrials) {
   // Effective successes/failures using RAW (non-normalized) similarity weights
   let effSucc = 0, effFail = 0;
   for (const { trial, sim } of selected) {
-    const success = trial.success ?? (trial.outcome === 'positive' ? 1 : 0);
+    const success = trial.success ?? (trial.label === 'success' ? 1 : 0);
     effSucc += sim * success;
     effFail += sim * (1 - success);
   }
@@ -2034,9 +2039,9 @@ function ensemblePredict(bayesian, power, regression) {
   const hasR = regression && regression.p !== null;
 
   // Re-weight if any component missing
-  if (!hasB) { wP += wB * (wP / (wP + wR)); wR += wB * (wR / (wP + wR)); wB = 0; }
-  if (!hasP) { wB += wP * (wB / (wB + wR)); wR += wP * (wR / (wB + wR)); wP = 0; }
-  if (!hasR) { wB += wR * (wB / (wB + wP)); wP += wR * (wP / (wB + wP)); wR = 0; }
+  if (!hasB) { const s = wP + wR; if (s > 0) { wP += wB * wP / s; wR += wB * wR / s; } wB = 0; }
+  if (!hasP) { const s = wB + wR; if (s > 0) { wB += wP * wB / s; wR += wP * wR / s; } wP = 0; }
+  if (!hasR) { const s = wB + wP; if (s > 0) { wB += wR * wB / s; wP += wR * wP / s; } wR = 0; }
 
   const total = wB + wP + wR;
   if (total <= 0) return { p: 0.45, level: 'moderate', levelLabel: 'Moderate' };
@@ -3368,7 +3373,9 @@ function _clearSnapshots() {
   function exportCSV() {
     const headers = ['NCT ID','Title','Label','Tier','Drug Class','Endpoint','Enrollment','Duration (months)'];
     const escCSV = v => {
-      const s = String(v ?? '');
+      let s = String(v ?? '');
+      // CSV formula injection protection (do NOT include '-' — corrupts negative medical values)
+      if (/^[=+@\t\r]/.test(s)) s = "'" + s;
       return s.includes(',') || s.includes('"') || s.includes('\n')
         ? '"' + s.replace(/"/g, '""') + '"'
         : s;
