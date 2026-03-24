@@ -240,12 +240,10 @@ def fit_logistic_model(
         insample_metrics : {auc, brier, n}
     """
     from sklearn.linear_model import LogisticRegression
-    from sklearn.preprocessing import StandardScaler
 
-    # Standardise features for numerical stability
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
+    # Fit directly on raw features — no StandardScaler.
+    # lbfgs handles moderate feature counts (18) without scaling, and this ensures
+    # the stored coefficients apply directly to raw features in temporal validation.
     clf = LogisticRegression(
         penalty="l2",
         C=1.0,
@@ -253,7 +251,7 @@ def fit_logistic_model(
         max_iter=1000,
         random_state=42,
     )
-    clf.fit(X_scaled, y)
+    clf.fit(X, y)
 
     # Build coefficients dict (intercept + named features)
     coef_dict = {"intercept": float(clf.intercept_[0])}
@@ -261,7 +259,7 @@ def fit_logistic_model(
         coef_dict[name] = float(coef)
 
     # In-sample predictions
-    y_prob = clf.predict_proba(X_scaled)[:, 1]
+    y_prob = clf.predict_proba(X)[:, 1]
     auc = _compute_auc(y, y_prob)
     brier = _brier_score(y, y_prob)
 
@@ -272,9 +270,6 @@ def fit_logistic_model(
             "brier": brier,
             "n": int(len(y)),
         },
-        # Store scaler parameters so predictions can be reproduced
-        "_scaler_mean": scaler.mean_.tolist(),
-        "_scaler_scale": scaler.scale_.tolist(),
     }
 
 
@@ -364,8 +359,7 @@ def compute_temporal_split_metrics(
         if not trial_list:
             return np.array([]), np.array([])
         X, y, _ = prepare_feature_matrix(trial_list)
-        # Apply raw (unscaled) prediction — coefficients already absorb scaling
-        # from fit_logistic_model; here we replicate using stored coefficients
+        # Coefficients are in raw feature space (no scaler used in fit_logistic_model).
         logit = X @ coef_vec + intercept
         prob = 1.0 / (1.0 + np.exp(-logit))
         return y, prob
