@@ -1,0 +1,37 @@
+{
+  "id": "cad",
+  "label": "Coronary Artery Disease",
+  "description": "CAD, ACS, MI, PCI, CABG, stable angina, atherosclerosis",
+  "condition_query": "coronary artery disease OR myocardial infarction OR acute coronary syndrome OR angina OR percutaneous coronary intervention OR coronary artery bypass",
+  "mesh_terms": [
+    "Coronary Artery Disease",
+    "Myocardial Infarction",
+    "Acute Coronary Syndrome",
+    "Angina Pectoris",
+    "Coronary Disease",
+    "Atherosclerosis"
+  ],
+  "condition_pattern": "%(coronary|myocardial infarction|acute coronary|angina|ischemic heart|atheroscler|percutaneous coronary|stent|bypass graft|cabg)%",
+  "priors": {
+    "alpha": 4.0,
+    "beta": 6.0,
+    "comment": "~40% base success rate for CAD trials (lower than HF due to harder endpoints)"
+  },
+  "similarity_weights": {
+    "drug_class": 0.30,
+    "endpoint_type": 0.25,
+    "comparator_type": 0.15,
+    "population": 0.15,
+    "era": 0.15
+  },
+  "ensemble_weights": {
+    "bayesian": 0.40,
+    "conditional_power": 0.35,
+    "meta_regression": 0.25
+  },
+  "acceptance_criteria": {
+    "min_auc": 0.60,
+    "max_brier": 0.25,
+    "calibration_slope_range": [0.7, 1.3]
+  }
+}

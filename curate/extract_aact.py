@@ -6,6 +6,8 @@ results, assembles each trial into a structured record, and writes JSON output.
 
 Usage:
     python curate/extract_aact.py [--output data/raw_trials.json] [--limit N]
+    python curate/extract_aact.py --condition-pattern "%(coronary|angina)%" \\
+                                   --output data/raw_cad_trials.json
 """
 
 import argparse
@@ -181,9 +183,20 @@ _CV_SIMILAR_TO = (
 )
 
 
-def _fetch_core_trials(cur, limit: Optional[int]) -> list:
-    """Fetch the main trial roster from AACT with all study-level fields."""
+def _fetch_core_trials(cur, limit: Optional[int], condition_pattern: Optional[str] = None) -> list:
+    """Fetch the main trial roster from AACT with all study-level fields.
+
+    Parameters
+    ----------
+    cur : psycopg2 cursor
+    limit : int | None
+        Optional row limit for testing.
+    condition_pattern : str | None
+        PostgreSQL SIMILAR TO pattern (with leading %) for the condition filter.
+        Defaults to _CV_SIMILAR_TO if None.
+    """
     limit_clause = "" if limit is None else f"LIMIT {int(limit)}"
+    pattern = condition_pattern if condition_pattern is not None else _CV_SIMILAR_TO
 
     sql = f"""
         SELECT
@@ -218,7 +231,7 @@ def _fetch_core_trials(cur, limit: Optional[int]) -> list:
         ORDER BY s.nct_id
         {limit_clause}
     """
-    cur.execute(sql, {"cv_pattern": _CV_SIMILAR_TO})
+    cur.execute(sql, {"cv_pattern": pattern})
     cols = [desc[0] for desc in cur.description]
     return [dict(zip(cols, row)) for row in cur.fetchall()]
 
@@ -417,15 +430,30 @@ def _assemble_record(
 # Main extraction function
 # ---------------------------------------------------------------------------
 
-def extract_trials(output_path: str, limit: Optional[int] = None) -> None:
-    """Run the full extraction pipeline and write JSON to output_path."""
+def extract_trials(
+    output_path: str,
+    limit: Optional[int] = None,
+    condition_pattern: Optional[str] = None,
+) -> None:
+    """Run the full extraction pipeline and write JSON to output_path.
+
+    Parameters
+    ----------
+    output_path : str
+        Destination file for the JSON output.
+    limit : int | None
+        Optional row limit for testing.
+    condition_pattern : str | None
+        PostgreSQL SIMILAR TO pattern for the condition filter.
+        Defaults to the built-in CV pattern if None.
+    """
     log.info("Connecting to AACT ...")
     conn = get_aact_connection()
     try:
         with conn.cursor() as cur:
             log.info("Fetching core trial roster ...")
-            cores = _fetch_core_trials(cur, limit)
-            log.info("Found %d trials matching Phase 3/2-3 CV criteria.", len(cores))
+            cores = _fetch_core_trials(cur, limit, condition_pattern=condition_pattern)
+            log.info("Found %d trials matching Phase 3/2-3 criteria.", len(cores))
 
             if not cores:
                 log.warning("No trials found. Writing empty output.")
@@ -492,9 +520,23 @@ def _parse_args(argv=None):
         default=None,
         help="Limit number of trials (for testing; default: no limit)",
     )
+    parser.add_argument(
+        "--condition-pattern",
+        dest="condition_pattern",
+        default=None,
+        help=(
+            "PostgreSQL SIMILAR TO pattern for the condition filter "
+            "(default: built-in broad CV pattern). "
+            "Example: '%(coronary|myocardial infarction|angina)%%'"
+        ),
+    )
     return parser.parse_args(argv)
 
 
 if __name__ == "__main__":
     args = _parse_args()
-    extract_trials(output_path=args.output, limit=args.limit)
+    extract_trials(
+        output_path=args.output,
+        limit=args.limit,
+        condition_pattern=args.condition_pattern,
+    )

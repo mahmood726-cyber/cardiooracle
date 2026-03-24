@@ -1,0 +1,602 @@
+{
+  "model": {
+    "coefficients": {
+      "intercept": 0.10501415478417611,
+      "log_enrollment": -0.05534808510329835,
+      "duration_months": -0.016585967608400184,
+      "placebo_controlled": -0.33481272597632494,
+      "double_blind": 0.4383343180928934,
+      "is_industry": 0.9532864465813626,
+      "log_num_sites": 0.031236826080699845,
+      "multi_regional": -0.48902323786016805,
+      "num_arms": 0.3549457902323128,
+      "has_dsmb": -0.452452543556591,
+      "ep_mace": -0.39170301741907354,
+      "ep_hf_hosp": 0.0,
+      "ep_cv_death": -0.14583289904636104,
+      "ep_acm": -1.0559306347405266,
+      "ep_renal": -0.28744285793485863,
+      "ep_surrogate": 1.2927602938599005,
+      "era_2010_2017": -0.1704131752087516,
+      "era_2018plus": 0.2834978669370282,
+      "historical_class_rate": -0.0024691551550757346
+    },
+    "insample_metrics": {
+      "auc": 0.8433794466403162,
+      "brier": 0.15922423280023304,
+      "n": 90
+    }
+  },
+  "temporal_validation": {
+    "split_date": "2020-01-01",
+    "n_train": 74,
+    "n_test": 16,
+    "test_metrics": {
+      "auc": 0.859375,
+      "brier": 0.14155851099707586,
+      "calibration_slope": 0.21523893923867185
+    },
+    "trial_predictions": [
+      {
+        "nct_id": "NCT00000620",
+        "y_true": 0,
+        "y_prob": 0.17089482403777748,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00006305",
+        "y_true": 0,
+        "y_prob": 0.11504988952895798,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00023595",
+        "y_true": 0,
+        "y_prob": 0.040641507455645445,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00041938",
+        "y_true": 0,
+        "y_prob": 0.14856072430073344,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00046228",
+        "y_true": 0,
+        "y_prob": 0.24995039451664547,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00091507",
+        "y_true": 0,
+        "y_prob": 0.22865492873371968,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00091949",
+        "y_true": 1,
+        "y_prob": 0.0523018432590998,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00097591",
+        "y_true": 1,
+        "y_prob": 0.5640227369432156,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00116831",
+        "y_true": 0,
+        "y_prob": 0.4775943637128098,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00120289",
+        "y_true": 0,
+        "y_prob": 0.29376477204833185,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00143507",
+        "y_true": 0,
+        "y_prob": 0.571555439592386,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00180479",
+        "y_true": 1,
+        "y_prob": 0.6820850926384993,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00202878",
+        "y_true": 1,
+        "y_prob": 0.18480476828404502,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00300456",
+        "y_true": 1,
+        "y_prob": 0.9083876276366751,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00300469",
+        "y_true": 1,
+        "y_prob": 0.9101002193943061,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00300482",
+        "y_true": 1,
+        "y_prob": 0.908841837563531,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00324350",
+        "y_true": 0,
+        "y_prob": 0.15483407301205873,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00330733",
+        "y_true": 0,
+        "y_prob": 0.2845300249162923,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00335452",
+        "y_true": 0,
+        "y_prob": 0.5732835198639847,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00413244",
+        "y_true": 1,
+        "y_prob": 0.24119437735076105,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00423488",
+        "y_true": 1,
+        "y_prob": 0.8962163320481502,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00484315",
+        "y_true": 0,
+        "y_prob": 0.5347688272941826,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00526474",
+        "y_true": 1,
+        "y_prob": 0.3942431571834048,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00527943",
+        "y_true": 0,
+        "y_prob": 0.4006462172149767,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00616772",
+        "y_true": 0,
+        "y_prob": 0.46418951862078156,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00623623",
+        "y_true": 0,
+        "y_prob": 0.28363264187082265,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00639158",
+        "y_true": 1,
+        "y_prob": 0.7501175649659656,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00699998",
+        "y_true": 0,
+        "y_prob": 0.4404916460221395,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00706849",
+        "y_true": 1,
+        "y_prob": 0.795009488673813,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00770146",
+        "y_true": 1,
+        "y_prob": 0.8609544337842604,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00794664",
+        "y_true": 1,
+        "y_prob": 0.8017951599599372,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00799903",
+        "y_true": 0,
+        "y_prob": 0.23225870626353962,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00809965",
+        "y_true": 1,
+        "y_prob": 0.45011571474203815,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00823212",
+        "y_true": 1,
+        "y_prob": 0.5601501095176556,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00826280",
+        "y_true": 1,
+        "y_prob": 0.7864424125898913,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00830960",
+        "y_true": 1,
+        "y_prob": 0.8465557736593681,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00831441",
+        "y_true": 0,
+        "y_prob": 0.41815382642507154,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00968708",
+        "y_true": 0,
+        "y_prob": 0.293942514046194,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01000727",
+        "y_true": 0,
+        "y_prob": 0.33563993586306223,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01087723",
+        "y_true": 1,
+        "y_prob": 0.42658622235338434,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01120405",
+        "y_true": 1,
+        "y_prob": 0.7091303393164728,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01147250",
+        "y_true": 0,
+        "y_prob": 0.26383257208285105,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01167582",
+        "y_true": 1,
+        "y_prob": 0.4048715206874941,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01225562",
+        "y_true": 1,
+        "y_prob": 0.45280586272949197,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01294163",
+        "y_true": 1,
+        "y_prob": 0.647684422587692,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01327846",
+        "y_true": 0,
+        "y_prob": 0.3017789331700924,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01417104",
+        "y_true": 0,
+        "y_prob": 0.45313333961859287,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01442038",
+        "y_true": 0,
+        "y_prob": 0.3519845149323523,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01467466",
+        "y_true": 0,
+        "y_prob": 0.28645364200866835,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01521845",
+        "y_true": 1,
+        "y_prob": 0.833837378933369,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01534533",
+        "y_true": 0,
+        "y_prob": 0.5190282304120463,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01560780",
+        "y_true": 0,
+        "y_prob": 0.19960846371557006,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01591018",
+        "y_true": 0,
+        "y_prob": 0.3723761345482332,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01663402",
+        "y_true": 1,
+        "y_prob": 0.2703555806829567,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01720524",
+        "y_true": 0,
+        "y_prob": 0.40491772493872924,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01830543",
+        "y_true": 1,
+        "y_prob": 0.5321304071891808,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01877915",
+        "y_true": 0,
+        "y_prob": 0.12713181872979457,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01992523",
+        "y_true": 1,
+        "y_prob": 0.3574708772791785,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02017171",
+        "y_true": 0,
+        "y_prob": 0.12526546596376847,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02040779",
+        "y_true": 1,
+        "y_prob": 0.8411831210199839,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02145468",
+        "y_true": 0,
+        "y_prob": 0.44837945355900916,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02164864",
+        "y_true": 1,
+        "y_prob": 0.6551997599917695,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02301910",
+        "y_true": 0,
+        "y_prob": 0.700441163555687,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02347098",
+        "y_true": 0,
+        "y_prob": 0.3415329799912761,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02446990",
+        "y_true": 0,
+        "y_prob": 0.2898143425915535,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02513160",
+        "y_true": 1,
+        "y_prob": 0.8379863858291554,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02546323",
+        "y_true": 1,
+        "y_prob": 0.5847626082467957,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02565147",
+        "y_true": 0,
+        "y_prob": 0.6488342442594335,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02584257",
+        "y_true": 1,
+        "y_prob": 0.923349600886642,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02889562",
+        "y_true": 0,
+        "y_prob": 0.4753398460620453,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02988115",
+        "y_true": 1,
+        "y_prob": 0.7607575913852088,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02991118",
+        "y_true": 1,
+        "y_prob": 0.803056535294909,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03001076",
+        "y_true": 1,
+        "y_prob": 0.8278198696370764,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03064126",
+        "y_true": 1,
+        "y_prob": 0.47741610847643945,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00345631",
+        "y_true": 1,
+        "y_prob": 0.6598091368802528,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02104817",
+        "y_true": 0,
+        "y_prob": 0.23745909827167608,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02525939",
+        "y_true": 0,
+        "y_prob": 0.2303856120218998,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02586155",
+        "y_true": 0,
+        "y_prob": 0.2090671697454273,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02592824",
+        "y_true": 0,
+        "y_prob": 0.5549494949332227,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02596126",
+        "y_true": 1,
+        "y_prob": 0.11709475483530461,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02924727",
+        "y_true": 0,
+        "y_prob": 0.3091718726075545,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03473223",
+        "y_true": 0,
+        "y_prob": 0.2839603463869121,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03570697",
+        "y_true": 1,
+        "y_prob": 0.6546502182416644,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04509674",
+        "y_true": 0,
+        "y_prob": 0.2401110954511969,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04560309",
+        "y_true": 0,
+        "y_prob": 0.4797311842599126,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04564742",
+        "y_true": 1,
+        "y_prob": 0.48893245634778904,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04807400",
+        "y_true": 1,
+        "y_prob": 0.9343777221846549,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04873934",
+        "y_true": 1,
+        "y_prob": 0.9262481730860938,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04929249",
+        "y_true": 1,
+        "y_prob": 0.9358468354697191,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05142722",
+        "y_true": 1,
+        "y_prob": 0.7759275084315499,
+        "split": "test"
+      }
+    ]
+  },
+  "feature_names": [
+    "log_enrollment",
+    "duration_months",
+    "placebo_controlled",
+    "double_blind",
+    "is_industry",
+    "log_num_sites",
+    "multi_regional",
+    "num_arms",
+    "has_dsmb",
+    "ep_mace",
+    "ep_hf_hosp",
+    "ep_cv_death",
+    "ep_acm",
+    "ep_renal",
+    "ep_surrogate",
+    "era_2010_2017",
+    "era_2018plus",
+    "historical_class_rate"
+  ]
+}
