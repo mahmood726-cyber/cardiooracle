@@ -1,0 +1,5 @@
+.env
+__pycache__/
+data/raw_trials.json
+data/labeled_trials.json
+*.pyc
