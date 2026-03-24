@@ -144,10 +144,16 @@ _CV_CONDITION_PATTERN = (
     "|%(cardiovascular)s|%(cardiac arrest)s|%(angina)s|%(atherosclerosis)s"
     "|%(peripheral artery disease)s|%(heart attack)s|%(cardiomyopathy)s"
     "|%(aortic stenosis)s|%(pulmonary hypertension)s|%(chronic kidney disease)s"
-    "|%(diabetic nephropathy)s"
+    "|%(diabetic nephropathy)s|%(diabetic kidney disease)s"
+    "|%(diabetes mellitus)s|%(type 2 diabetes)s|%(acute coronary syndrome)s"
+    "|%(renal failure)s|%(kidney failure)s"
 )
 
 # SQL uses SIMILAR TO which requires the pattern without leading '%'
+# Extended to include diabetes and renal terms so that CV outcome trials for
+# SGLT2 inhibitors, GLP-1 agonists, and mineralocorticoid antagonists are
+# captured (these trials register under 'Diabetes Mellitus' or 'Diabetic
+# Kidney Disease' rather than explicit cardiovascular condition terms).
 _CV_SIMILAR_TO = (
     "%(heart failure"
     "|coronary artery disease"
@@ -165,7 +171,13 @@ _CV_SIMILAR_TO = (
     "|aortic stenosis"
     "|pulmonary hypertension"
     "|chronic kidney disease"
-    "|diabetic nephropathy)%"
+    "|diabetic nephropathy"
+    "|diabetic kidney disease"
+    "|diabetes mellitus"
+    "|type 2 diabetes"
+    "|acute coronary syndrome"
+    "|renal failure"
+    "|kidney failure)%"
 )
 
 
@@ -193,7 +205,7 @@ def _fetch_core_trials(cur, limit: Optional[int]) -> list:
             ON d.nct_id = s.nct_id
         WHERE s.study_type        = 'INTERVENTIONAL'
           AND d.allocation        = 'RANDOMIZED'
-          AND s.phase             = 'PHASE3'
+          AND s.phase             IN ('PHASE3', 'PHASE2/PHASE3', 'PHASE3/PHASE4')
           AND s.enrollment        >= 50
           AND s.overall_status    IN ('COMPLETED', 'TERMINATED')
           AND s.results_first_posted_date IS NOT NULL
@@ -413,7 +425,7 @@ def extract_trials(output_path: str, limit: Optional[int] = None) -> None:
         with conn.cursor() as cur:
             log.info("Fetching core trial roster ...")
             cores = _fetch_core_trials(cur, limit)
-            log.info("Found %d trials matching Phase 3 CV criteria.", len(cores))
+            log.info("Found %d trials matching Phase 3/2-3 CV criteria.", len(cores))
 
             if not cores:
                 log.warning("No trials found. Writing empty output.")

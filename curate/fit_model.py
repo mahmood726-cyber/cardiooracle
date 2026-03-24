@@ -15,9 +15,15 @@ import argparse
 import json
 import logging
 import math
+import platform
 import sys
 from datetime import date
 from pathlib import Path
+
+# Python 3.13 + Windows WMI deadlock workaround: monkey-patch _wmi_query
+# before any scipy/sklearn import triggers platform.machine()
+if sys.platform == "win32" and hasattr(platform, "_wmi_query"):
+    platform._wmi_query = lambda *a, **k: ("10.0.26100", "1", "Multiprocessor Free", "0", "0")
 from typing import Optional
 
 import numpy as np
@@ -220,6 +226,39 @@ def _brier_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     return float(np.mean((y_true - y_prob) ** 2))
 
 
+def _fit_platt_sigmoid(logits: np.ndarray, y: np.ndarray, max_iter: int = 100) -> tuple:
+    """Fit Platt sigmoid parameters a, b: p = 1/(1+exp(a*f+b)).
+
+    Uses Newton's method (Platt 1999). Returns (a, b).
+    """
+    n = len(y)
+    # Target: t_i = (y_i * (n_pos+1) + 0.5) / (n_pos + 2) for smoothing
+    n_pos = float(np.sum(y))
+    n_neg = n - n_pos
+    t = np.where(y == 1, (n_pos + 1) / (n_pos + 2), 1.0 / (n_neg + 2))
+
+    a, b = 0.0, np.log((n_neg + 1) / (n_pos + 1))
+
+    for _ in range(max_iter):
+        p = 1.0 / (1.0 + np.exp(a * logits + b))
+        p = np.clip(p, 1e-10, 1 - 1e-10)
+        d = p * (1 - p)
+        # Gradient
+        da = np.sum((t - p) * logits)
+        db = np.sum(t - p)
+        # Hessian (diagonal approximation)
+        haa = -np.sum(d * logits * logits)
+        hab = -np.sum(d * logits)
+        hbb = -np.sum(d)
+        det = haa * hbb - hab * hab
+        if abs(det) < 1e-15:
+            break
+        a -= (hbb * da - hab * db) / det
+        b -= (haa * db - hab * da) / det
+
+    return a, b
+
+
 def fit_logistic_model(
     X: np.ndarray,
     y: np.ndarray,
@@ -242,8 +281,6 @@ def fit_logistic_model(
     from sklearn.linear_model import LogisticRegression
 
     # Fit directly on raw features — no StandardScaler.
-    # lbfgs handles moderate feature counts (18) without scaling, and this ensures
-    # the stored coefficients apply directly to raw features in temporal validation.
     clf = LogisticRegression(
         penalty="l2",
         C=1.0,
@@ -253,7 +290,7 @@ def fit_logistic_model(
     )
     clf.fit(X, y)
 
-    # Build coefficients dict (intercept + named features)
+    # Build coefficients dict
     coef_dict = {"intercept": float(clf.intercept_[0])}
     for name, coef in zip(feature_names, clf.coef_[0]):
         coef_dict[name] = float(coef)
@@ -359,7 +396,6 @@ def compute_temporal_split_metrics(
         if not trial_list:
             return np.array([]), np.array([])
         X, y, _ = prepare_feature_matrix(trial_list)
-        # Coefficients are in raw feature space (no scaler used in fit_logistic_model).
         logit = X @ coef_vec + intercept
         prob = 1.0 / (1.0 + np.exp(-logit))
         return y, prob
