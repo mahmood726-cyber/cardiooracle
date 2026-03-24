@@ -1258,15 +1258,16 @@
         <li>AACT results data is incomplete for many trials (475/1259 unlabelable)</li>
         <li>Drug class mapping relies on keyword matching, which may miss novel agents</li>
         <li>Success is defined by the primary endpoint only — trials with positive secondary endpoints but negative primaries are labeled as failures</li>
+        <li>Some drug classes (e.g., steroidal MRA) have limited representation in the training set. Predictions for underrepresented classes rely more heavily on design features and prior assumptions rather than historical analogues</li>
       </ul>
     </div>
   </div>
 </div>
 
-<div id="tutorialOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+<div id="tutorialOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
   <div class="modal-card" style="max-width:550px">
     <button class="modal-close" onclick="dismissTutorial()" aria-label="Close tutorial">&times;</button>
-    <h2 style="font-size:1.2rem;margin:0 0 16px">Welcome to CardioOracle</h2>
+    <h2 id="tutorialTitle" style="font-size:1.2rem;margin:0 0 16px">Welcome to CardioOracle</h2>
     <div class="tutorial-steps">
       <div class="tutorial-step">
         <span class="tutorial-num">1</span>
@@ -1501,10 +1502,10 @@ const DRUG_CLASS_MAP_JS = {
   // Non-steroidal MRA
   finerenone: 'ns_mra', esaxerenone: 'ns_mra', apararenone: 'ns_mra', ocedurenone: 'ns_mra',
   // ARNi
-  sacubitril: 'arni', valsartan: 'arni', 'sacubitril/valsartan': 'arni',
-  // ARB
+  sacubitril: 'arni', 'sacubitril/valsartan': 'arni', entresto: 'arni',
+  // ARB (valsartan belongs here; standalone use ≠ ARNi)
   losartan: 'arb', irbesartan: 'arb', olmesartan: 'arb', telmisartan: 'arb',
-  candesartan: 'arb', eprosartan: 'arb', azilsartan: 'arb',
+  candesartan: 'arb', eprosartan: 'arb', azilsartan: 'arb', valsartan: 'arb',
   // ACEi
   ramipril: 'acei', enalapril: 'acei', lisinopril: 'acei', captopril: 'acei',
   perindopril: 'acei', fosinopril: 'acei', quinapril: 'acei', trandolapril: 'acei',
@@ -1589,11 +1590,12 @@ function classifyEndpointJS(text) {
 function extractPopulationTagsJS(text) {
   const lower = String(text ?? '').toLowerCase();
   const tags = [];
-  if (/hfref|hf.*reduced|reduced.*ejection|lvef\s*[<≤]\s*4/.test(lower)) tags.push('HFrEF');
-  if (/hfpef|hf.*preserved|preserved.*ejection|lvef\s*[>≥]\s*4/.test(lower)) tags.push('HFpEF');
+  if (/hfref|hf.{0,30}reduced|reduced.{0,30}ejection|(?:lvef|ef)\s*(?:[<≤]|<=)\s*(?:35|40|45)/.test(lower)) tags.push('HFrEF');
+  if (/hfpef|hf.{0,30}preserved|preserved.{0,30}ejection|(?:lvef|ef)\s*(?:[>≥]|>=)\s*(?:40|45|50)/.test(lower)) tags.push('HFpEF');
   if (/diabet|t2dm|type\s*2\s*diabetes/.test(lower)) tags.push('diabetic');
   if (/ckd|chronic kidney|renal impairment|egfr/.test(lower)) tags.push('CKD');
   if (/elder|older adult|age\s*[>≥]\s*65|geriatric/.test(lower)) tags.push('elderly');
+  if (/atrial fibrillation|atrial flutter|afib|a-fib|\baf\b/.test(lower)) tags.push('AF');
   return tags;
 }
 
@@ -2192,6 +2194,12 @@ function exportPdf() {
 function renderPrediction(nctId, features, bayesian, power, regression, ensemble) {
   const result = document.getElementById('predictionResult');
   if (!result) return;
+
+  // Purge existing Plotly instances before destroying containers via innerHTML
+  ['powerCurveChart', 'riskFactorsChart'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el && el.data) { try { Plotly.purge(el); } catch(_) {} }
+  });
 
   const ciLo = bayesian && bayesian.ci ? (bayesian.ci[0] * 100).toFixed(1) : '—';
   const ciHi = bayesian && bayesian.ci ? (bayesian.ci[1] * 100).toFixed(1) : '—';
@@ -4157,11 +4165,27 @@ function dismissTutorial() {
   try { localStorage.setItem('cardiooracle_tutorial_seen', 'true'); } catch(e) {}
 }
 
-// Show tutorial on first visit
+// Show tutorial on first visit — with Escape handler + focus trap
 (function() {
+  const overlay = document.getElementById('tutorialOverlay');
+  if (!overlay) return;
   try {
     if (!localStorage.getItem('cardiooracle_tutorial_seen')) {
-      document.getElementById('tutorialOverlay').classList.remove('hidden');
+      overlay.classList.remove('hidden');
+      // Escape key dismisses tutorial
+      overlay.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { dismissTutorial(); e.preventDefault(); }
+        // Basic focus trap: keep Tab within overlay
+        if (e.key === 'Tab') {
+          const focusable = overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          const first = focusable[0], last = focusable[focusable.length - 1];
+          if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } }
+          else            { if (document.activeElement === last)  { first.focus(); e.preventDefault(); } }
+        }
+      });
+      // Focus first button when tutorial opens
+      const firstBtn = overlay.querySelector('button');
+      if (firstBtn) setTimeout(function() { firstBtn.focus(); }, 100);
     }
   } catch(e) {}
 })();
