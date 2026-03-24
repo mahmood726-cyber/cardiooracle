@@ -1,0 +1,28 @@
+{
+  "id": "af",
+  "label": "Arrhythmia / Atrial Fibrillation",
+  "description": "AF, atrial flutter, SVT, VT, antiarrhythmics, anticoagulants",
+  "condition_query": "atrial fibrillation OR atrial flutter OR arrhythmia",
+  "priors": {
+    "alpha": 4.5,
+    "beta": 5.5,
+    "comment": "~45% base success rate"
+  },
+  "similarity_weights": {
+    "drug_class": 0.30,
+    "endpoint_type": 0.25,
+    "comparator_type": 0.15,
+    "population": 0.15,
+    "era": 0.15
+  },
+  "ensemble_weights": {
+    "bayesian": 0.40,
+    "conditional_power": 0.35,
+    "meta_regression": 0.25
+  },
+  "acceptance_criteria": {
+    "min_auc": 0.60,
+    "max_brier": 0.25,
+    "calibration_slope_range": [0.7, 1.3]
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "model": {
+    "coefficients": {
+      "intercept": 3.691630151866304,
+      "log_enrollment": -0.7974320712318185,
+      "duration_months": 0.009994216684695937,
+      "placebo_controlled": -0.2766154430224124,
+      "double_blind": 0.5268970020239615,
+      "is_industry": 0.8957065309287429,
+      "log_num_sites": 1.1843684784564135,
+      "multi_regional": 0.07961152528483154,
+      "num_arms": -0.8770917225827264,
+      "has_dsmb": -0.18426281290241506,
+      "ep_mace": 0.0,
+      "ep_hf_hosp": 0.0,
+      "ep_cv_death": 0.0,
+      "ep_acm": 0.24907411185300815,
+      "ep_renal": 0.0,
+      "ep_surrogate": 0.0,
+      "era_2010_2017": -0.4630414367433805,
+      "era_2018plus": 0.025005827434959403,
+      "historical_class_rate": 0.0006280869603960679
+    },
+    "insample_metrics": {
+      "auc": 1.0,
+      "brier": 0.0524800036899851,
+      "n": 28
+    }
+  },
+  "temporal_validation": {
+    "split_date": "2020-01-01",
+    "n_train": 24,
+    "n_test": 4,
+    "test_metrics": {
+      "auc": 1.0,
+      "brier": 0.03821670539542293,
+      "calibration_slope": 0.20709921348255922
+    },
+    "trial_predictions": [
+      {
+        "nct_id": "NCT00116428",
+        "y_true": 1,
+        "y_prob": 0.9139378354371777,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00141778",
+        "y_true": 0,
+        "y_prob": 0.025307370632276876,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00174785",
+        "y_true": 1,
+        "y_prob": 0.75111645110501,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00249795",
+        "y_true": 0,
+        "y_prob": 0.48962461851708,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00249873",
+        "y_true": 1,
+        "y_prob": 0.6402162987194775,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00262600",
+        "y_true": 1,
+        "y_prob": 0.9415369093177735,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00392054",
+        "y_true": 1,
+        "y_prob": 0.8713841732733503,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00403767",
+        "y_true": 1,
+        "y_prob": 0.9668024844372478,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00412984",
+        "y_true": 1,
+        "y_prob": 0.9845354217540228,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00489736",
+        "y_true": 1,
+        "y_prob": 0.837656041995209,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00494871",
+        "y_true": 1,
+        "y_prob": 0.9532465220883494,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00496769",
+        "y_true": 1,
+        "y_prob": 0.9823909697978236,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00514735",
+        "y_true": 1,
+        "y_prob": 0.9339353445111126,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00523978",
+        "y_true": 1,
+        "y_prob": 0.9450434732400893,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00624520",
+        "y_true": 0,
+        "y_prob": 0.2970643697156,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00781391",
+        "y_true": 1,
+        "y_prob": 0.9134153157741426,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00808067",
+        "y_true": 1,
+        "y_prob": 0.9891825535441862,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01151137",
+        "y_true": 0,
+        "y_prob": 0.4901971848659499,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01198275",
+        "y_true": 0,
+        "y_prob": 0.12588263580553172,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01656772",
+        "y_true": 1,
+        "y_prob": 0.6257714951646879,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01830543",
+        "y_true": 1,
+        "y_prob": 0.9306308394317719,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02132767",
+        "y_true": 0,
+        "y_prob": 0.5626523659829958,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02164864",
+        "y_true": 1,
+        "y_prob": 0.9408191393092742,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02801669",
+        "y_true": 1,
+        "y_prob": 0.9458793020435199,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02943785",
+        "y_true": 1,
+        "y_prob": 0.967321270830899,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03464019",
+        "y_true": 0,
+        "y_prob": 0.2808492082454303,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04600921",
+        "y_true": 1,
+        "y_prob": 0.7327201137129196,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05643573",
+        "y_true": 1,
+        "y_prob": 0.9614758925364302,
+        "split": "test"
+      }
+    ]
+  },
+  "feature_names": [
+    "log_enrollment",
+    "duration_months",
+    "placebo_controlled",
+    "double_blind",
+    "is_industry",
+    "log_num_sites",
+    "multi_regional",
+    "num_arms",
+    "has_dsmb",
+    "ep_mace",
+    "ep_hf_hosp",
+    "ep_cv_death",
+    "ep_acm",
+    "ep_renal",
+    "ep_surrogate",
+    "era_2010_2017",
+    "era_2018plus",
+    "historical_class_rate"
+  ]
+}

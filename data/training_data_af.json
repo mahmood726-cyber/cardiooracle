@@ -1,0 +1,725 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-24T22:24:51.546308+00:00",
+  "config_id": "af",
+  "content_hash": "c7e947eedd7964df3c4cfcb28c4042bf45438be3ad51b1540db68f1148a11c90",
+  "n_trials": 28,
+  "class_base_rates": {
+    "other": 0.642857,
+    "acei": 0.0,
+    "arb": 0.0,
+    "antiplat": 1.0,
+    "anticoag": 1.0,
+    "sglt2i": 1.0
+  },
+  "trials": [
+    {
+      "nct_id": "NCT00116428",
+      "title": "NAVISTAR® THERMOCOOL® Catheter for the Radiofrequency Ablation of Symptomatic Paroxysmal Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 167,
+        "duration_months": 35.98,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 17,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2004,
+        "population_tags": [
+          "HFrEF",
+          "HFpEF",
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00141778",
+      "title": "Renin-angiotensin-aldosterone System (RAAS), Inflammation, and Post-Operative Atrial Fibrillation (AF)",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 455,
+        "duration_months": 63.01,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 1,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "acei",
+        "comparator_type": "placebo",
+        "num_arms": 3,
+        "has_dsmb": true,
+        "start_year": 2005,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.0
+      }
+    },
+    {
+      "nct_id": "NCT00174785",
+      "title": "A Trial With Dronedarone to Prevent Hospitalization or Death in Patients With Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 4628,
+        "duration_months": 33.02,
+        "placebo_controlled": true,
+        "double_blind": true,
+        "is_industry": true,
+        "num_sites": 37,
+        "multi_regional": true,
+        "endpoint_type": "acm",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2005,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00249795",
+      "title": "Atrial Fibrillation Clopidogrel Trial With Irbesartan for Prevention of Vascular Events (ACTIVE I)",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 9016,
+        "duration_months": 74.05,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 30,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "arb",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2003,
+        "population_tags": [],
+        "historical_class_rate": 0.0
+      }
+    },
+    {
+      "nct_id": "NCT00249873",
+      "title": "Atrial Fibrillation Clopidogrel Trial With Irbesartan for Prevention of Vascular Events (ACTIVE A)",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 7554,
+        "duration_months": 69.03,
+        "placebo_controlled": true,
+        "double_blind": true,
+        "is_industry": true,
+        "num_sites": 30,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "antiplat",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2003,
+        "population_tags": [
+          "diabetic",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00262600",
+      "title": "Randomized Evaluation of Long Term Anticoagulant Therapy (RE-LY) With Dabigatran Etexilate",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 18113,
+        "duration_months": 39.95,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 984,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 3,
+        "has_dsmb": false,
+        "start_year": 2005,
+        "population_tags": [
+          "diabetic",
+          "CKD",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00392054",
+      "title": "First Line Radiofrequency Ablation Versus Antiarrhythmic Drugs for Atrial Fibrillation Treatment (The RAAFT Study)",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 127,
+        "duration_months": 65.97,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 16,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2006,
+        "population_tags": [
+          "HFrEF",
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00403767",
+      "title": "An Efficacy and Safety Study of Rivaroxaban With Warfarin for the Prevention of Stroke and Non-Central Nervous System Systemic Embolism in Patients With Non-Valvular Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 14269,
+        "duration_months": 44.98,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 932,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2006,
+        "population_tags": [
+          "diabetic",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00412984",
+      "title": "Apixaban for the Prevention of Stroke in Subjects With Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 20976,
+        "duration_months": 52.76,
+        "placebo_controlled": false,
+        "double_blind": true,
+        "is_industry": true,
+        "num_sites": 1111,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2006,
+        "population_tags": [
+          "HFrEF",
+          "diabetic",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00489736",
+      "title": "Efficacy & Safety of Dronedarone Versus Amiodarone for the Maintenance of Sinus Rhythm in Patients With Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 504,
+        "duration_months": 16.07,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 23,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2007,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00494871",
+      "title": "Efficacy and Safety of Rivaroxaban for the Prevention of Stroke in Subjects With Non-Valvular Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 1280,
+        "duration_months": 30.06,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 165,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2007,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00496769",
+      "title": "A Phase III Study of Apixaban in Patients With Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 6421,
+        "duration_months": 39.0,
+        "placebo_controlled": false,
+        "double_blind": true,
+        "is_industry": true,
+        "num_sites": 503,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2007,
+        "population_tags": [
+          "diabetic",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00514735",
+      "title": "Tailored Treatment of Permanent Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 210,
+        "duration_months": 42.02,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 24,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2007,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00523978",
+      "title": "A Clinical Study of the Arctic Front Cryoablation Balloon for the Treatment of Paroxysmal Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 245,
+        "duration_months": 46.0,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 26,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": false,
+        "start_year": 2006,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00624520",
+      "title": "Mental Stress Reduction in Defibrillator Patients",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 129,
+        "duration_months": 43.99,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 2,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2008,
+        "population_tags": [],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT00781391",
+      "title": "Global Study to Assess the Safety and Effectiveness of Edoxaban (DU-176b) vs Standard Practice of Dosing With Warfarin in Patients With Atrial Fibrillation",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 21105,
+        "duration_months": 52.96,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 1009,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "placebo",
+        "num_arms": 3,
+        "has_dsmb": true,
+        "start_year": 2008,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT00808067",
+      "title": "RELY-ABLE Long Term Multi-center Extension of Dabigatran Treatment in Patients With Atrial Fibrillation Who Completed RE-LY Trial",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 5897,
+        "duration_months": 49.02,
+        "placebo_controlled": false,
+        "double_blind": true,
+        "is_industry": true,
+        "num_sites": 567,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": false,
+        "start_year": 2008,
+        "population_tags": [],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT01151137",
+      "title": "Permanent Atrial fibriLLAtion Outcome Study Using Dronedarone on Top of Standard Therapy",
+      "label": "safety_failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 3236,
+        "duration_months": 14.0,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 37,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2010,
+        "population_tags": [
+          "HFrEF",
+          "diabetic",
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT01198275",
+      "title": "n-3 Polyunsaturated Fatty Acids (PUFAs) in the Prevention of Atrial Fibrillation",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 199,
+        "duration_months": 27.96,
+        "placebo_controlled": true,
+        "double_blind": true,
+        "is_industry": false,
+        "num_sites": 1,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2006,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT01656772",
+      "title": "Vdrive Evaluation of Remote Steering and Testing in Lasso Electrophysiology Procedures Study",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 120,
+        "duration_months": 16.0,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 5,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2012,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT01830543",
+      "title": "A Study Exploring Two Strategies of Rivaroxaban (JNJ39039039; BAY-59-7939) and One of Oral Vitamin K Antagonist in Patients With Atrial Fibrillation Who Undergo Percutaneous Coronary Intervention",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 2124,
+        "duration_months": 38.6,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 348,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 3,
+        "has_dsmb": true,
+        "start_year": 2013,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT02132767",
+      "title": "Rate Control Versus Rhythm Control For Postoperative Atrial Fibrillation",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 523,
+        "duration_months": 16.0,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 23,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2014,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT02164864",
+      "title": "Evaluation of Dual Therapy With Dabigatran vs. Triple Therapy With Warfarin in Patients With AF That Undergo a PCI With Stenting (REDUAL-PCI)",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 2725,
+        "duration_months": 34.46,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 421,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 3,
+        "has_dsmb": false,
+        "start_year": 2014,
+        "population_tags": [
+          "CKD",
+          "AF"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT02801669",
+      "title": "Study of DU-176b Aged 80 Years or Older",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 984,
+        "duration_months": 40.71,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 164,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2016,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT02943785",
+      "title": "Edoxaban Compared to Standard Care After Heart Valve Replacement Using a Catheter in Patients With Atrial Fibrillation (ENVISAGE-TAVI AF)",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 1426,
+        "duration_months": 47.31,
+        "placebo_controlled": false,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 230,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "anticoag",
+        "comparator_type": "active",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2017,
+        "population_tags": [],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT03464019",
+      "title": "Efficacy and Safety of Etripamil for the Termination of Spontaneous Paroxysmal Supraventricular Tachycardia (PSVT).",
+      "label": "failure",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 1097,
+        "duration_months": 55.1,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 161,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 6,
+        "has_dsmb": true,
+        "start_year": 2018,
+        "population_tags": [
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    },
+    {
+      "nct_id": "NCT04600921",
+      "title": "Ertugliflozin to Reduce Arrhythmic Burden in ICD/CRT patientS (ERASe-Trial) - a Phase III Study",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 55,
+        "duration_months": 23.95,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": false,
+        "num_sites": 8,
+        "multi_regional": false,
+        "endpoint_type": "other",
+        "drug_class": "sglt2i",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2021,
+        "population_tags": [
+          "HFrEF",
+          "diabetic",
+          "CKD"
+        ],
+        "historical_class_rate": 1.0
+      }
+    },
+    {
+      "nct_id": "NCT05643573",
+      "title": "A Study to Learn How Well the Study Treatment Asundexian Works and How Safe it is Compared to Apixaban to Prevent Stroke or Systemic Embolism in People With Irregular and Often Rapid Heartbeat (Atrial Fibrillation), and at Risk for Stroke",
+      "label": "success",
+      "label_tier": 1,
+      "features": {
+        "enrollment": 14830,
+        "duration_months": 13.86,
+        "placebo_controlled": true,
+        "double_blind": false,
+        "is_industry": true,
+        "num_sites": 1069,
+        "multi_regional": true,
+        "endpoint_type": "other",
+        "drug_class": "other",
+        "comparator_type": "placebo",
+        "num_arms": 2,
+        "has_dsmb": true,
+        "start_year": 2022,
+        "population_tags": [
+          "CKD",
+          "AF"
+        ],
+        "historical_class_rate": 0.642857
+      }
+    }
+  ]
+}
