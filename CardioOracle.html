@@ -3582,7 +3582,7 @@ async function initWebR() {
       setTimeout(() => reject(new Error('WebR init timed out after 60 s')), 60000)
     );
 
-    // Dynamic ESM import — keeps </script> out of literal HTML
+    // Dynamic ESM import — avoids literal closing-script-tag in HTML
     const importURL = 'https://webr.r-wasm.org/v0.4.4/webr.mjs';
     const modPromise = import(importURL);
 
