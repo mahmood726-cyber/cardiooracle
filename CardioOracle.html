@@ -506,6 +506,52 @@
     .snapshot-bar button { padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-input); color: var(--text); cursor: pointer; font-size: 0.85rem; }
     .snapshot-bar button:hover { background: var(--tab-hover); }
     @media (max-width: 768px) { .design-layout { grid-template-columns: 1fr; } }
+
+    /* ── Training Data Explorer ─────────────────────────────────────── */
+    .data-filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    .data-filters select, .data-filters input { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-input); color: var(--text); font-size: 0.85rem; }
+    .data-filters input { min-width: 200px; }
+    .data-filters select:focus, .data-filters input:focus { outline: 2px solid var(--text-accent); border-color: var(--text-accent); }
+    .export-btn { padding: 8px 16px; background: var(--tab-active); color: #fff; border: none; border-radius: var(--radius); cursor: pointer; font-size: 0.85rem; }
+    .export-btn:hover { opacity: 0.9; }
+    .export-btn:focus { outline: 2px solid var(--text-accent); outline-offset: 2px; }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: var(--text-accent); }
+    .sort-arrow { font-size: 0.7rem; margin-left: 4px; }
+    .label-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+    .label-success { background: var(--green-bg); color: var(--success); }
+    .label-failure { background: var(--red-bg); color: var(--danger); }
+    .label-safety { background: var(--amber-bg); color: var(--warning); }
+    .data-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
+    .corpus-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .corpus-stat { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 16px; font-size: 0.85rem; }
+    .corpus-stat strong { color: var(--text-accent); font-size: 1rem; }
+    .corpus-hash { font-size: 0.78rem; color: var(--text-muted); word-break: break-all; margin-bottom: 16px; }
+    .show-more-wrap { text-align: center; margin-top: 12px; }
+    .show-more-btn { padding: 8px 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-input); color: var(--text); cursor: pointer; font-size: 0.85rem; }
+    .show-more-btn:hover { background: var(--tab-hover); }
+    .show-more-btn:focus { outline: 2px solid var(--text-accent); outline-offset: 2px; }
+    .training-table-wrap { overflow-x: auto; }
+    .training-table-wrap table { min-width: 780px; }
+
+    /* ── Calibration Tab ─────────────────────────────────────────────── */
+    .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .metric-card { text-align: center; padding: 20px 12px; }
+    .metric-value { font-size: 2rem; font-weight: 700; line-height: 1.1; margin: 8px 0 4px; }
+    .metric-threshold { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+    .metric-pass { color: var(--success); }
+    .metric-fail { color: var(--danger); }
+    .metric-badge { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 0.78rem; font-weight: 700; }
+    .metric-badge-pass { background: var(--green-bg); color: var(--success); }
+    .metric-badge-fail { background: var(--red-bg); color: var(--danger); }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .chart-container { height: 360px; }
+    .split-info { text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .pred-correct { color: var(--success); font-weight: 600; }
+    .pred-incorrect { color: var(--danger); font-weight: 600; }
+    .calib-table-wrap { overflow-x: auto; }
+    .calib-table-wrap table { min-width: 640px; }
+    @media (max-width: 768px) { .metrics-row, .charts-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -824,30 +870,71 @@
   >
     <div class="card">
       <div class="card-title">Embedded Training Corpus</div>
-      <table>
-        <tbody>
-          <tr>
-            <th>Trials embedded</th>
-            <td><span id="trainingCount">—</span></td>
-          </tr>
-          <tr>
-            <th>Corpus version</th>
-            <td><code>1.0.0-placeholder</code></td>
-          </tr>
-          <tr>
-            <th>Content hash (SHA-256)</th>
-            <td><code id="trainingHash">—</code></td>
-          </tr>
-          <tr>
-            <th>Source</th>
-            <td>ClinicalTrials.gov / AACT (public domain)</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
 
-    <div class="alert alert-warning visible" role="note">
-      Training data is currently a placeholder. The full curated corpus will be embedded by the Python pipeline in Phase 2.
+      <!-- Summary stats bar -->
+      <div class="corpus-stats" id="trainingStatsBar">
+        <div class="corpus-stat">Trials: <strong id="trainingCount">—</strong></div>
+        <div class="corpus-stat">Success: <strong id="trainingSuccessCount" style="color:var(--success)">—</strong></div>
+        <div class="corpus-stat">Failure: <strong id="trainingFailureCount" style="color:var(--danger)">—</strong></div>
+        <div class="corpus-stat">Safety: <strong id="trainingSafetyCount" style="color:var(--warning)">—</strong></div>
+        <div class="corpus-stat">Version: <strong id="trainingVersion">—</strong></div>
+      </div>
+      <div class="corpus-hash">SHA-256: <code id="trainingHash">—</code></div>
+
+      <!-- Filters -->
+      <div class="data-filters" role="group" aria-label="Training data filters">
+        <select id="tdFilterDrugClass" aria-label="Filter by drug class">
+          <option value="">All Drug Classes</option>
+        </select>
+        <select id="tdFilterEndpoint" aria-label="Filter by endpoint type">
+          <option value="">All Endpoint Types</option>
+        </select>
+        <select id="tdFilterLabel" aria-label="Filter by label">
+          <option value="">All Labels</option>
+          <option value="success">Success</option>
+          <option value="failure">Failure</option>
+          <option value="safety">Safety Failure</option>
+        </select>
+        <input
+          type="search"
+          id="tdSearch"
+          placeholder="Search NCT ID or title..."
+          aria-label="Search by NCT ID or title"
+        />
+        <button class="export-btn" id="tdExportBtn" type="button">Export CSV</button>
+      </div>
+
+      <!-- Row count + sort status -->
+      <div class="data-status">
+        <span id="tdRowStatus">Showing — of — trials</span>
+        <span id="tdSortStatus" class="text-muted"></span>
+      </div>
+
+      <!-- Table -->
+      <div class="training-table-wrap">
+        <table id="trainingDataTable" aria-label="Training corpus trials">
+          <thead>
+            <tr>
+              <th class="sortable" data-col="nct_id" scope="col">NCT ID <span class="sort-arrow" id="sarr-nct_id"></span></th>
+              <th class="sortable" data-col="title" scope="col">Title <span class="sort-arrow" id="sarr-title"></span></th>
+              <th class="sortable" data-col="label" scope="col">Label <span class="sort-arrow" id="sarr-label"></span></th>
+              <th class="sortable" data-col="label_tier" scope="col">Tier <span class="sort-arrow" id="sarr-label_tier"></span></th>
+              <th class="sortable" data-col="drug_class" scope="col">Drug Class <span class="sort-arrow" id="sarr-drug_class"></span></th>
+              <th class="sortable" data-col="endpoint_type" scope="col">Endpoint <span class="sort-arrow" id="sarr-endpoint_type"></span></th>
+              <th class="sortable" data-col="enrollment" scope="col">Enrollment <span class="sort-arrow" id="sarr-enrollment"></span></th>
+              <th class="sortable" data-col="duration_months" scope="col">Duration (mo) <span class="sort-arrow" id="sarr-duration_months"></span></th>
+            </tr>
+          </thead>
+          <tbody id="trainingTableBody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Show more -->
+      <div class="show-more-wrap" id="tdShowMoreWrap" style="display:none;">
+        <button class="show-more-btn" id="tdShowMoreBtn" type="button">Show more</button>
+      </div>
     </div>
   </section>
 
@@ -2556,6 +2643,300 @@ function _clearSnapshots() {
       // Restore persisted state (if any), then predict
       _restoreDesignerState();
       setTimeout(updateDesignPrediction, 0);
+    });
+  }
+})();
+
+/* ── 8: Training Data Explorer ────────────────────────────────────── */
+(function initTrainingExplorer() {
+  'use strict';
+
+  /* ── State ── */
+  let _tdInitialised  = false;
+  let _filteredData   = [];    // current filtered+sorted rows
+  let _sortCol        = 'nct_id';
+  let _sortAsc        = true;
+  let _visibleCount   = 50;    // rows visible (grows with "show more")
+  const PAGE_SIZE     = 50;
+
+  /* ── Helper: format drug class label ── */
+  function fmtDrugClass(s) {
+    if (!s) return '—';
+    const map = {
+      sglt2i:'SGLT-2i', glp1ra:'GLP-1 RA', arni:'ARNi', pcsk9i:'PCSK9i',
+      acei:'ACEi', arb:'ARB', bb:'Beta-blocker', mra:'MRA', ns_mra:'NS-MRA',
+      statin:'Statin', anticoag:'Anticoag', antiplat:'Antiplatelet', other:'Other'
+    };
+    return map[s] ?? s;
+  }
+
+  /* ── Helper: format endpoint label ── */
+  function fmtEndpoint(s) {
+    if (!s) return '—';
+    const map = {
+      mace:'MACE', cv_death:'CV Death', acm:'ACM', hf_hosp:'HF Hosp',
+      renal:'Renal', composite:'Composite', safety:'Safety', surrogate:'Surrogate'
+    };
+    return map[s] ?? s;
+  }
+
+  /* ── Populate summary stats bar ── */
+  function populateStats() {
+    const trials = TRAINING_DATA.trials;
+    const nTotal   = trials.length;
+    const nSuccess = trials.filter(t => t.label === 'success').length;
+    const nFailure = trials.filter(t => t.label === 'failure').length;
+    const nSafety  = trials.filter(t => t.label === 'safety').length;
+
+    const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = String(v); };
+    el('trainingCount',   nTotal);
+    el('trainingSuccessCount', nSuccess + ' (' + Math.round(nSuccess/nTotal*100) + '%)');
+    el('trainingFailureCount', nFailure);
+    el('trainingSafetyCount',  nSafety);
+    el('trainingVersion', TRAINING_DATA.version ?? '—');
+    el('trainingHash',    TRAINING_DATA.content_hash ?? '—');
+    // also update footer hash if present
+    const fh = document.getElementById('footerHash');
+    if (fh) fh.textContent = TRAINING_DATA.content_hash ?? '—';
+  }
+
+  /* ── Populate filter dropdowns ── */
+  function populateDropdowns() {
+    const drugClasses = [...new Set(
+      TRAINING_DATA.trials.map(t => t.features.drug_class).filter(Boolean)
+    )].sort();
+    const endpoints = [...new Set(
+      TRAINING_DATA.trials.map(t => t.features.endpoint_type).filter(Boolean)
+    )].sort();
+
+    const dcSel = document.getElementById('tdFilterDrugClass');
+    const epSel = document.getElementById('tdFilterEndpoint');
+    if (!dcSel || !epSel) return;
+
+    drugClasses.forEach(dc => {
+      const opt = document.createElement('option');
+      opt.value = dc;
+      opt.textContent = fmtDrugClass(dc);
+      dcSel.appendChild(opt);
+    });
+
+    endpoints.forEach(ep => {
+      const opt = document.createElement('option');
+      opt.value = ep;
+      opt.textContent = fmtEndpoint(ep);
+      epSel.appendChild(opt);
+    });
+  }
+
+  /* ── Apply filters + sort → update _filteredData ── */
+  function applyFiltersAndSort() {
+    const dcVal    = (document.getElementById('tdFilterDrugClass')?.value  ?? '').toLowerCase();
+    const epVal    = (document.getElementById('tdFilterEndpoint')?.value   ?? '').toLowerCase();
+    const lblVal   = (document.getElementById('tdFilterLabel')?.value      ?? '').toLowerCase();
+    const searchRaw = (document.getElementById('tdSearch')?.value          ?? '').trim().toLowerCase();
+
+    let rows = TRAINING_DATA.trials.slice();
+
+    if (dcVal)     rows = rows.filter(t => (t.features.drug_class   ?? '').toLowerCase() === dcVal);
+    if (epVal)     rows = rows.filter(t => (t.features.endpoint_type ?? '').toLowerCase() === epVal);
+    if (lblVal)    rows = rows.filter(t => (t.label ?? '').toLowerCase() === lblVal);
+    if (searchRaw) rows = rows.filter(t =>
+      t.nct_id.toLowerCase().includes(searchRaw) ||
+      t.title.toLowerCase().includes(searchRaw)
+    );
+
+    /* sort */
+    rows.sort((a, b) => {
+      let va, vb;
+      switch (_sortCol) {
+        case 'nct_id':         va = a.nct_id;                        vb = b.nct_id;                        break;
+        case 'title':          va = a.title;                         vb = b.title;                         break;
+        case 'label':          va = a.label;                         vb = b.label;                         break;
+        case 'label_tier':     va = a.label_tier ?? 0;               vb = b.label_tier ?? 0;               break;
+        case 'drug_class':     va = a.features.drug_class  ?? '';    vb = b.features.drug_class  ?? '';    break;
+        case 'endpoint_type':  va = a.features.endpoint_type ?? '';  vb = b.features.endpoint_type ?? '';  break;
+        case 'enrollment':     va = a.features.enrollment ?? 0;      vb = b.features.enrollment ?? 0;      break;
+        case 'duration_months':va = a.features.duration_months ?? 0; vb = b.features.duration_months ?? 0; break;
+        default:               va = a.nct_id;                        vb = b.nct_id;
+      }
+      if (typeof va === 'string') {
+        const cmp = va.localeCompare(vb);
+        return _sortAsc ? cmp : -cmp;
+      }
+      return _sortAsc ? va - vb : vb - va;
+    });
+
+    _filteredData = rows;
+    _visibleCount = PAGE_SIZE; // reset to first page on re-filter
+    renderTable();
+  }
+
+  /* ── Render table body ── */
+  function renderTable() {
+    const tbody = document.getElementById('trainingTableBody');
+    const statusEl = document.getElementById('tdRowStatus');
+    const showMoreWrap = document.getElementById('tdShowMoreWrap');
+    const showMoreBtn  = document.getElementById('tdShowMoreBtn');
+    if (!tbody) return;
+
+    const slice = _filteredData.slice(0, _visibleCount);
+
+    tbody.innerHTML = slice.map(t => {
+      const nctId     = escapeHtml(t.nct_id ?? '');
+      const titleFull = t.title ?? '';
+      const titleTrunc = escapeHtml(titleFull.length > 60 ? titleFull.slice(0, 60) + '…' : titleFull);
+      const titleAttr  = escapeHtml(titleFull).replace(/"/g, '&quot;');
+
+      const label     = (t.label ?? '').toLowerCase();
+      const labelClass = label === 'success' ? 'label-success' :
+                         label === 'failure' ? 'label-failure' :
+                         label === 'safety'  ? 'label-safety'  : '';
+      const labelText = label === 'safety' ? 'Safety' :
+                        label.charAt(0).toUpperCase() + label.slice(1);
+
+      const tier       = escapeHtml(String(t.label_tier ?? '—'));
+      const drugClass  = escapeHtml(fmtDrugClass(t.features.drug_class));
+      const endpoint   = escapeHtml(fmtEndpoint(t.features.endpoint_type));
+      const enrollment = t.features.enrollment ? Number(t.features.enrollment).toLocaleString() : '—';
+      const duration   = t.features.duration_months != null
+        ? Math.round(t.features.duration_months * 10) / 10
+        : '—';
+
+      return '<tr>' +
+        '<td><a href="https://clinicaltrials.gov/study/' + nctId + '" target="_blank" rel="noopener noreferrer">' + nctId + '</a></td>' +
+        '<td><span title="' + titleAttr + '">' + titleTrunc + '</span></td>' +
+        '<td><span class="label-badge ' + labelClass + '">' + escapeHtml(labelText) + '</span></td>' +
+        '<td>' + tier + '</td>' +
+        '<td>' + drugClass + '</td>' +
+        '<td>' + endpoint + '</td>' +
+        '<td>' + escapeHtml(String(enrollment)) + '</td>' +
+        '<td>' + escapeHtml(String(duration)) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    /* status line */
+    if (statusEl) {
+      statusEl.textContent = 'Showing ' + slice.length + ' of ' + _filteredData.length + ' trials';
+    }
+
+    /* show-more button */
+    if (showMoreWrap && showMoreBtn) {
+      if (_filteredData.length > _visibleCount) {
+        showMoreWrap.style.display = '';
+        const remaining = _filteredData.length - _visibleCount;
+        showMoreBtn.textContent = 'Show ' + Math.min(remaining, PAGE_SIZE) + ' more';
+      } else {
+        showMoreWrap.style.display = 'none';
+      }
+    }
+
+    /* update sort arrows */
+    const cols = ['nct_id','title','label','label_tier','drug_class','endpoint_type','enrollment','duration_months'];
+    cols.forEach(c => {
+      const arrowEl = document.getElementById('sarr-' + c);
+      if (!arrowEl) return;
+      arrowEl.textContent = c === _sortCol ? (_sortAsc ? ' \u25b2' : ' \u25bc') : '';
+    });
+
+    /* update sort status */
+    const sortStatus = document.getElementById('tdSortStatus');
+    if (sortStatus) {
+      sortStatus.textContent = 'Sorted by ' + _sortCol.replace(/_/g, ' ') + ' ' + (_sortAsc ? 'A\u2192Z' : 'Z\u2192A');
+    }
+  }
+
+  /* ── CSV Export ── */
+  function exportCSV() {
+    const headers = ['NCT ID','Title','Label','Tier','Drug Class','Endpoint','Enrollment','Duration (months)'];
+    const escCSV = v => {
+      const s = String(v ?? '');
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? '"' + s.replace(/"/g, '""') + '"'
+        : s;
+    };
+
+    const rows = _filteredData.map(t => [
+      t.nct_id ?? '',
+      t.title ?? '',
+      t.label ?? '',
+      t.label_tier ?? '',
+      t.features.drug_class ?? '',
+      t.features.endpoint_type ?? '',
+      t.features.enrollment ?? '',
+      t.features.duration_months != null ? Math.round(t.features.duration_months * 10) / 10 : ''
+    ].map(escCSV).join(','));
+
+    const csv = [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'cardiooracle_training_' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ── Wire up controls ── */
+  function wireControls() {
+    ['tdFilterDrugClass','tdFilterEndpoint','tdFilterLabel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', applyFiltersAndSort);
+    });
+
+    const searchEl = document.getElementById('tdSearch');
+    if (searchEl) {
+      let _debounce;
+      searchEl.addEventListener('input', () => {
+        clearTimeout(_debounce);
+        _debounce = setTimeout(applyFiltersAndSort, 220);
+      });
+    }
+
+    /* sortable headers */
+    const thead = document.querySelector('#trainingDataTable thead');
+    if (thead) {
+      thead.addEventListener('click', e => {
+        const th = e.target.closest('th[data-col]');
+        if (!th) return;
+        const col = th.dataset.col;
+        if (_sortCol === col) {
+          _sortAsc = !_sortAsc;
+        } else {
+          _sortCol = col;
+          _sortAsc = true;
+        }
+        renderTable();
+      });
+    }
+
+    /* show more */
+    const showMoreBtn = document.getElementById('tdShowMoreBtn');
+    if (showMoreBtn) {
+      showMoreBtn.addEventListener('click', () => {
+        _visibleCount += PAGE_SIZE;
+        renderTable();
+      });
+    }
+
+    /* export */
+    const exportBtn = document.getElementById('tdExportBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', exportCSV);
+    }
+  }
+
+  /* ── Lazy init: run when Training Data tab first clicked ── */
+  const trainingTabBtn = document.getElementById('tab-training');
+  if (trainingTabBtn) {
+    trainingTabBtn.addEventListener('click', () => {
+      if (_tdInitialised) return;
+      _tdInitialised = true;
+      populateStats();
+      populateDropdowns();
+      wireControls();
+      applyFiltersAndSort();
     });
   }
 })();
