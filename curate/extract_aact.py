@@ -182,20 +182,20 @@ def _fetch_core_trials(cur, limit: Optional[int]) -> list:
             s.enrollment,
             s.start_date,
             s.primary_completion_date,
-            s.sponsor_name,
-            s.sponsor_type                  AS sponsor_class,
-            s.has_dsmb,
-            d.number_of_arms                AS num_arms,
+            s.source                        AS sponsor_name,
+            s.source_class                  AS sponsor_class,
+            s.has_dmc                       AS has_dsmb,
+            s.number_of_arms                AS num_arms,
             d.allocation,
             d.masking
         FROM ctgov.studies s
-        JOIN ctgov.designs d
+        LEFT JOIN ctgov.designs d
             ON d.nct_id = s.nct_id
-        WHERE s.study_type        = 'Interventional'
-          AND d.allocation        = 'Randomized'
-          AND s.phase             LIKE '%%Phase 3%%'
+        WHERE s.study_type        = 'INTERVENTIONAL'
+          AND d.allocation        = 'RANDOMIZED'
+          AND s.phase             = 'PHASE3'
           AND s.enrollment        >= 50
-          AND s.overall_status    IN ('Completed', 'Terminated')
+          AND s.overall_status    IN ('COMPLETED', 'TERMINATED')
           AND s.results_first_posted_date IS NOT NULL
           AND EXISTS (
               SELECT 1
@@ -233,7 +233,7 @@ def _fetch_primary_outcomes(cur, nct_ids: list) -> dict:
         LEFT JOIN ctgov.outcome_analyses oa
             ON oa.outcome_id = o.id
         WHERE o.nct_id        = ANY(%s)
-          AND o.outcome_type  = 'Primary'
+          AND o.outcome_type  = 'PRIMARY'
         ORDER BY o.nct_id, o.id, oa.id
     """
     cur.execute(sql, (nct_ids,))

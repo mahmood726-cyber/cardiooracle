@@ -1,0 +1,2052 @@
+{
+  "model": {
+    "coefficients": {
+      "intercept": 0.24962129055433477,
+      "log_enrollment": 0.14464972107690585,
+      "duration_months": -0.36902545575266665,
+      "placebo_controlled": -0.10679576401284722,
+      "double_blind": 0.127880875658275,
+      "is_industry": 0.3995558324882626,
+      "log_num_sites": 0.03867102020207682,
+      "multi_regional": -0.07791128077661562,
+      "num_arms": 0.2734778230476822,
+      "has_dsmb": -0.08668836129791474,
+      "ep_mace": -0.05023100031056799,
+      "ep_hf_hosp": 0.12657734012431082,
+      "ep_cv_death": 0.18687939179384475,
+      "ep_acm": -0.20860799056610957,
+      "ep_renal": 0.05182688660680333,
+      "ep_surrogate": 0.16852682234966507,
+      "era_2010_2017": 0.019056605856655865,
+      "era_2018plus": 0.15425354359963114,
+      "historical_class_rate": -7.035090335896039e-17
+    },
+    "insample_metrics": {
+      "auc": 0.7301642111724984,
+      "brier": 0.20931200324566704,
+      "n": 325
+    },
+    "_scaler_mean": [
+      6.666995807264216,
+      37.93864615384614,
+      0.6,
+      0.28307692307692306,
+      0.8215384615384616,
+      3.647272149094037,
+      0.6553846153846153,
+      2.4092307692307693,
+      0.6184615384615385,
+      0.033846153846153845,
+      0.012307692307692308,
+      0.04923076923076923,
+      0.04,
+      0.021538461538461538,
+      0.24615384615384617,
+      0.4553846153846154,
+      0.15692307692307692,
+      0.45000000000000034
+    ],
+    "_scaler_scale": [
+      1.5509357378012663,
+      23.980991113431596,
+      0.48989794855663404,
+      0.45049348352470725,
+      0.38290079361562945,
+      2.122099710208702,
+      0.4752426972629618,
+      1.0146197585489198,
+      0.4857642060766988,
+      0.1808330492912633,
+      0.11025521764411654,
+      0.21634948715380883,
+      0.19595917942265378,
+      0.1451707829179749,
+      0.4307692307692299,
+      0.4980054893830218,
+      0.3637282293857201,
+      1.0
+    ]
+  },
+  "temporal_validation": {
+    "split_date": "2020-01-01",
+    "n_train": 254,
+    "n_test": 71,
+    "test_metrics": {
+      "auc": 0.6747967479674797,
+      "brier": 0.557917513311657,
+      "calibration_slope": 0.02961963985390832
+    },
+    "trial_predictions": [
+      {
+        "nct_id": "NCT00000620",
+        "y_true": 0,
+        "y_prob": 4.442979488938537e-18,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00006305",
+        "y_true": 0,
+        "y_prob": 1.727054763625307e-15,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00023595",
+        "y_true": 0,
+        "y_prob": 2.1916591628514382e-26,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00029146",
+        "y_true": 0,
+        "y_prob": 3.1463376514142767e-15,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00041938",
+        "y_true": 0,
+        "y_prob": 7.93770355757706e-17,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00046228",
+        "y_true": 0,
+        "y_prob": 4.251923447111237e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00090259",
+        "y_true": 1,
+        "y_prob": 1.2375788419966907e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00091507",
+        "y_true": 0,
+        "y_prob": 3.962275986365683e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00091949",
+        "y_true": 1,
+        "y_prob": 1.4359865213287003e-20,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00092677",
+        "y_true": 0,
+        "y_prob": 1.1751781902405885e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00094302",
+        "y_true": 0,
+        "y_prob": 5.997080599432887e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00113087",
+        "y_true": 0,
+        "y_prob": 1.410354079929567e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00116428",
+        "y_true": 1,
+        "y_prob": 1.123884606615378e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00116831",
+        "y_true": 0,
+        "y_prob": 1.1354270693062179e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00120289",
+        "y_true": 0,
+        "y_prob": 3.723143655549791e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00141453",
+        "y_true": 0,
+        "y_prob": 4.5721716325110887e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00147199",
+        "y_true": 1,
+        "y_prob": 0.00026410875928624064,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00159913",
+        "y_true": 0,
+        "y_prob": 5.632243221690992e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00174785",
+        "y_true": 1,
+        "y_prob": 4.6280381979134884e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00180479",
+        "y_true": 1,
+        "y_prob": 0.012286966774517794,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00202878",
+        "y_true": 1,
+        "y_prob": 9.501396323550559e-17,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00221104",
+        "y_true": 0,
+        "y_prob": 6.005437870797924e-20,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00241839",
+        "y_true": 0,
+        "y_prob": 4.5029291229872364e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00243919",
+        "y_true": 0,
+        "y_prob": 1.5293925456065e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00249795",
+        "y_true": 0,
+        "y_prob": 1.4559460325312255e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00249873",
+        "y_true": 1,
+        "y_prob": 1.028259442803318e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00262600",
+        "y_true": 1,
+        "y_prob": 8.579212451135615e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00273052",
+        "y_true": 1,
+        "y_prob": 0.001988157876410466,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00276380",
+        "y_true": 0,
+        "y_prob": 1.456624070395959e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00286741",
+        "y_true": 0,
+        "y_prob": 0.00021394318253339104,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00324350",
+        "y_true": 0,
+        "y_prob": 9.233091757298245e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00325403",
+        "y_true": 1,
+        "y_prob": 1.784769962916836e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00325442",
+        "y_true": 0,
+        "y_prob": 0.0015595696802770229,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00335452",
+        "y_true": 0,
+        "y_prob": 1.61800544732917e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00345839",
+        "y_true": 0,
+        "y_prob": 1.2133671285880916e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00347360",
+        "y_true": 0,
+        "y_prob": 0.005931665904452774,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00358215",
+        "y_true": 0,
+        "y_prob": 6.564968013082514e-12,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00359424",
+        "y_true": 0,
+        "y_prob": 2.3694775496670755e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00364845",
+        "y_true": 0,
+        "y_prob": 0.00024344553585729374,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00389519",
+        "y_true": 1,
+        "y_prob": 0.1180999673685189,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00392054",
+        "y_true": 1,
+        "y_prob": 1.1287920219330631e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00403767",
+        "y_true": 1,
+        "y_prob": 8.102483317827637e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00412984",
+        "y_true": 1,
+        "y_prob": 6.17766829643128e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00413244",
+        "y_true": 1,
+        "y_prob": 1.2604752586306484e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00415623",
+        "y_true": 1,
+        "y_prob": 0.29149767133319315,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00430508",
+        "y_true": 1,
+        "y_prob": 0.1409722318682835,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00430950",
+        "y_true": 0,
+        "y_prob": 0.04766093835161398,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00432666",
+        "y_true": 1,
+        "y_prob": 0.48014981399961565,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00435162",
+        "y_true": 0,
+        "y_prob": 0.002807792198512489,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00436748",
+        "y_true": 1,
+        "y_prob": 2.0393360643138354e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00441350",
+        "y_true": 1,
+        "y_prob": 0.21579821766999643,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00441545",
+        "y_true": 0,
+        "y_prob": 0.0071644677177943985,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00460564",
+        "y_true": 1,
+        "y_prob": 0.009883491826772473,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00460655",
+        "y_true": 1,
+        "y_prob": 0.00584718366542776,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00484315",
+        "y_true": 0,
+        "y_prob": 0.0006336351524557492,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00489736",
+        "y_true": 1,
+        "y_prob": 0.02028541240399427,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00494871",
+        "y_true": 1,
+        "y_prob": 0.00014223448430461766,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00496769",
+        "y_true": 1,
+        "y_prob": 8.098444221491978e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00497146",
+        "y_true": 0,
+        "y_prob": 7.93707352330972e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00499096",
+        "y_true": 0,
+        "y_prob": 1.0618956159414093e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00503698",
+        "y_true": 0,
+        "y_prob": 0.01696685622557979,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00514735",
+        "y_true": 1,
+        "y_prob": 1.267376433903797e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00517933",
+        "y_true": 0,
+        "y_prob": 0.0021851664572866093,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00523978",
+        "y_true": 1,
+        "y_prob": 3.2638100210913635e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00526474",
+        "y_true": 1,
+        "y_prob": 8.001952818114773e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00527943",
+        "y_true": 0,
+        "y_prob": 1.678016956111854e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00546754",
+        "y_true": 0,
+        "y_prob": 0.0020959920369374727,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00549757",
+        "y_true": 0,
+        "y_prob": 8.385294788166909e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00576693",
+        "y_true": 1,
+        "y_prob": 1.29298039236204e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00582114",
+        "y_true": 0,
+        "y_prob": 1.2501782561404255e-15,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00591253",
+        "y_true": 1,
+        "y_prob": 0.015583463389681052,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00591266",
+        "y_true": 1,
+        "y_prob": 0.02755988310175764,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00591578",
+        "y_true": 1,
+        "y_prob": 0.006589914137264008,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00591773",
+        "y_true": 1,
+        "y_prob": 0.01901605183912053,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00616772",
+        "y_true": 0,
+        "y_prob": 1.27903702522237e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00623623",
+        "y_true": 0,
+        "y_prob": 1.976890702799786e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00624065",
+        "y_true": 0,
+        "y_prob": 0.6024440497221654,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00624520",
+        "y_true": 0,
+        "y_prob": 3.759662787421018e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00649389",
+        "y_true": 1,
+        "y_prob": 0.3220760418517079,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00660179",
+        "y_true": 1,
+        "y_prob": 4.444698861475844e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00696241",
+        "y_true": 1,
+        "y_prob": 0.06158902923987776,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00696384",
+        "y_true": 1,
+        "y_prob": 0.003510144749054178,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00696436",
+        "y_true": 1,
+        "y_prob": 0.06354148059518597,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00706849",
+        "y_true": 1,
+        "y_prob": 0.012861228383055449,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00709956",
+        "y_true": 0,
+        "y_prob": 0.04269243867317011,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00739674",
+        "y_true": 0,
+        "y_prob": 0.019991014154348636,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00739973",
+        "y_true": 1,
+        "y_prob": 0.8027869050077446,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00756938",
+        "y_true": 0,
+        "y_prob": 2.084935722535903e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00760214",
+        "y_true": 1,
+        "y_prob": 0.05679753543397832,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00781391",
+        "y_true": 1,
+        "y_prob": 5.94826632101654e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00795639",
+        "y_true": 0,
+        "y_prob": 0.0003477861389154097,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00796666",
+        "y_true": 0,
+        "y_prob": 0.0022448565234245306,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00799903",
+        "y_true": 0,
+        "y_prob": 6.341737598840014e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00808067",
+        "y_true": 1,
+        "y_prob": 2.171972600134976e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00809965",
+        "y_true": 1,
+        "y_prob": 7.407484041371298e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00810693",
+        "y_true": 1,
+        "y_prob": 2.716960492217288e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00818883",
+        "y_true": 1,
+        "y_prob": 0.2759684158878684,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00823212",
+        "y_true": 1,
+        "y_prob": 0.006199918360397993,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00826280",
+        "y_true": 1,
+        "y_prob": 0.03046304100440675,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00844519",
+        "y_true": 0,
+        "y_prob": 8.141687258535814e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00846365",
+        "y_true": 1,
+        "y_prob": 0.05801365547443702,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00847626",
+        "y_true": 1,
+        "y_prob": 0.2940206960592231,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00853658",
+        "y_true": 0,
+        "y_prob": 3.743860318622728e-12,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00855465",
+        "y_true": 1,
+        "y_prob": 2.531329731340694e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00856661",
+        "y_true": 0,
+        "y_prob": 2.038301433712661e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00860262",
+        "y_true": 1,
+        "y_prob": 0.3829890020153919,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00862251",
+        "y_true": 1,
+        "y_prob": 0.0031625764680425494,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00877929",
+        "y_true": 1,
+        "y_prob": 0.04678987314292138,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00878644",
+        "y_true": 0,
+        "y_prob": 3.6358767253062668e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00887978",
+        "y_true": 0,
+        "y_prob": 0.000897412380899763,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00902538",
+        "y_true": 0,
+        "y_prob": 0.06897912624023285,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00922480",
+        "y_true": 1,
+        "y_prob": 0.4028823920738491,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00923091",
+        "y_true": 1,
+        "y_prob": 0.05308057500723506,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00935766",
+        "y_true": 0,
+        "y_prob": 5.80270568399848e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00946998",
+        "y_true": 0,
+        "y_prob": 3.6019947014466096e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00947661",
+        "y_true": 1,
+        "y_prob": 0.0028452091231157403,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00975000",
+        "y_true": 1,
+        "y_prob": 2.870427657572969e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT00994318",
+        "y_true": 1,
+        "y_prob": 8.682517090771723e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01031680",
+        "y_true": 1,
+        "y_prob": 0.04064026786565946,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01032629",
+        "y_true": 0,
+        "y_prob": 1.830095842799569e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01033071",
+        "y_true": 1,
+        "y_prob": 0.3667801737678218,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01035255",
+        "y_true": 1,
+        "y_prob": 5.4700070186972566e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01042977",
+        "y_true": 1,
+        "y_prob": 0.05820842937208071,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01062308",
+        "y_true": 1,
+        "y_prob": 4.726014558668644e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01103960",
+        "y_true": 1,
+        "y_prob": 0.06962523285119314,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01106014",
+        "y_true": 1,
+        "y_prob": 3.9943995093416834e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01151137",
+        "y_true": 0,
+        "y_prob": 0.051473042132097316,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01151410",
+        "y_true": 1,
+        "y_prob": 2.5339168402148786e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01167582",
+        "y_true": 1,
+        "y_prob": 2.2340485189514406e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01178073",
+        "y_true": 1,
+        "y_prob": 4.95985287896092e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01198275",
+        "y_true": 0,
+        "y_prob": 0.00014753420150372202,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01215253",
+        "y_true": 0,
+        "y_prob": 2.384198550297002e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01222520",
+        "y_true": 1,
+        "y_prob": 0.3492608121595961,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01223703",
+        "y_true": 0,
+        "y_prob": 0.004492222991695118,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01225562",
+        "y_true": 1,
+        "y_prob": 2.3622818425199497e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01294163",
+        "y_true": 1,
+        "y_prob": 1.908162536914713e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01299376",
+        "y_true": 1,
+        "y_prob": 0.20359283391396074,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01302691",
+        "y_true": 0,
+        "y_prob": 0.03606559463363934,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01307046",
+        "y_true": 1,
+        "y_prob": 0.17176514449823796,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01327846",
+        "y_true": 0,
+        "y_prob": 7.146395992995223e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01369069",
+        "y_true": 0,
+        "y_prob": 1.9113997962328583e-12,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01370005",
+        "y_true": 1,
+        "y_prob": 0.11352714149899372,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01377467",
+        "y_true": 1,
+        "y_prob": 1.2671098589766672e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01392300",
+        "y_true": 1,
+        "y_prob": 0.01006205652586106,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01394952",
+        "y_true": 1,
+        "y_prob": 3.1361052191826947e-13,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01408303",
+        "y_true": 0,
+        "y_prob": 0.25193521504402683,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01416636",
+        "y_true": 1,
+        "y_prob": 1.3602933941204466e-14,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01442038",
+        "y_true": 0,
+        "y_prob": 3.916454575094539e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01444651",
+        "y_true": 0,
+        "y_prob": 0.0035503608641491895,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01456169",
+        "y_true": 1,
+        "y_prob": 0.0676775006847229,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01464307",
+        "y_true": 0,
+        "y_prob": 5.060858701575527e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01467466",
+        "y_true": 0,
+        "y_prob": 3.199585817979043e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01492361",
+        "y_true": 1,
+        "y_prob": 4.542857577041176e-12,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01496430",
+        "y_true": 0,
+        "y_prob": 0.029125827872925968,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01551355",
+        "y_true": 1,
+        "y_prob": 0.0009728616626799694,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01556997",
+        "y_true": 1,
+        "y_prob": 0.1799966994124809,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01560624",
+        "y_true": 1,
+        "y_prob": 2.3928478485673447e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01582854",
+        "y_true": 1,
+        "y_prob": 0.00019443783703614005,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01594333",
+        "y_true": 0,
+        "y_prob": 2.4705183711615108e-11,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01603602",
+        "y_true": 1,
+        "y_prob": 2.455465915884857e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01609582",
+        "y_true": 0,
+        "y_prob": 0.0020663117929774514,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01617681",
+        "y_true": 1,
+        "y_prob": 7.96036653333493e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01621178",
+        "y_true": 1,
+        "y_prob": 4.2793550526799006e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01644331",
+        "y_true": 0,
+        "y_prob": 2.0905302366001247e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01651000",
+        "y_true": 1,
+        "y_prob": 0.002284574697367827,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01651780",
+        "y_true": 0,
+        "y_prob": 6.574173128275591e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01656772",
+        "y_true": 1,
+        "y_prob": 0.016317426533820217,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01663402",
+        "y_true": 1,
+        "y_prob": 1.3400521051131735e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01687998",
+        "y_true": 0,
+        "y_prob": 3.4411667940233936e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01704079",
+        "y_true": 1,
+        "y_prob": 0.0032953900676981544,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01720524",
+        "y_true": 0,
+        "y_prob": 6.100567140719875e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01730534",
+        "y_true": 0,
+        "y_prob": 7.401026179395903e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01732822",
+        "y_true": 0,
+        "y_prob": 6.891054695879256e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01743001",
+        "y_true": 0,
+        "y_prob": 1.255555139690618e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01749904",
+        "y_true": 1,
+        "y_prob": 0.0002997592513941487,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01749930",
+        "y_true": 0,
+        "y_prob": 0.00030646834569309243,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01785472",
+        "y_true": 1,
+        "y_prob": 0.03921213828900967,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01786993",
+        "y_true": 1,
+        "y_prob": 0.0015701813765326813,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01810939",
+        "y_true": 1,
+        "y_prob": 0.5314274063518951,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01830543",
+        "y_true": 1,
+        "y_prob": 9.296765409730656e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01858532",
+        "y_true": 1,
+        "y_prob": 4.428957941277829e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01870778",
+        "y_true": 0,
+        "y_prob": 5.038350546854704e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01876368",
+        "y_true": 1,
+        "y_prob": 0.1402750376599129,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01877915",
+        "y_true": 0,
+        "y_prob": 1.2747735763652324e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01887600",
+        "y_true": 1,
+        "y_prob": 7.765925310852887e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01911780",
+        "y_true": 1,
+        "y_prob": 0.009901819831405168,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01920711",
+        "y_true": 1,
+        "y_prob": 6.48559859057402e-09,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01953328",
+        "y_true": 1,
+        "y_prob": 0.7153449830105361,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01975246",
+        "y_true": 1,
+        "y_prob": 0.4073384816147693,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01975376",
+        "y_true": 0,
+        "y_prob": 4.141434580075806e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01975389",
+        "y_true": 1,
+        "y_prob": 3.342363745266338e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01977794",
+        "y_true": 1,
+        "y_prob": 0.08618064846622697,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01994720",
+        "y_true": 0,
+        "y_prob": 0.0012012635557921625,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT01994889",
+        "y_true": 1,
+        "y_prob": 7.68583118465243e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02017171",
+        "y_true": 0,
+        "y_prob": 2.2491111790763436e-10,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02040428",
+        "y_true": 1,
+        "y_prob": 0.008868266638094629,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02059278",
+        "y_true": 1,
+        "y_prob": 0.08561325636948007,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02064868",
+        "y_true": 1,
+        "y_prob": 1.1237181984181694e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02065791",
+        "y_true": 1,
+        "y_prob": 1.2187291908207942e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02091739",
+        "y_true": 1,
+        "y_prob": 0.02452597920002339,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02110901",
+        "y_true": 0,
+        "y_prob": 0.0001648399785208593,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02111564",
+        "y_true": 0,
+        "y_prob": 1.4589207920855316e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02132767",
+        "y_true": 0,
+        "y_prob": 0.014390755960041366,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02138838",
+        "y_true": 0,
+        "y_prob": 0.004829809735900798,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02160145",
+        "y_true": 1,
+        "y_prob": 2.705472926586904e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02164864",
+        "y_true": 1,
+        "y_prob": 4.8788123383599725e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02172040",
+        "y_true": 1,
+        "y_prob": 0.018782456465948505,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02182830",
+        "y_true": 1,
+        "y_prob": 3.93538046163239e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02188784",
+        "y_true": 0,
+        "y_prob": 0.004488826696324578,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02203916",
+        "y_true": 1,
+        "y_prob": 0.015305185031391654,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02207491",
+        "y_true": 1,
+        "y_prob": 0.27571011578629706,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02239120",
+        "y_true": 0,
+        "y_prob": 1.0222304040877468e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02247804",
+        "y_true": 0,
+        "y_prob": 8.450880348370264e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02248961",
+        "y_true": 0,
+        "y_prob": 0.035372314353947096,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02250651",
+        "y_true": 0,
+        "y_prob": 4.1306394246793914e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02270736",
+        "y_true": 1,
+        "y_prob": 2.4146525854168676e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02282813",
+        "y_true": 0,
+        "y_prob": 0.001306092615499065,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02301910",
+        "y_true": 0,
+        "y_prob": 0.00011289137183424296,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02313909",
+        "y_true": 0,
+        "y_prob": 1.037212146520202e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02414841",
+        "y_true": 0,
+        "y_prob": 0.00012073182414702479,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02441218",
+        "y_true": 1,
+        "y_prob": 1.3589013475369574e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02446990",
+        "y_true": 0,
+        "y_prob": 4.923549256868193e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02468232",
+        "y_true": 0,
+        "y_prob": 6.681567266215206e-07,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02480764",
+        "y_true": 0,
+        "y_prob": 0.0014032521692167966,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02504216",
+        "y_true": 1,
+        "y_prob": 8.390244428008766e-08,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02546323",
+        "y_true": 1,
+        "y_prob": 2.8444119440403242e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02558231",
+        "y_true": 0,
+        "y_prob": 2.9699766390521794e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02558400",
+        "y_true": 1,
+        "y_prob": 0.00823955686677081,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02565147",
+        "y_true": 0,
+        "y_prob": 0.008473265812226315,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02620384",
+        "y_true": 1,
+        "y_prob": 0.00026588082017796767,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02656329",
+        "y_true": 0,
+        "y_prob": 0.0002045535731583805,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02674854",
+        "y_true": 1,
+        "y_prob": 0.09736237205277964,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02725372",
+        "y_true": 0,
+        "y_prob": 0.00025474901162771303,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02801617",
+        "y_true": 0,
+        "y_prob": 0.010915698529355703,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02801669",
+        "y_true": 1,
+        "y_prob": 2.7408704831227898e-06,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02833948",
+        "y_true": 1,
+        "y_prob": 7.626896089017969e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02861534",
+        "y_true": 1,
+        "y_prob": 5.804626283742677e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02900378",
+        "y_true": 0,
+        "y_prob": 0.025654605874145715,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02930018",
+        "y_true": 0,
+        "y_prob": 4.802945681272491e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02979197",
+        "y_true": 1,
+        "y_prob": 0.22400599397149248,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02988115",
+        "y_true": 1,
+        "y_prob": 0.022789818133566335,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02991118",
+        "y_true": 1,
+        "y_prob": 0.0036745962927591438,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03001076",
+        "y_true": 1,
+        "y_prob": 0.04995268199722012,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03036124",
+        "y_true": 1,
+        "y_prob": 0.00027715336590812295,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03064126",
+        "y_true": 1,
+        "y_prob": 4.9088872570963714e-05,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03066804",
+        "y_true": 1,
+        "y_prob": 0.0007586583750349082,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03151993",
+        "y_true": 1,
+        "y_prob": 0.0011770593788144581,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03242018",
+        "y_true": 0,
+        "y_prob": 0.00470168090040428,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03242252",
+        "y_true": 0,
+        "y_prob": 0.0104073872712187,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03257813",
+        "y_true": 1,
+        "y_prob": 0.0997880713433284,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03354429",
+        "y_true": 1,
+        "y_prob": 0.0033013144030019097,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03400800",
+        "y_true": 1,
+        "y_prob": 0.005217592635792795,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03448406",
+        "y_true": 0,
+        "y_prob": 0.009883769923581785,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT03448419",
+        "y_true": 0,
+        "y_prob": 0.01035391354883666,
+        "split": "train"
+      },
+      {
+        "nct_id": "NCT02104817",
+        "y_true": 0,
+        "y_prob": 2.6264394509306933e-10,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02185417",
+        "y_true": 0,
+        "y_prob": 8.291704885886373e-12,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02507687",
+        "y_true": 1,
+        "y_prob": 1.3864937329135067e-11,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02540993",
+        "y_true": 1,
+        "y_prob": 1.9638303442155236e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02586155",
+        "y_true": 0,
+        "y_prob": 2.2317117082657537e-09,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02592824",
+        "y_true": 0,
+        "y_prob": 1.7370182388429235e-09,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02596126",
+        "y_true": 1,
+        "y_prob": 5.413311290391275e-10,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02636946",
+        "y_true": 1,
+        "y_prob": 2.500037869322689e-09,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02648347",
+        "y_true": 0,
+        "y_prob": 3.255928717627516e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02657356",
+        "y_true": 0,
+        "y_prob": 9.431192647356255e-07,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02680574",
+        "y_true": 0,
+        "y_prob": 5.7230108056368387e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02864953",
+        "y_true": 0,
+        "y_prob": 2.5080798839694666e-09,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02865850",
+        "y_true": 0,
+        "y_prob": 1.490529576111822e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02884206",
+        "y_true": 0,
+        "y_prob": 2.616735401888511e-10,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02892149",
+        "y_true": 0,
+        "y_prob": 3.732702794708861e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02924727",
+        "y_true": 0,
+        "y_prob": 8.856817881161242e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02929329",
+        "y_true": 1,
+        "y_prob": 1.2089395407802042e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02943785",
+        "y_true": 1,
+        "y_prob": 2.6403832693718864e-07,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT02993406",
+        "y_true": 1,
+        "y_prob": 6.426850020033188e-11,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03036150",
+        "y_true": 1,
+        "y_prob": 4.585405684068517e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03057951",
+        "y_true": 1,
+        "y_prob": 1.370652068458697e-07,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03057977",
+        "y_true": 1,
+        "y_prob": 1.049633663525778e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03192215",
+        "y_true": 0,
+        "y_prob": 7.507787864667889e-10,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03284853",
+        "y_true": 0,
+        "y_prob": 7.054494484922526e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03296813",
+        "y_true": 0,
+        "y_prob": 1.1709628309387912e-07,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03315143",
+        "y_true": 1,
+        "y_prob": 0.00015700567933685515,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03332212",
+        "y_true": 0,
+        "y_prob": 0.00038746047692594747,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03439514",
+        "y_true": 0,
+        "y_prob": 1.7393200375885538e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03450629",
+        "y_true": 1,
+        "y_prob": 0.0006253033237003747,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03521934",
+        "y_true": 1,
+        "y_prob": 0.0016630880167693264,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03541174",
+        "y_true": 1,
+        "y_prob": 8.497260964714489e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03552575",
+        "y_true": 0,
+        "y_prob": 0.0005426209058068817,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03570697",
+        "y_true": 1,
+        "y_prob": 0.0007641526110518436,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03594110",
+        "y_true": 1,
+        "y_prob": 5.01938205278127e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03619213",
+        "y_true": 1,
+        "y_prob": 2.044704845465098e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03649711",
+        "y_true": 1,
+        "y_prob": 2.2906335213913123e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03689244",
+        "y_true": 0,
+        "y_prob": 3.136708762188714e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03735979",
+        "y_true": 1,
+        "y_prob": 1.0588538623746039e-07,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03743636",
+        "y_true": 0,
+        "y_prob": 6.3850453458534554e-09,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03759392",
+        "y_true": 0,
+        "y_prob": 8.425644554848995e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03815292",
+        "y_true": 1,
+        "y_prob": 0.03067151276612926,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03825380",
+        "y_true": 0,
+        "y_prob": 0.0005583479064070807,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03860935",
+        "y_true": 1,
+        "y_prob": 7.753705047476118e-08,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03877224",
+        "y_true": 0,
+        "y_prob": 0.03364841386479343,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03877237",
+        "y_true": 1,
+        "y_prob": 0.13321822708166006,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03904693",
+        "y_true": 1,
+        "y_prob": 1.2511959406065958e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT03988634",
+        "y_true": 1,
+        "y_prob": 2.1441143403740365e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04157751",
+        "y_true": 1,
+        "y_prob": 0.09555109509937493,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04252287",
+        "y_true": 1,
+        "y_prob": 0.006632437617206624,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04271475",
+        "y_true": 0,
+        "y_prob": 2.4028582133951123e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04349072",
+        "y_true": 1,
+        "y_prob": 0.0061353772907798846,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04404166",
+        "y_true": 1,
+        "y_prob": 1.7480633635158257e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04415658",
+        "y_true": 0,
+        "y_prob": 0.0013493358733805533,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04435626",
+        "y_true": 1,
+        "y_prob": 1.4302329234908416e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04509674",
+        "y_true": 0,
+        "y_prob": 3.0333560329711567e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04518293",
+        "y_true": 1,
+        "y_prob": 0.0021712002778732312,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04518306",
+        "y_true": 1,
+        "y_prob": 0.0006121113364251468,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04560309",
+        "y_true": 0,
+        "y_prob": 0.09020451368991372,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04564742",
+        "y_true": 1,
+        "y_prob": 0.00015747008533045515,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04576988",
+        "y_true": 1,
+        "y_prob": 0.008671918030069557,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04600921",
+        "y_true": 1,
+        "y_prob": 0.0005983479697594414,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04620135",
+        "y_true": 1,
+        "y_prob": 0.400087111992885,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04807400",
+        "y_true": 1,
+        "y_prob": 0.01927666253205448,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04847557",
+        "y_true": 1,
+        "y_prob": 7.35005984002701e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04865770",
+        "y_true": 0,
+        "y_prob": 1.0619445571632206e-06,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT04929249",
+        "y_true": 1,
+        "y_prob": 0.0006767473154452482,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05085275",
+        "y_true": 0,
+        "y_prob": 0.0015209778658975945,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05093933",
+        "y_true": 0,
+        "y_prob": 1.8008337159150064e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05142722",
+        "y_true": 1,
+        "y_prob": 5.911012227287256e-05,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05186818",
+        "y_true": 1,
+        "y_prob": 0.0035425645984266006,
+        "split": "test"
+      },
+      {
+        "nct_id": "NCT05643573",
+        "y_true": 1,
+        "y_prob": 0.0849654719432206,
+        "split": "test"
+      }
+    ]
+  },
+  "feature_names": [
+    "log_enrollment",
+    "duration_months",
+    "placebo_controlled",
+    "double_blind",
+    "is_industry",
+    "log_num_sites",
+    "multi_regional",
+    "num_arms",
+    "has_dsmb",
+    "ep_mace",
+    "ep_hf_hosp",
+    "ep_cv_death",
+    "ep_acm",
+    "ep_renal",
+    "ep_surrogate",
+    "era_2010_2017",
+    "era_2018plus",
+    "historical_class_rate"
+  ]
+}

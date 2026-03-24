@@ -34,6 +34,7 @@ def get_aact_connection():
         user=user,
         password=password,
         connect_timeout=30,
+        sslmode="require",
     )
     return conn
 

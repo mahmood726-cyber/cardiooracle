@@ -234,10 +234,10 @@ def main(argv=None) -> None:
     print_report(report)
 
     if success:
-        log.info("✓ Validation passed: all landmarks match correctly")
+        log.info("[PASS] Validation passed: all landmarks match correctly")
         sys.exit(0)
     else:
-        log.error("✗ Validation failed: %d mismatches, %d missing",
+        log.error("[FAIL] Validation failed: %d mismatches, %d missing",
                   report["mismatched_labels"], report["landmarks_missing"])
         sys.exit(1)
 
