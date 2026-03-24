@@ -14,6 +14,8 @@ import os
 from datetime import date
 from pathlib import Path
 
+import numpy as np
+
 # Make both curate/ modules importable regardless of working directory.
 _CURATE_DIR = str(Path(__file__).resolve().parent.parent / "curate")
 if _CURATE_DIR not in sys.path:
@@ -27,6 +29,7 @@ from label_outcomes import (
     LABEL_FAILURE,
     LABEL_SAFETY_FAIL,
 )
+from fit_model import prepare_feature_matrix, fit_logistic_model, FEATURE_NAMES
 
 import pytest
 
@@ -264,3 +267,99 @@ class TestLabelTrial:
         label, tier, reason = label_trial(trial)
         assert label is None
         assert tier is None
+
+
+# ---------------------------------------------------------------------------
+# Shared helper: build a minimal synthetic trial dict for model tests
+# ---------------------------------------------------------------------------
+
+def _make_synthetic_trial(label: str, seed_offset: int = 0) -> dict:
+    """Return a minimal trial dict with all fields needed by prepare_feature_matrix."""
+    rng = np.random.default_rng(42 + seed_offset)
+    return {
+        "nct_id": f"NCT{seed_offset:08d}",
+        "label": label,
+        "enrollment": int(rng.integers(50, 5000)),
+        "duration_months": float(rng.integers(12, 72)),
+        "placebo_controlled": bool(rng.integers(0, 2)),
+        "double_blind": bool(rng.integers(0, 2)),
+        "is_industry": bool(rng.integers(0, 2)),
+        "num_sites": int(rng.integers(1, 300)),
+        "multi_regional": bool(rng.integers(0, 2)),
+        "num_arms": int(rng.integers(2, 4)),
+        "has_dsmb": bool(rng.integers(0, 2)),
+        "endpoint_type": rng.choice(["mace", "hf_hosp", "cv_death", "renal", "surrogate", "other"]),
+        "drug_class": rng.choice(["sglt2i", "arni", "ns_mra", "statin", "other"]),
+        "comparator_type": "placebo",
+        "start_year": int(rng.integers(2000, 2023)),
+        "population_tags": [],
+        "historical_class_rate": float(rng.uniform(0.2, 0.7)),
+    }
+
+
+# ---------------------------------------------------------------------------
+# TestFeatureMatrix
+# ---------------------------------------------------------------------------
+
+class TestFeatureMatrix:
+    def test_basic_shape(self):
+        """2 trials → X.shape[0]==2, len(feature_names)==X.shape[1], y[0]==1, y[1]==0."""
+        trial_success = _make_synthetic_trial("success", seed_offset=0)
+        trial_failure = _make_synthetic_trial("failure", seed_offset=1)
+
+        X, y, feature_names = prepare_feature_matrix([trial_success, trial_failure])
+
+        assert X.shape[0] == 2, f"Expected 2 rows, got {X.shape[0]}"
+        assert X.shape[1] == len(FEATURE_NAMES), (
+            f"Expected {len(FEATURE_NAMES)} columns, got {X.shape[1]}"
+        )
+        assert len(feature_names) == X.shape[1], (
+            f"feature_names length {len(feature_names)} != X.shape[1] {X.shape[1]}"
+        )
+        assert y[0] == 1, "First trial (success) should have y=1"
+        assert y[1] == 0, "Second trial (failure) should have y=0"
+        assert X.dtype == float
+
+
+# ---------------------------------------------------------------------------
+# TestFitModel
+# ---------------------------------------------------------------------------
+
+class TestFitModel:
+    def test_returns_coefficients(self):
+        """100 synthetic trials → intercept + N named coefficients returned."""
+        np.random.seed(42)
+
+        trials = []
+        for i in range(50):
+            trials.append(_make_synthetic_trial("success", seed_offset=i))
+        for i in range(50, 100):
+            trials.append(_make_synthetic_trial("failure", seed_offset=i))
+
+        X, y, feature_names = prepare_feature_matrix(trials)
+        result = fit_logistic_model(X, y, feature_names)
+
+        assert "coefficients" in result
+        coef = result["coefficients"]
+
+        # Must have intercept
+        assert "intercept" in coef, "Missing 'intercept' in coefficients"
+
+        # Must have one entry per feature
+        assert len(coef) == len(FEATURE_NAMES) + 1, (
+            f"Expected {len(FEATURE_NAMES) + 1} coefficients (intercept + features), "
+            f"got {len(coef)}"
+        )
+
+        # All feature names must be present
+        for fn in FEATURE_NAMES:
+            assert fn in coef, f"Missing coefficient for feature '{fn}'"
+
+        # In-sample metrics must be present and valid
+        assert "insample_metrics" in result
+        metrics = result["insample_metrics"]
+        assert "auc" in metrics
+        assert "brier" in metrics
+        assert "n" in metrics
+        assert metrics["n"] == 100
+        assert 0.0 <= metrics["brier"] <= 1.0
