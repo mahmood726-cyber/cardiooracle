@@ -1206,6 +1206,10 @@
       </a>
       (OA, public domain)
     </span>
+    <span id="updateCheck" style="margin-left:12px">
+      <button class="theme-toggle" id="checkUpdatesBtn" onclick="checkForNewTrials()" style="font-size:0.75rem;padding:4px 8px">Check for Updates</button>
+      <span id="updateStatus" style="font-size:0.75rem;margin-left:4px"></span>
+    </span>
   </div>
 </footer>
 
@@ -2626,6 +2630,16 @@ async function fetchAndPredict(nctId, _retried) {
   if (countEl) countEl.textContent = String(TRAINING_DATA.trials.length ?? 0);
   if (hashEl)  hashEl.textContent  = TRAINING_DATA.content_hash ?? '—';
   if (footerH) footerH.textContent = TRAINING_DATA.content_hash ?? '—';
+
+  /* ── Training data age indicator ── */
+  const genDate = TRAINING_DATA.generated;
+  if (genDate) {
+    const age = Math.floor((Date.now() - new Date(genDate).getTime()) / (1000 * 60 * 60 * 24));
+    const ageEl = document.getElementById('updateStatus');
+    if (ageEl && age > 0) {
+      ageEl.textContent = '(data: ' + age + ' days old)';
+    }
+  }
 
   /* ── Enter key on search input ── */
   const nctInput = document.getElementById('nctInput');
@@ -4156,6 +4170,62 @@ function renderWebrResults(tests) {
     if (e.target === modal) closeModal();
   });
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   LIVING UPDATE CHECK
+════════════════════════════════════════════════════════════════════ */
+async function checkForNewTrials() {
+  const btn = document.getElementById('checkUpdatesBtn');
+  const status = document.getElementById('updateStatus');
+  if (!btn || !status) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  status.textContent = '';
+
+  try {
+    // Find the most recent primary_completion_date in training data
+    const trials = TRAINING_DATA.trials ?? [];
+    let latestDate = '2020-01-01';
+    for (const t of trials) {
+      const d = t.features?.primary_completion_date ?? t.primary_completion_date ?? '';
+      if (d > latestDate) latestDate = d;
+    }
+
+    // Fall back to generated date if no completion dates found in features
+    if (latestDate === '2020-01-01' && TRAINING_DATA.generated) {
+      latestDate = TRAINING_DATA.generated.slice(0, 10);
+    }
+
+    // Query CT.gov for completed CV Phase 3 trials with results posted after that date
+    const query = encodeURIComponent(
+      'AREA[StudyType]INTERVENTIONAL AND AREA[Phase]PHASE3 AND AREA[OverallStatus]COMPLETED' +
+      ' AND AREA[ResultsFirstPostDate]RANGE[' + latestDate + ',MAX]'
+    );
+    const url = 'https://clinicaltrials.gov/api/v2/studies?query.cond=cardiovascular&filter.advanced=' +
+      query + '&countTotal=true&pageSize=1';
+
+    const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) throw new Error('API returned ' + resp.status);
+    const data = await resp.json();
+
+    const totalNew = data.totalCount ?? 0;
+
+    if (totalNew > 0) {
+      status.innerHTML = '<span style="color:var(--warning);font-weight:600">' +
+        totalNew + ' new completed trial' + (totalNew > 1 ? 's' : '') +
+        ' since training data was generated. Consider refreshing the pipeline.</span>';
+    } else {
+      status.innerHTML = '<span style="color:var(--success)">Training data is up to date.</span>';
+    }
+  } catch (err) {
+    status.innerHTML = '<span style="color:var(--text-muted)">Could not check: ' +
+      escapeHtml(err.message) + '</span>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Check for Updates';
+}
 
 /* ════════════════════════════════════════════════════════════════════
    TUTORIAL OVERLAY
