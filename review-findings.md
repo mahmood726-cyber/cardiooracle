@@ -1,7 +1,7 @@
-# REVIEW CLEAN (after fixes)
+# REVIEW CLEAN (after 2 rounds of fixes)
 ## Multi-Persona Review: CardioOracle.html
 ### Date: 2026-03-24
-### Summary: 3 P0 fixed, 2 P1 fixed, remaining P1/P2 documented
+### Summary: Round 1: 3 P0 + 1 P1 fixed. Round 2: 6 P0 + 1 P1 fixed. Total: 9 P0 + 2 P1 fixed.
 
 ---
 
@@ -55,6 +55,50 @@
 - WebR import URL hardcoded (not user-controllable)
 - NCT ID validated with strict regex
 - Modal keyboard listener cleanup on close
+
+---
+
+---
+
+## UX/Accessibility Reviewer
+
+#### P0 — Critical
+- **UX-P0-1** [FIXED]: `.sr-only` CSS class used but never defined — added definition
+- **UX-P0-2**: Tutorial dialog missing `aria-labelledby`
+- **UX-P0-3**: Tutorial dialog no focus trap / Escape handler
+- **UX-P0-4** [FIXED]: `--surface-2` CSS variable undefined → replaced with `--bg-input`
+
+#### P1 — Important
+- **UX-P1-1**: Traffic-light uses identical icon for all states
+- **UX-P1-3**: Light-mode amber alert contrast may fail WCAG AA (2.8:1)
+- **UX-P1-5**: Sortable table headers missing `aria-sort` attribute
+
+---
+
+## Software Engineer
+
+#### P0 — Critical
+- **SE-P0-1** [FIXED]: Duplicate `escapeHtml` definitions → removed second
+- **SE-P0-2** [FIXED]: Design tab drug class values incompatible with engine → fixed option values
+- **SE-P0-3** [FIXED]: Population tag case mismatch → normalized to lowercase
+- **SE-P0-4**: Plotly.newPlot memory leak (no purge before re-render)
+
+#### P1 — Important
+- **SE-P1-1**: WebR test 3 feature vector uses different field names than metaRegressionPredict
+- **SE-P1-2**: `valsartan` mapped to `arni` — misclassifies standalone ARB trials
+
+---
+
+## Domain Expert
+
+#### P0 — Critical
+- **DE-P0-1** [FIXED]: Same as SE-P0-2 (drug class mapping)
+- **DE-P0-2**: MRA base rate 0.0 — needs verification (EMPHASIS-HF/EPHESUS were positive)
+- **DE-P0-3**: HFrEF/HFpEF regex too narrow (misses EF, ejection fraction without lvef prefix)
+
+#### P1 — Important
+- **DE-P1-1**: Endpoint keywords miss variants (3-point MACE, worsening HF, sustained eGFR decline)
+- **DE-P1-5** [FIXED]: About modal said 325 trials → corrected to 784
 
 ---
 
