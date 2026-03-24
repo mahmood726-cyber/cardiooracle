@@ -655,6 +655,36 @@
     }
     .footer-about-link:hover { text-decoration: underline; }
     .footer-about-link:focus { outline: 2px solid var(--text-accent); border-radius: 2px; }
+
+    /* ── Print / PDF Export ────────────────────────────────────────── */
+    .print-header { display: none; }
+
+    @media print {
+      /* Hide non-essential elements */
+      .app-header, .tab-bar, footer, .search-bar, .theme-toggle,
+      .config-select, .header-controls, .snapshot-bar, #designWhatIf,
+      .export-btn, #exportPdfBtn, #exportBundleBtn { display: none !important; }
+
+      /* Show only the active panel */
+      .tab-panel { display: none !important; }
+      .tab-panel.printing { display: block !important; }
+
+      /* Clean up for print */
+      body { background: white !important; color: black !important; }
+      .card { box-shadow: none !important; border: 1px solid #ccc !important; page-break-inside: avoid; }
+      .container { max-width: 100%; padding: 0; }
+
+      /* Plotly charts: ensure they render */
+      .js-plotly-plot { page-break-inside: avoid; }
+
+      /* Print header */
+      .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+      .print-header h1 { font-size: 1.4rem; margin: 0; }
+      .print-header p { font-size: 0.85rem; color: #666; margin: 4px 0 0 0; }
+
+      /* Expand all collapsibles for print */
+      .collapsible-body { display: block !important; }
+    }
   </style>
 </head>
 <body>
@@ -729,6 +759,14 @@
     tabindex="-1"
     type="button"
   >WebR Validation</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     PRINT HEADER (hidden on screen, shown in @media print)
+════════════════════════════════════════════════════════════════════ -->
+<div class="print-header">
+  <h1>CardioOracle — Prediction Report</h1>
+  <p>Generated: <span id="printDate"></span> | Model v1.0.0 | Training: 784 trials</p>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════
@@ -2011,6 +2049,30 @@ function exportPredictionBundle(nctId, features, bayesian, power, regression, en
 }
 
 /**
+ * Export the current prediction panel as a browser-print PDF.
+ */
+function exportPdf() {
+  // Set print date
+  const pd = document.getElementById('printDate');
+  if (pd) pd.textContent = new Date().toLocaleDateString('en-GB', {year:'numeric', month:'long', day:'numeric'});
+
+  // Mark current panel for printing
+  const panel = document.getElementById('panel-predict');
+  if (!panel) return;
+  panel.classList.add('printing');
+
+  // Expand all collapsibles so content is visible in print
+  panel.querySelectorAll('.collapsible-body').forEach(b => b.classList.add('open'));
+
+  window.print();
+
+  // Cleanup after print dialog closes
+  setTimeout(() => {
+    panel.classList.remove('printing');
+  }, 1000);
+}
+
+/**
  * Render the full prediction result into #predictionResult.
  */
 function renderPrediction(nctId, features, bayesian, power, regression, ensemble) {
@@ -2089,13 +2151,20 @@ function renderPrediction(nctId, features, bayesian, power, regression, ensemble
           <tr><th>Ensemble (weighted)</th><td><strong>${pPct}%</strong></td></tr>
         </tbody>
       </table>
-      <div style="margin-top:1rem;">
+      <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
         <button
           id="exportBundleBtn_${escapeHtml(nctId)}"
           class="export-btn"
           type="button"
           aria-label="Export TruthCert prediction bundle for ${escapeHtml(nctId)}"
         >&#8659; Export Prediction Bundle (JSON)</button>
+        <button
+          id="exportPdfBtn"
+          class="search-btn"
+          type="button"
+          onclick="exportPdf()"
+          aria-label="Export prediction report as PDF"
+        >&#128438; Export PDF</button>
       </div>
     </div>
 
