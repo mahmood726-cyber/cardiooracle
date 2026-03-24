@@ -883,6 +883,825 @@ function normalCDF(x) {
 
 const NCT_RE = /^NCT\d{8}$/;
 
+/* ── 5B: Drug / Endpoint classification maps ─────────────────────── */
+
+const DRUG_CLASS_MAP_JS = {
+  // SGLT2 inhibitors
+  empagliflozin: 'sglt2i', dapagliflozin: 'sglt2i', canagliflozin: 'sglt2i',
+  ertugliflozin: 'sglt2i', sotagliflozin: 'sglt2i', ipragliflozin: 'sglt2i',
+  luseogliflozin: 'sglt2i', tofogliflozin: 'sglt2i',
+  // Steroidal MRA
+  spironolactone: 'mra', eplerenone: 'mra',
+  // Non-steroidal MRA
+  finerenone: 'ns_mra', esaxerenone: 'ns_mra', apararenone: 'ns_mra', ocedurenone: 'ns_mra',
+  // ARNi
+  sacubitril: 'arni', valsartan: 'arni', 'sacubitril/valsartan': 'arni',
+  // ARB
+  losartan: 'arb', irbesartan: 'arb', olmesartan: 'arb', telmisartan: 'arb',
+  candesartan: 'arb', eprosartan: 'arb', azilsartan: 'arb',
+  // ACEi
+  ramipril: 'acei', enalapril: 'acei', lisinopril: 'acei', captopril: 'acei',
+  perindopril: 'acei', fosinopril: 'acei', quinapril: 'acei', trandolapril: 'acei',
+  // Beta-blockers
+  carvedilol: 'bb', metoprolol: 'bb', bisoprolol: 'bb', nebivolol: 'bb', atenolol: 'bb',
+  // GLP-1 RA
+  semaglutide: 'glp1ra', liraglutide: 'glp1ra', dulaglutide: 'glp1ra',
+  exenatide: 'glp1ra', albiglutide: 'glp1ra', efpeglenatide: 'glp1ra', tirzepatide: 'glp1ra',
+  // PCSK9 inhibitors
+  evolocumab: 'pcsk9i', alirocumab: 'pcsk9i', inclisiran: 'pcsk9i',
+  // Statins
+  atorvastatin: 'statin', rosuvastatin: 'statin', simvastatin: 'statin',
+  pravastatin: 'statin', fluvastatin: 'statin', lovastatin: 'statin', pitavastatin: 'statin',
+  // Anticoagulants
+  rivaroxaban: 'anticoag', apixaban: 'anticoag', edoxaban: 'anticoag',
+  dabigatran: 'anticoag', warfarin: 'anticoag',
+  // Antiplatelets
+  clopidogrel: 'antiplat', ticagrelor: 'antiplat', prasugrel: 'antiplat',
+  aspirin: 'antiplat', vorapaxar: 'antiplat'
+};
+
+// Broad mechanism groups for partial similarity
+const BROAD_MECH_JS = {
+  sglt2i: 'sodium_glucose',
+  mra: 'mra', ns_mra: 'mra',
+  arni: 'raas', arb: 'raas', acei: 'raas',
+  bb: 'bb',
+  glp1ra: 'glp1ra',
+  pcsk9i: 'pcsk9i',
+  statin: 'statin',
+  anticoag: 'anticoag',
+  antiplat: 'antiplat'
+};
+
+// Endpoint type map: [type, [keywords...]]
+const ENDPOINT_TYPE_MAP_JS = [
+  ['mace',       ['mace', 'major adverse cardiovascular', 'composite cardiovascular']],
+  ['mortality',  ['mortality', 'death', 'all-cause', 'all cause', 'cardiovascular death', 'cv death']],
+  ['hf',         ['heart failure', 'hospitalization for heart failure', 'hf hospitalization', 'hfh']],
+  ['renal',      ['renal', 'kidney', 'egfr', 'gfr', 'creatinine doubling', 'esrd', 'dialysis']],
+  ['surrogate',  ['hba1c', 'ldl', 'blood pressure', 'cholesterol', 'a1c', 'lvef', 'ejection fraction']],
+  ['other',      []]
+];
+
+/**
+ * Classify drug name(s) against DRUG_CLASS_MAP_JS.
+ * @param {string[]} drugNames
+ * @returns {string|null}
+ */
+function classifyDrugJS(drugNames) {
+  for (const name of (drugNames ?? [])) {
+    const lower = String(name).toLowerCase().trim();
+    if (DRUG_CLASS_MAP_JS[lower]) return DRUG_CLASS_MAP_JS[lower];
+    // Partial match: check if any key is contained
+    for (const [key, cls] of Object.entries(DRUG_CLASS_MAP_JS)) {
+      if (lower.includes(key)) return cls;
+    }
+  }
+  return null;
+}
+
+/**
+ * Classify primary endpoint text against ENDPOINT_TYPE_MAP_JS.
+ * @param {string} text
+ * @returns {string}
+ */
+function classifyEndpointJS(text) {
+  const lower = String(text ?? '').toLowerCase();
+  for (const [type, keywords] of ENDPOINT_TYPE_MAP_JS) {
+    for (const kw of keywords) {
+      if (lower.includes(kw)) return type;
+    }
+  }
+  return 'other';
+}
+
+/**
+ * Extract population tags from eligibility / condition text.
+ * @param {string} text
+ * @returns {string[]}
+ */
+function extractPopulationTagsJS(text) {
+  const lower = String(text ?? '').toLowerCase();
+  const tags = [];
+  if (/hfref|hf.*reduced|reduced.*ejection|lvef\s*[<≤]\s*4/.test(lower)) tags.push('HFrEF');
+  if (/hfpef|hf.*preserved|preserved.*ejection|lvef\s*[>≥]\s*4/.test(lower)) tags.push('HFpEF');
+  if (/diabet|t2dm|type\s*2\s*diabetes/.test(lower)) tags.push('diabetic');
+  if (/ckd|chronic kidney|renal impairment|egfr/.test(lower)) tags.push('CKD');
+  if (/elder|older adult|age\s*[>≥]\s*65|geriatric/.test(lower)) tags.push('elderly');
+  return tags;
+}
+
+/* ── 5A: CT.gov API Fetch ────────────────────────────────────────── */
+
+const CTGOV_CACHE = {};  // sessionStorage-backed; also in-memory for speed
+
+/**
+ * Fetch trial metadata from CT.gov API v2.
+ * Caches in sessionStorage by NCT ID. 5-second timeout.
+ * @param {string} nctId
+ * @returns {Promise<object>}
+ */
+async function fetchTrialFromCTGov(nctId) {
+  const cacheKey = 'ctgov_' + nctId;
+
+  // In-memory cache
+  if (CTGOV_CACHE[nctId]) return CTGOV_CACHE[nctId];
+
+  // sessionStorage cache
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      CTGOV_CACHE[nctId] = parsed;
+      return parsed;
+    }
+  } catch (_) { /* ignore quota/parse errors */ }
+
+  const url = 'https://clinicaltrials.gov/api/v2/studies/' + encodeURIComponent(nctId);
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 5000);
+
+  let data;
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      throw new Error('CT.gov returned HTTP ' + response.status + ' for ' + nctId);
+    }
+    data = await response.json();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') throw new Error('Request timed out after 5 s. CT.gov may be unavailable.');
+    throw err;
+  }
+
+  CTGOV_CACHE[nctId] = data;
+  try { sessionStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) { /* quota */ }
+
+  return data;
+}
+
+/**
+ * Parse CT.gov API v2 response into feature dict.
+ * @param {object} ctgovData  — full CT.gov study object
+ * @returns {object}  feature dict
+ */
+function extractFeatures(ctgovData) {
+  const study    = ctgovData.protocolSection ?? ctgovData;
+  const design   = study.designModule ?? {};
+  const status   = study.statusModule ?? {};
+  const sponsor  = study.sponsorCollaboratorsModule ?? {};
+  const oversight= study.oversightModule ?? {};
+  const contacts = study.contactsLocationsModule ?? {};
+  const arms     = design.armGroups ?? [];
+  const outcomes = study.outcomesModule ?? {};
+  const primary  = (outcomes.primaryOutcomes ?? [])[0] ?? {};
+  const interv   = (study.armsInterventionsModule ?? study.interventionsModule ?? {});
+  const interventions = interv.interventions ?? [];
+
+  // Enrollment
+  const enrollment = design.enrollmentInfo?.count ?? null;
+
+  // Duration (months)
+  let duration = null;
+  try {
+    const startRaw  = status.startDateStruct?.date;
+    const endRaw    = status.primaryCompletionDateStruct?.date;
+    if (startRaw && endRaw) {
+      const startMs = Date.parse(startRaw + (startRaw.length <= 7 ? '-01' : ''));
+      const endMs   = Date.parse(endRaw   + (endRaw.length   <= 7 ? '-01' : ''));
+      if (!isNaN(startMs) && !isNaN(endMs)) {
+        duration = Math.round((endMs - startMs) / (1000 * 60 * 60 * 24 * 30.44));
+      }
+    }
+  } catch (_) { /* ignore */ }
+
+  // Design features
+  const masking        = (design.maskingInfo?.masking ?? '').toUpperCase();
+  const double_blind   = masking.includes('DOUBLE') || masking.includes('TRIPLE') || masking.includes('QUADRUPLE');
+  const placebo_controlled = arms.some(a => (a.type ?? '').toUpperCase().includes('PLACEBO_COMPARATOR'));
+  const is_industry    = (sponsor.leadSponsor?.class ?? '').toUpperCase() === 'INDUSTRY';
+  const num_sites      = (contacts.locations ?? []).length;
+  const has_dsmb       = !!(oversight.oversightHasDmc);
+
+  // Endpoint type
+  const endpointText   = (primary.measure ?? '') + ' ' + (primary.description ?? '');
+  const endpoint_type  = classifyEndpointJS(endpointText);
+
+  // Drug class
+  const drugNames = interventions.map(i => i.name ?? '').filter(Boolean);
+  const drug_class = classifyDrugJS(drugNames);
+
+  // Comparator type
+  let comparator_type = 'placebo';
+  if (arms.some(a => (a.type ?? '').toUpperCase().includes('ACTIVE_COMPARATOR'))) {
+    comparator_type = 'active';
+  } else if (placebo_controlled) {
+    comparator_type = 'placebo';
+  }
+
+  // Population tags from conditions + eligibility
+  const eligModule = study.eligibilityModule ?? {};
+  const condText   = (study.conditionsModule?.conditions ?? []).join(' ');
+  const eligText   = (eligModule.eligibilityCriteria ?? '');
+  const population_tags = extractPopulationTagsJS(condText + ' ' + eligText);
+
+  // Year (from start date)
+  let year = null;
+  try {
+    const raw = status.startDateStruct?.date ?? '';
+    const y = parseInt(raw.slice(0, 4), 10);
+    if (!isNaN(y) && y > 1990) year = y;
+  } catch (_) { /* ignore */ }
+
+  // Title for display
+  const title = study.identificationModule?.briefTitle ?? nctId;
+
+  return {
+    enrollment, duration, placebo_controlled, double_blind,
+    is_industry, num_sites, endpoint_type, drug_class,
+    has_dsmb, comparator_type, population_tags, year, title,
+    _interventionNames: drugNames
+  };
+}
+
+/* ── 5C: Bayesian Historical Borrowing ───────────────────────────── */
+
+/**
+ * Compute 5-dimension weighted similarity between target and a candidate trial.
+ * @param {object} target
+ * @param {object} candidate
+ * @returns {number}  0..1
+ */
+function computeSimilarity(target, candidate) {
+  const W = CONFIG.similarity_weights;
+
+  // 1. Drug class (0.30)
+  let drugSim = 0;
+  if (target.drug_class && candidate.drug_class) {
+    if (target.drug_class === candidate.drug_class) {
+      drugSim = 1.0;
+    } else {
+      const tm = BROAD_MECH_JS[target.drug_class];
+      const cm = BROAD_MECH_JS[candidate.drug_class];
+      if (tm && cm && tm === cm) drugSim = 0.5;
+    }
+  }
+
+  // 2. Endpoint type (0.25)
+  let epSim = 0;
+  if (target.endpoint_type && candidate.endpoint_type) {
+    if (target.endpoint_type === candidate.endpoint_type) {
+      epSim = 1.0;
+    } else {
+      const hardTypes = new Set(['mace', 'mortality', 'hf', 'renal']);
+      if (hardTypes.has(target.endpoint_type) && hardTypes.has(candidate.endpoint_type)) {
+        epSim = 0.3;
+      }
+    }
+  }
+
+  // 3. Comparator type (0.15)
+  let compSim = 0;
+  if (target.comparator_type && candidate.comparator_type) {
+    compSim = (target.comparator_type === candidate.comparator_type) ? 1.0 : 0;
+  }
+
+  // 4. Population (0.15) — Jaccard of tags
+  let popSim = 0;
+  const tTags = new Set(target.population_tags ?? []);
+  const cTags = new Set(candidate.population_tags ?? []);
+  if (tTags.size > 0 || cTags.size > 0) {
+    let inter = 0;
+    tTags.forEach(t => { if (cTags.has(t)) inter++; });
+    const union = tTags.size + cTags.size - inter;
+    popSim = union > 0 ? inter / union : 0;
+  } else {
+    popSim = 0.5; // both untagged → neutral
+  }
+
+  // 5. Era (0.15) — half-life 10 years
+  let eraSim = 0.5; // default if year unknown
+  if (target.year && candidate.year) {
+    const diff = Math.abs(target.year - candidate.year);
+    eraSim = Math.exp(-diff * Math.LN2 / 10);
+  }
+
+  return W.drug_class * drugSim
+       + W.endpoint_type * epSim
+       + W.comparator_type * compSim
+       + W.population * popSim
+       + W.era * eraSim;
+}
+
+/**
+ * Bayesian historical borrowing from training corpus.
+ * @param {object} target      — feature dict
+ * @param {Array}  trainingTrials
+ * @returns {object}
+ */
+function bayesianBorrowing(target, trainingTrials) {
+  // Compute similarities
+  const scored = trainingTrials.map(t => ({
+    trial: t,
+    sim: computeSimilarity(target, t)
+  }));
+
+  // K selection: sim > 0.3, clamp [5,30]
+  let selected = scored.filter(s => s.sim > 0.3).sort((a, b) => b.sim - a.sim);
+  if (selected.length < 5) {
+    // Fallback: sim > 0.1
+    selected = scored.filter(s => s.sim > 0.1).sort((a, b) => b.sim - a.sim);
+  }
+  if (selected.length > 30) selected = selected.slice(0, 30);
+
+  if (selected.length < 3) {
+    return {
+      p: null, ci: null, twins: [], confidence: 'INSUFFICIENT',
+      effN: 0, message: 'Fewer than 3 similar trials found in training corpus.'
+    };
+  }
+
+  // Prior (uninformative: alpha0=4.5, beta0=5.5 from CONFIG)
+  const a0 = CONFIG.priors.alpha ?? 4.5;
+  const b0 = CONFIG.priors.beta  ?? 5.5;
+
+  // Effective successes/failures using RAW (non-normalized) similarity weights
+  let effSucc = 0, effFail = 0;
+  for (const { trial, sim } of selected) {
+    const success = trial.success ?? (trial.outcome === 'positive' ? 1 : 0);
+    effSucc += sim * success;
+    effFail += sim * (1 - success);
+  }
+
+  const aPosterior = a0 + effSucc;
+  const bPosterior = b0 + effFail;
+  const n = aPosterior + bPosterior;
+  const p = aPosterior / n;
+
+  // 80% CI via normal approximation of Beta (z80 = 1.2816)
+  const z80 = 1.2816;
+  const se  = Math.sqrt(p * (1 - p) / n);
+  const ciLo = Math.max(0, p - z80 * se);
+  const ciHi = Math.min(1, p + z80 * se);
+
+  // Top twins for display
+  const twins = selected.slice(0, 5).map(s => ({
+    nctId:   s.trial.nct_id ?? s.trial.nctId ?? '—',
+    title:   s.trial.title  ?? s.trial.brief_title ?? '—',
+    sim:     s.sim,
+    outcome: (s.trial.success ?? (s.trial.outcome === 'positive' ? 1 : 0)) ? 'Positive' : 'Negative'
+  }));
+
+  const confidence = selected.length >= 10 ? 'HIGH' : selected.length >= 5 ? 'MODERATE' : 'LOW';
+
+  return { p, ci: [ciLo, ciHi], twins, confidence, effN: selected.length };
+}
+
+/* ── 5D: Conditional Power ───────────────────────────────────────── */
+
+/**
+ * Compute conditional power estimate.
+ * @param {object} target
+ * @param {Array}  similarTrials  — same scored array as bayesian
+ * @returns {object}
+ */
+function conditionalPower(target, similarTrials) {
+  // Similar trials that have outcomes
+  const withOutcome = similarTrials.filter(s => s.sim > 0.1 && s.trial);
+  const successRate = withOutcome.length > 0
+    ? withOutcome.reduce((acc, s) => acc + (s.trial.success ?? (s.trial.outcome === 'positive' ? 1 : 0)), 0) / withOutcome.length
+    : 0.45;
+
+  const endpointType = target.endpoint_type ?? 'mace';
+  const enrollment   = target.enrollment ?? 5000;
+  const events       = enrollment * 0.7;
+
+  let power = 0.5;
+  let estimated_hr = null;
+  let estimatedSMD = null;
+  let curve = [];
+  let curveLabel = 'HR';
+
+  if (endpointType === 'surrogate') {
+    // SMD-based power
+    estimatedSMD = 0.1 + 0.4 * successRate;
+    const n = enrollment / 2; // per arm
+    const xArr = [];
+    for (let smd = 0.0; smd <= 0.85; smd += 0.05) xArr.push(+smd.toFixed(2));
+    curve = xArr.map(smd => {
+      const lambda = smd * Math.sqrt(n / 2);
+      return { x: smd, power: normalCDF(lambda - 1.96) + normalCDF(-lambda - 1.96) };
+    });
+    const lambdaEst = estimatedSMD * Math.sqrt(n / 2);
+    power = normalCDF(lambdaEst - 1.96) + normalCDF(-lambdaEst - 1.96);
+    curveLabel = 'SMD';
+  } else if (endpointType === 'hf' || endpointType === 'mortality' || endpointType === 'mace' || endpointType === 'renal') {
+    // Time-to-event: Schoenfeld
+    estimated_hr = Math.exp(-0.05 - 0.25 * successRate);
+    const xArr = [];
+    for (let hr = 0.55; hr <= 1.1; hr += 0.05) xArr.push(+hr.toFixed(2));
+    curve = xArr.map(hr => {
+      const logHR = Math.log(hr);
+      const z = Math.abs(logHR) * Math.sqrt(events) / 2;
+      return { x: hr, power: normalCDF(z - 1.96) + normalCDF(-z - 1.96) };
+    });
+    const logHRest = Math.log(estimated_hr);
+    const zEst = Math.abs(logHRest) * Math.sqrt(events) / 2;
+    power = normalCDF(zEst - 1.96) + normalCDF(-zEst - 1.96);
+    curveLabel = 'HR';
+  } else {
+    // Binary: arcsine-transformed
+    const p0 = 0.15;
+    estimated_hr = Math.exp(-0.05 - 0.25 * successRate);
+    const p1 = p0 * estimated_hr;
+    const xArr = [];
+    for (let rr = 0.55; rr <= 1.1; rr += 0.05) xArr.push(+rr.toFixed(2));
+    const n = Math.floor(enrollment / 2);
+    curve = xArr.map(rr => {
+      const p1x = p0 * rr;
+      const z = (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1x)))) * Math.sqrt(n);
+      return { x: rr, power: normalCDF(Math.abs(z) - 1.96) };
+    });
+    const z0 = (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1)))) * Math.sqrt(n);
+    power = normalCDF(Math.abs(z0) - 1.96);
+    curveLabel = 'RR';
+  }
+
+  power = Math.max(0, Math.min(1, power));
+
+  return {
+    power,
+    estimated_hr: estimated_hr ?? estimatedSMD,
+    curve,
+    curveLabel,
+    successRate,
+    endpointType
+  };
+}
+
+/* ── 5E: Meta-Regression ─────────────────────────────────────────── */
+
+/**
+ * Meta-regression prediction using embedded MODEL coefficients.
+ * @param {object} features
+ * @returns {object}
+ */
+function metaRegressionPredict(features) {
+  // Build 18-feature vector matching Python pipeline
+  const featureNames = [
+    'enrollment_log', 'duration_months', 'placebo_controlled', 'double_blind',
+    'is_industry', 'num_sites_log', 'endpoint_mace', 'endpoint_mortality',
+    'endpoint_hf', 'endpoint_renal', 'endpoint_surrogate',
+    'drug_sglt2i', 'drug_mra_ns', 'drug_glp1ra', 'drug_pcsk9i',
+    'drug_statin', 'has_dsmb', 'comparator_active'
+  ];
+
+  const epType = features.endpoint_type ?? 'other';
+  const dClass = features.drug_class ?? '';
+
+  const vec = [
+    Math.log(Math.max(1, features.enrollment ?? 1000)),
+    features.duration ?? 36,
+    features.placebo_controlled ? 1 : 0,
+    features.double_blind ? 1 : 0,
+    features.is_industry ? 1 : 0,
+    Math.log(Math.max(1, features.num_sites ?? 100)),
+    epType === 'mace'      ? 1 : 0,
+    epType === 'mortality' ? 1 : 0,
+    epType === 'hf'        ? 1 : 0,
+    epType === 'renal'     ? 1 : 0,
+    epType === 'surrogate' ? 1 : 0,
+    dClass === 'sglt2i'    ? 1 : 0,
+    (dClass === 'mra' || dClass === 'ns_mra') ? 1 : 0,
+    dClass === 'glp1ra'    ? 1 : 0,
+    dClass === 'pcsk9i'    ? 1 : 0,
+    dClass === 'statin'    ? 1 : 0,
+    features.has_dsmb ? 1 : 0,
+    features.comparator_type === 'active' ? 1 : 0
+  ];
+
+  // Use MODEL.coefficients if populated; otherwise use built-in fallback
+  const defaultCoeffs = {
+    intercept: -0.45,
+    enrollment_log: 0.12, duration_months: -0.003, placebo_controlled: 0.18,
+    double_blind: 0.22, is_industry: -0.08, num_sites_log: 0.10,
+    endpoint_mace: 0.35, endpoint_mortality: 0.28, endpoint_hf: 0.30,
+    endpoint_renal: 0.20, endpoint_surrogate: 0.45,
+    drug_sglt2i: 0.52, drug_mra_ns: 0.40, drug_glp1ra: 0.38,
+    drug_pcsk9i: 0.30, drug_statin: 0.25,
+    has_dsmb: 0.15, comparator_active: -0.12
+  };
+
+  const coeffs = (MODEL.coefficients && Object.keys(MODEL.coefficients).length > 0)
+    ? MODEL.coefficients
+    : defaultCoeffs;
+
+  let logit = coeffs.intercept ?? 0;
+  const contributions = {};
+
+  featureNames.forEach((name, i) => {
+    const coeff = coeffs[name] ?? 0;
+    const contrib = coeff * vec[i];
+    logit += contrib;
+    contributions[name] = contrib;
+  });
+
+  const p = 1 / (1 + Math.exp(-logit));
+  return { p, contributions, logit, featureNames };
+}
+
+/* ── 5F: Ensemble + Rendering ────────────────────────────────────── */
+
+/**
+ * Weighted ensemble of three prediction components.
+ * @param {object|null} bayesian
+ * @param {object|null} power
+ * @param {object|null} regression
+ * @returns {object}
+ */
+function ensemblePredict(bayesian, power, regression) {
+  const W = CONFIG.ensemble_weights;
+  let wB = W.bayesian ?? 0.40;
+  let wP = W.conditional_power ?? 0.35;
+  let wR = W.meta_regression ?? 0.25;
+
+  const hasB = bayesian && bayesian.p !== null;
+  const hasP = power    && power.power !== null;
+  const hasR = regression && regression.p !== null;
+
+  // Re-weight if any component missing
+  if (!hasB) { wP += wB * (wP / (wP + wR)); wR += wB * (wR / (wP + wR)); wB = 0; }
+  if (!hasP) { wB += wP * (wB / (wB + wR)); wR += wP * (wR / (wB + wR)); wP = 0; }
+  if (!hasR) { wB += wR * (wB / (wB + wP)); wP += wR * (wP / (wB + wP)); wR = 0; }
+
+  const total = wB + wP + wR;
+  if (total <= 0) return { p: 0.45, level: 'moderate', levelLabel: 'Moderate' };
+
+  const p = (
+    (hasB ? wB * bayesian.p : 0) +
+    (hasP ? wP * power.power : 0) +
+    (hasR ? wR * regression.p : 0)
+  ) / total;
+
+  let level, levelLabel;
+  if (p > 0.6)      { level = 'high';     levelLabel = 'High'; }
+  else if (p >= 0.3) { level = 'moderate'; levelLabel = 'Moderate'; }
+  else               { level = 'low';      levelLabel = 'Low'; }
+
+  return { p, level, levelLabel };
+}
+
+/**
+ * Toggle collapsible panel open/closed.
+ * @param {HTMLElement} header
+ */
+function toggleCollapsible(header) {
+  const expanded = header.getAttribute('aria-expanded') === 'true';
+  header.setAttribute('aria-expanded', String(!expanded));
+  const body = header.nextElementSibling;
+  if (body) body.classList.toggle('open', !expanded);
+}
+
+/**
+ * Render the full prediction result into #predictionResult.
+ */
+function renderPrediction(nctId, features, bayesian, power, regression, ensemble) {
+  const result = document.getElementById('predictionResult');
+  if (!result) return;
+
+  const ciLo = bayesian && bayesian.ci ? (bayesian.ci[0] * 100).toFixed(1) : '—';
+  const ciHi = bayesian && bayesian.ci ? (bayesian.ci[1] * 100).toFixed(1) : '—';
+  const pPct = (ensemble.p * 100).toFixed(1);
+
+  // Verdict text
+  const verdictText = ensemble.level === 'high'
+    ? 'Historical precedent and model consensus support a high probability of a significant primary outcome.'
+    : ensemble.level === 'moderate'
+    ? 'Mixed signals from similar trials; the outcome is genuinely uncertain.'
+    : 'Trial design and historical analogues suggest a challenging path to a positive primary outcome.';
+
+  // Feature summary badges
+  const badgeHtml = [
+    features.drug_class   ? `<span class="badge">${escapeHtml(features.drug_class)}</span>` : '',
+    features.endpoint_type? `<span class="badge">${escapeHtml(features.endpoint_type)}</span>` : '',
+    features.double_blind ? `<span class="badge">Double-blind</span>` : '',
+    features.placebo_controlled ? `<span class="badge">Placebo-controlled</span>` : '',
+    features.has_dsmb     ? `<span class="badge">DSMB</span>` : '',
+    features.enrollment   ? `<span class="badge">N=${escapeHtml(String(features.enrollment))}</span>` : ''
+  ].filter(Boolean).join(' ');
+
+  // Historical twins rows
+  const twinsRows = (bayesian && bayesian.twins && bayesian.twins.length > 0)
+    ? bayesian.twins.map(tw => `
+        <tr>
+          <td><a href="https://clinicaltrials.gov/study/${escapeHtml(tw.nctId)}" target="_blank" rel="noopener noreferrer">${escapeHtml(tw.nctId)}</a></td>
+          <td>${escapeHtml(tw.title)}</td>
+          <td>${(tw.sim * 100).toFixed(1)}%</td>
+          <td><span class="badge" style="color:${tw.outcome === 'Positive' ? 'var(--success)' : 'var(--danger)'}">${escapeHtml(tw.outcome)}</span></td>
+        </tr>`).join('')
+    : '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;">No similar trials in training corpus</td></tr>';
+
+  // Unique IDs for Plotly charts
+  const powerChartId  = 'chart_power_'  + nctId;
+  const riskChartId   = 'chart_risk_'   + nctId;
+
+  const confidenceBadge = bayesian && bayesian.confidence
+    ? ` <span class="badge">${escapeHtml(bayesian.confidence)} confidence</span>` : '';
+
+  const bayesianLine = bayesian && bayesian.p !== null
+    ? `${(bayesian.p * 100).toFixed(1)}% (80% CI: ${ciLo}%–${ciHi}%)${confidenceBadge}`
+    : '<span class="text-muted">Insufficient data</span>';
+
+  const powerLine = power && power.power !== null
+    ? `${(power.power * 100).toFixed(1)}% (estimated effect: ${power.curveLabel === 'SMD' ? 'SMD' : power.curveLabel} ≈ ${power.estimated_hr !== null ? power.estimated_hr.toFixed(3) : '—'})`
+    : '<span class="text-muted">Not computed</span>';
+
+  const regressionLine = regression && regression.p !== null
+    ? `${(regression.p * 100).toFixed(1)}% (logit ${regression.logit.toFixed(3)})`
+    : '<span class="text-muted">Not computed</span>';
+
+  result.innerHTML = `
+    <div class="card" style="margin-top:0.75rem; border-left:4px solid var(--${ensemble.level === 'high' ? 'success' : ensemble.level === 'low' ? 'danger' : 'warning'});">
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+        <strong style="font-size:1.1rem;">${escapeHtml(nctId)}</strong>
+        <span class="traffic-light ${escapeHtml(ensemble.level)}">
+          ${ensemble.level === 'high' ? '&#9646;' : ensemble.level === 'moderate' ? '&#9646;' : '&#9646;'}
+          ${escapeHtml(ensemble.levelLabel)} — ${pPct}%
+        </span>
+      </div>
+      <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:0.75rem;">${escapeHtml(features.title)}</p>
+      <div style="margin-bottom:0.75rem;">${badgeHtml}</div>
+      <p style="font-size:0.9rem;">${escapeHtml(verdictText)}</p>
+
+      <table style="margin-top:1rem; font-size:0.88rem;">
+        <tbody>
+          <tr><th style="width:40%">Bayesian borrowing</th><td>${bayesianLine}</td></tr>
+          <tr><th>Conditional power</th><td>${powerLine}</td></tr>
+          <tr><th>Meta-regression</th><td>${regressionLine}</td></tr>
+          <tr><th>Ensemble (weighted)</th><td><strong>${pPct}%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Panel 1: Historical Twins -->
+    <div style="margin-top:0.75rem;">
+      <div class="collapsible-header" role="button" tabindex="0"
+           aria-expanded="false"
+           onclick="toggleCollapsible(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCollapsible(this);}">
+        <span>Historical Twin Trials (top ${bayesian && bayesian.twins ? bayesian.twins.length : 0})</span>
+        <span class="caret">&#9660;</span>
+      </div>
+      <div class="collapsible-body">
+        <table>
+          <thead><tr><th>NCT ID</th><th>Title</th><th>Similarity</th><th>Outcome</th></tr></thead>
+          <tbody>${twinsRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel 2: Power Assessment -->
+    <div style="margin-top:0.5rem;">
+      <div class="collapsible-header" role="button" tabindex="0"
+           aria-expanded="false"
+           onclick="toggleCollapsible(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCollapsible(this);}">
+        <span>Power Assessment</span>
+        <span class="caret">&#9660;</span>
+      </div>
+      <div class="collapsible-body">
+        <div id="${escapeHtml(powerChartId)}" style="height:300px;"></div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Design Risk Factors -->
+    <div style="margin-top:0.5rem;">
+      <div class="collapsible-header" role="button" tabindex="0"
+           aria-expanded="false"
+           onclick="toggleCollapsible(this)"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCollapsible(this);}">
+        <span>Design Risk Factors (Meta-Regression Decomposition)</span>
+        <span class="caret">&#9660;</span>
+      </div>
+      <div class="collapsible-body">
+        <div id="${escapeHtml(riskChartId)}" style="height:320px;"></div>
+      </div>
+    </div>`;
+
+  // Render charts after DOM update
+  setTimeout(() => {
+    renderPowerCurve(power, powerChartId);
+    renderRiskFactors(regression, riskChartId);
+  }, 0);
+}
+
+/* ── 5G: Charts ──────────────────────────────────────────────────── */
+
+/**
+ * Render power curve Plotly chart.
+ */
+function renderPowerCurve(power, chartId) {
+  if (!power || !power.curve || !power.curve.length) return;
+  if (typeof Plotly === 'undefined') return;
+
+  const el = document.getElementById(chartId);
+  if (!el) return;
+
+  const fontColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#212529';
+  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#dee2e6';
+
+  const xArr  = power.curve.map(p => p.x);
+  const yArr  = power.curve.map(p => Math.max(0, Math.min(1, p.power)) * 100);
+
+  const estEffect = power.estimated_hr;
+  const estPower  = power.power * 100;
+
+  const traces = [
+    {
+      x: xArr, y: yArr, mode: 'lines', type: 'scatter',
+      name: 'Power (%)',
+      line: { color: '#0d6efd', width: 2 }
+    },
+    {
+      x: [estEffect, estEffect], y: [0, 100],
+      mode: 'lines', type: 'scatter', name: 'Estimated effect',
+      line: { color: '#198754', width: 1.5, dash: 'dash' }
+    },
+    {
+      x: [xArr[0], xArr[xArr.length - 1]], y: [80, 80],
+      mode: 'lines', type: 'scatter', name: '80% threshold',
+      line: { color: '#fd7e14', width: 1, dash: 'dot' }
+    }
+  ];
+
+  const layout = {
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    font: { color: fontColor, size: 12 },
+    margin: { t: 20, r: 20, b: 50, l: 55 },
+    xaxis: {
+      title: power.curveLabel ?? 'Effect Size',
+      gridcolor: gridColor, zerolinecolor: gridColor,
+      range: power.curveLabel === 'SMD' ? [0, 0.85] : [0.55, 1.1]
+    },
+    yaxis: {
+      title: 'Power (%)', range: [0, 105],
+      gridcolor: gridColor, zerolinecolor: gridColor
+    },
+    legend: { orientation: 'h', y: -0.2 },
+    showlegend: true
+  };
+
+  Plotly.newPlot(el, traces, layout, { responsive: true, displayModeBar: false });
+}
+
+/**
+ * Render risk-factor horizontal bar chart.
+ */
+function renderRiskFactors(regression, chartId) {
+  if (!regression || !regression.contributions) return;
+  if (typeof Plotly === 'undefined') return;
+
+  const el = document.getElementById(chartId);
+  if (!el) return;
+
+  const fontColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#212529';
+  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#dee2e6';
+
+  // Sort by absolute value, take top 10
+  const entries = Object.entries(regression.contributions)
+    .filter(([, v]) => v !== 0)
+    .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+    .slice(0, 10);
+
+  const labels = entries.map(([name]) => name.replace(/_/g, ' '));
+  const values = entries.map(([, v]) => +v.toFixed(4));
+  const colors = values.map(v => v >= 0 ? '#198754' : '#dc3545');
+
+  const trace = {
+    type: 'bar', orientation: 'h',
+    x: values, y: labels,
+    marker: { color: colors },
+    name: 'Log-odds contribution'
+  };
+
+  const layout = {
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    font: { color: fontColor, size: 11 },
+    margin: { t: 20, r: 20, b: 50, l: 140 },
+    xaxis: {
+      title: 'Log-odds contribution',
+      gridcolor: gridColor, zerolinecolor: gridColor
+    },
+    yaxis: { automargin: true },
+    showlegend: false
+  };
+
+  Plotly.newPlot(el, [trace], layout, { responsive: true, displayModeBar: false });
+}
+
+/* ── 5H: Main Flow ───────────────────────────────────────────────── */
+
 /**
  * Validate NCT format, show spinner, delegate to fetchAndPredict.
  */
@@ -917,26 +1736,83 @@ function runPrediction() {
 }
 
 /**
- * Fetch trial metadata and run the prediction ensemble.
- * Phase 1 placeholder — full implementation in Task 7.
+ * Save NCT ID to recent lookups in localStorage (max 10, FIFO).
  * @param {string} nctId
+ */
+function saveRecentLookup(nctId) {
+  const LS_KEY = 'cardiooracle_recent';
+  try {
+    let recent = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]');
+    if (!Array.isArray(recent)) recent = [];
+    // Remove if already present, then prepend
+    recent = recent.filter(id => id !== nctId);
+    recent.unshift(nctId);
+    if (recent.length > 10) recent = recent.slice(0, 10);
+    localStorage.setItem(LS_KEY, JSON.stringify(recent));
+  } catch (_) { /* quota / parse errors — ignore */ }
+}
+
+/**
+ * Full prediction flow: fetch → extract → predict → render.
+ * Retries once automatically on timeout.
+ * @param {string} nctId
+ * @param {boolean} [_retried]
  * @returns {Promise<void>}
  */
-async function fetchAndPredict(nctId) {
-  const result = document.getElementById('predictionResult');
-  const errEl  = document.getElementById('predictionError');
+async function fetchAndPredict(nctId, _retried) {
+  const errEl = document.getElementById('predictionError');
 
   try {
-    // Simulate brief async work
-    await new Promise(resolve => setTimeout(resolve, 350));
+    errEl.classList.remove('visible');
+    errEl.textContent = '';
 
-    result.innerHTML = `
-      <div class="alert alert-info visible" role="status" style="margin-top:0.75rem;">
-        <strong>${escapeHtml(nctId)}</strong> — Prediction engine will be implemented in Task 7.
-        The similarity scoring, Bayesian ensemble, and traffic-light output will appear here.
-      </div>`;
+    // 1. Fetch from CT.gov
+    let ctgovData;
+    try {
+      ctgovData = await fetchTrialFromCTGov(nctId);
+    } catch (fetchErr) {
+      // Automatic retry on timeout (once)
+      if (!_retried && String(fetchErr).includes('timed out')) {
+        return fetchAndPredict(nctId, true);
+      }
+      throw fetchErr;
+    }
+
+    // 2. Extract features
+    const features = extractFeatures(ctgovData);
+
+    // 3. Run all three components
+    const trainingTrials = TRAINING_DATA.trials ?? [];
+
+    // Score all training trials for reuse
+    const scoredTrials = trainingTrials.map(t => ({
+      trial: t,
+      sim: computeSimilarity(features, t)
+    }));
+
+    const bayesian   = bayesianBorrowing(features, trainingTrials);
+    const power      = conditionalPower(features, scoredTrials);
+    const regression = metaRegressionPredict(features);
+    const ensemble   = ensemblePredict(bayesian, power, regression);
+
+    // 4. Render
+    renderPrediction(nctId, features, bayesian, power, regression, ensemble);
+
+    // 5. Save to recent lookups
+    saveRecentLookup(nctId);
+
   } catch (err) {
-    errEl.textContent = 'An unexpected error occurred: ' + escapeHtml(String(err));
+    let msg;
+    if (String(err).includes('HTTP 404') || String(err).includes('404')) {
+      msg = escapeHtml(nctId) + ' was not found on ClinicalTrials.gov. Please verify the NCT ID.';
+    } else if (String(err).includes('timed out')) {
+      msg = 'Request timed out. ClinicalTrials.gov may be temporarily unavailable. Please try again.';
+    } else if (String(err).includes('Failed to fetch') || String(err).includes('NetworkError')) {
+      msg = 'Network error. Please check your internet connection and try again.';
+    } else {
+      msg = 'An unexpected error occurred: ' + escapeHtml(String(err));
+    }
+    errEl.textContent = msg;
     errEl.classList.add('visible');
   }
 }
