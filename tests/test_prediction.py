@@ -141,6 +141,16 @@ class TestCardioOracleShell(unittest.TestCase):
         cls.driver.get(FILE_URL)
         # Allow JS to initialise
         time.sleep(2)
+        # Dismiss tutorial overlay if present (blocks clicks on first visit)
+        try:
+            cls.driver.execute_script(
+                "var t = document.getElementById('tutorialOverlay');"
+                "if (t) t.classList.add('hidden');"
+                "try { localStorage.setItem('cardiooracle_tutorial_seen','true'); } catch(e) {}"
+            )
+            time.sleep(0.3)
+        except Exception:
+            pass
 
     @classmethod
     def tearDownClass(cls):
@@ -369,6 +379,16 @@ class TestCardioOraclePhase2to4(unittest.TestCase):
         cls.driver.set_page_load_timeout(30)
         cls.driver.get(FILE_URL)
         time.sleep(2)
+        # Dismiss tutorial overlay if present
+        try:
+            cls.driver.execute_script(
+                "var t = document.getElementById('tutorialOverlay');"
+                "if (t) t.classList.add('hidden');"
+                "try { localStorage.setItem('cardiooracle_tutorial_seen','true'); } catch(e) {}"
+            )
+            time.sleep(0.3)
+        except Exception:
+            pass
 
     @classmethod
     def tearDownClass(cls):
