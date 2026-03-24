@@ -697,6 +697,16 @@
       .collapsible-body { display: block !important; }
     }
   </style>
+  <style>
+    .tutorial-steps { display: flex; flex-direction: column; gap: 16px; }
+    .tutorial-step { display: flex; gap: 12px; align-items: flex-start; }
+    .tutorial-num {
+      min-width: 32px; height: 32px; border-radius: 50%;
+      background: var(--tab-active); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -1222,7 +1232,62 @@
         <strong>Data source:</strong> ClinicalTrials.gov (AACT database)<br>
         <strong>License:</strong> Open access
       </p>
+      <hr style="margin:16px 0;border-color:var(--border)">
+      <h3 style="font-size:1rem;font-weight:600;margin:0 0 8px">Methodology</h3>
+
+      <h4 style="font-size:0.9rem;margin:12px 0 4px">Training Data</h4>
+      <p style="font-size:0.85rem">784 Phase 2/3 and Phase 3 cardiovascular trials extracted from the AACT database (ClinicalTrials.gov). Trials must be randomized, interventional, enrollment ≥50, with posted results. Success/failure labels assigned via 3-tier system: automated p-value extraction (Tier 1, 97.6%), CI-based heuristics (Tier 2), and manual curation of 29 landmark trials (Tier 3).</p>
+
+      <h4 style="font-size:0.9rem;margin:12px 0 4px">Prediction Model</h4>
+      <p style="font-size:0.85rem">Ensemble of three components:</p>
+      <ul style="font-size:0.85rem;margin:4px 0;padding-left:20px">
+        <li><strong>Bayesian Historical Borrowing (40%):</strong> Beta-Binomial posterior from K most similar completed trials, weighted by 5-dimension similarity (drug class, endpoint, comparator, population, era).</li>
+        <li><strong>Conditional Power (35%):</strong> Schoenfeld formula for time-to-event; arcsine for binary; SMD for continuous endpoints. Uses historical effect size distribution.</li>
+        <li><strong>Design Feature Meta-Regression (25%):</strong> L2-regularized logistic regression on 18 trial design features.</li>
+      </ul>
+
+      <h4 style="font-size:0.9rem;margin:12px 0 4px">Validation</h4>
+      <p style="font-size:0.85rem">Temporal holdout: trained on trials completing before 2020, tested on 133 post-2020 trials. AUC = 0.745, Brier = 0.196. See the Calibration tab for detailed metrics.</p>
+
+      <h4 style="font-size:0.9rem;margin:12px 0 4px">Limitations</h4>
+      <ul style="font-size:0.85rem;margin:4px 0;padding-left:20px">
+        <li>Calibration slope below ideal range — predicted probabilities may be overconfident</li>
+        <li>AACT results data is incomplete for many trials (475/1259 unlabelable)</li>
+        <li>Drug class mapping relies on keyword matching, which may miss novel agents</li>
+        <li>Success is defined by the primary endpoint only — trials with positive secondary endpoints but negative primaries are labeled as failures</li>
+      </ul>
     </div>
+  </div>
+</div>
+
+<div id="tutorialOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div class="modal-card" style="max-width:550px">
+    <button class="modal-close" onclick="dismissTutorial()" aria-label="Close tutorial">&times;</button>
+    <h2 style="font-size:1.2rem;margin:0 0 16px">Welcome to CardioOracle</h2>
+    <div class="tutorial-steps">
+      <div class="tutorial-step">
+        <span class="tutorial-num">1</span>
+        <div>
+          <strong>Predict</strong>
+          <p style="margin:4px 0;font-size:0.85rem">Enter an NCT ID (e.g., NCT03036124) to predict whether a trial will meet its primary endpoint.</p>
+        </div>
+      </div>
+      <div class="tutorial-step">
+        <span class="tutorial-num">2</span>
+        <div>
+          <strong>Design</strong>
+          <p style="margin:4px 0;font-size:0.85rem">Use interactive sliders to explore how trial design choices affect success probability.</p>
+        </div>
+      </div>
+      <div class="tutorial-step">
+        <span class="tutorial-num">3</span>
+        <div>
+          <strong>Validate</strong>
+          <p style="margin:4px 0;font-size:0.85rem">Check the Calibration tab for model performance, and WebR tab for independent R validation.</p>
+        </div>
+      </div>
+    </div>
+    <button class="search-btn" style="width:100%;margin-top:16px" onclick="dismissTutorial()">Get Started</button>
   </div>
 </div>
 
@@ -4070,6 +4135,23 @@ function renderWebrResults(tests) {
   modal.addEventListener('click', function (e) {
     if (e.target === modal) closeModal();
   });
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   TUTORIAL OVERLAY
+════════════════════════════════════════════════════════════════════ */
+function dismissTutorial() {
+  document.getElementById('tutorialOverlay').classList.add('hidden');
+  try { localStorage.setItem('cardiooracle_tutorial_seen', 'true'); } catch(e) {}
+}
+
+// Show tutorial on first visit
+(function() {
+  try {
+    if (!localStorage.getItem('cardiooracle_tutorial_seen')) {
+      document.getElementById('tutorialOverlay').classList.remove('hidden');
+    }
+  } catch(e) {}
 })();
 
 </script>
