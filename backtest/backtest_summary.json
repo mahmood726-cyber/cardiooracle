@@ -1,0 +1,132 @@
+{
+  "overall": {
+    "n": 493,
+    "auc": 0.745,
+    "brier": 0.182,
+    "cal_slope": 0.214,
+    "accuracy": 0.728,
+    "base_rate": 0.696
+  },
+  "per_year": {
+    "2010": {
+      "n": 63,
+      "auc": 0.809,
+      "brier": 0.144,
+      "cal_slope": 0.303,
+      "accuracy": 0.794,
+      "base_rate": 0.746
+    },
+    "2011": {
+      "n": 34,
+      "auc": 0.542,
+      "brier": 0.225,
+      "cal_slope": 0.037,
+      "accuracy": 0.618,
+      "base_rate": 0.735
+    },
+    "2012": {
+      "n": 49,
+      "auc": 0.635,
+      "brier": 0.216,
+      "cal_slope": 0.128,
+      "accuracy": 0.633,
+      "base_rate": 0.673
+    },
+    "2013": {
+      "n": 53,
+      "auc": 0.763,
+      "brier": 0.179,
+      "cal_slope": 0.239,
+      "accuracy": 0.774,
+      "base_rate": 0.698
+    },
+    "2014": {
+      "n": 54,
+      "auc": 0.804,
+      "brier": 0.183,
+      "cal_slope": 0.279,
+      "accuracy": 0.796,
+      "base_rate": 0.648
+    },
+    "2015": {
+      "n": 43,
+      "auc": 0.754,
+      "brier": 0.172,
+      "cal_slope": 0.184,
+      "accuracy": 0.744,
+      "base_rate": 0.744
+    },
+    "2016": {
+      "n": 54,
+      "auc": 0.77,
+      "brier": 0.188,
+      "cal_slope": 0.242,
+      "accuracy": 0.722,
+      "base_rate": 0.667
+    },
+    "2017": {
+      "n": 39,
+      "auc": 0.655,
+      "brier": 0.16,
+      "cal_slope": 0.123,
+      "accuracy": 0.744,
+      "base_rate": 0.795
+    },
+    "2018": {
+      "n": 30,
+      "auc": 0.759,
+      "brier": 0.235,
+      "cal_slope": 0.268,
+      "accuracy": 0.6,
+      "base_rate": 0.4
+    },
+    "2019": {
+      "n": 25,
+      "auc": 0.662,
+      "brier": 0.225,
+      "cal_slope": 0.098,
+      "accuracy": 0.6,
+      "base_rate": 0.68
+    },
+    "2020": {
+      "n": 18,
+      "auc": 0.643,
+      "brier": 0.186,
+      "cal_slope": 0.101,
+      "accuracy": 0.667,
+      "base_rate": 0.778
+    },
+    "2021": {
+      "n": 23,
+      "auc": 0.931,
+      "brier": 0.108,
+      "cal_slope": 0.388,
+      "accuracy": 0.913,
+      "base_rate": 0.739
+    },
+    "2022": {
+      "n": 8,
+      "auc": 1.0,
+      "brier": 0.076,
+      "cal_slope": 0.263,
+      "accuracy": 0.875,
+      "base_rate": 0.875
+    }
+  },
+  "n_total": 493,
+  "years_tested": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022
+  ]
+}
