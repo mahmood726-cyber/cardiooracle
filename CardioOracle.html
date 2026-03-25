@@ -718,7 +718,7 @@
   </style>
 </head>
 <body>
-<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:999;" onfocus="this.style.cssText='position:fixed;top:0;left:0;z-index:9999;padding:8px 16px;background:var(--text-accent);color:#fff;font-size:1rem;text-decoration:none;border-radius:4px;'">Skip to main content</a>
+<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:999;" onfocus="this.style.cssText='position:fixed;top:0;left:0;z-index:9999;padding:8px 16px;background:var(--text-accent);color:#fff;font-size:1rem;text-decoration:none;border-radius:4px;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:999;'">Skip to main content</a>
 
 <!-- ══════════════════════════════════════════════════════════════════
      APP HEADER
@@ -1087,14 +1087,14 @@
         <table id="trainingDataTable" aria-label="Training corpus trials">
           <thead>
             <tr>
-              <th class="sortable" data-col="nct_id" scope="col" tabindex="0" role="columnheader button">NCT ID <span class="sort-arrow" id="sarr-nct_id"></span></th>
-              <th class="sortable" data-col="title" scope="col" tabindex="0" role="columnheader button">Title <span class="sort-arrow" id="sarr-title"></span></th>
-              <th class="sortable" data-col="label" scope="col" tabindex="0" role="columnheader button">Label <span class="sort-arrow" id="sarr-label"></span></th>
-              <th class="sortable" data-col="label_tier" scope="col" tabindex="0" role="columnheader button">Tier <span class="sort-arrow" id="sarr-label_tier"></span></th>
-              <th class="sortable" data-col="drug_class" scope="col" tabindex="0" role="columnheader button">Drug Class <span class="sort-arrow" id="sarr-drug_class"></span></th>
-              <th class="sortable" data-col="endpoint_type" scope="col" tabindex="0" role="columnheader button">Endpoint <span class="sort-arrow" id="sarr-endpoint_type"></span></th>
-              <th class="sortable" data-col="enrollment" scope="col" tabindex="0" role="columnheader button">Enrollment <span class="sort-arrow" id="sarr-enrollment"></span></th>
-              <th class="sortable" data-col="duration_months" scope="col" tabindex="0" role="columnheader button">Duration (mo) <span class="sort-arrow" id="sarr-duration_months"></span></th>
+              <th class="sortable" data-col="nct_id" scope="col" tabindex="0" aria-roledescription="sortable column">NCT ID <span class="sort-arrow" id="sarr-nct_id"></span></th>
+              <th class="sortable" data-col="title" scope="col" tabindex="0" aria-roledescription="sortable column">Title <span class="sort-arrow" id="sarr-title"></span></th>
+              <th class="sortable" data-col="label" scope="col" tabindex="0" aria-roledescription="sortable column">Label <span class="sort-arrow" id="sarr-label"></span></th>
+              <th class="sortable" data-col="label_tier" scope="col" tabindex="0" aria-roledescription="sortable column">Tier <span class="sort-arrow" id="sarr-label_tier"></span></th>
+              <th class="sortable" data-col="drug_class" scope="col" tabindex="0" aria-roledescription="sortable column">Drug Class <span class="sort-arrow" id="sarr-drug_class"></span></th>
+              <th class="sortable" data-col="endpoint_type" scope="col" tabindex="0" aria-roledescription="sortable column">Endpoint <span class="sort-arrow" id="sarr-endpoint_type"></span></th>
+              <th class="sortable" data-col="enrollment" scope="col" tabindex="0" aria-roledescription="sortable column">Enrollment <span class="sort-arrow" id="sarr-enrollment"></span></th>
+              <th class="sortable" data-col="duration_months" scope="col" tabindex="0" aria-roledescription="sortable column">Duration (mo) <span class="sort-arrow" id="sarr-duration_months"></span></th>
             </tr>
           </thead>
           <tbody id="trainingTableBody">
@@ -1261,7 +1261,7 @@
       </ul>
 
       <h4 style="font-size:0.9rem;margin:12px 0 4px">Validation</h4>
-      <p style="font-size:0.85rem">Temporal holdout: trained on trials completing before 2020, tested on 133 post-2020 trials. AUC = 0.745, Brier = 0.196. See the Calibration tab for detailed metrics.</p>
+      <p style="font-size:0.85rem">Temporal holdout: trained on trials completing before 2020, tested on 133 post-2020 trials. AUC = 0.745, Brier = 0.197. See the Calibration tab for detailed metrics.</p>
 
       <h4 style="font-size:0.9rem;margin:12px 0 4px">Limitations</h4>
       <ul style="font-size:0.85rem;margin:4px 0;padding-left:20px">
@@ -1970,8 +1970,13 @@ function conditionalPower(target, similarTrials) {
 
   const endpointType = target.endpoint_type ?? 'mace';
   const enrollment   = target.enrollment ?? 5000;
-  // Endpoint-specific event rate estimates (literature-derived, not fixed 70%)
-  const EVENT_RATES = { mace: 0.10, mortality: 0.08, hf: 0.15, renal: 0.12, surrogate: 0.70, other: 0.15 };
+  // Endpoint-specific event rate estimates (literature-derived)
+  // Include all variant spellings from training data (cv_death, hf_hosp, acm) and Design dropdown (allcause_mortality, renal_composite)
+  const EVENT_RATES = {
+    mace: 0.10, mortality: 0.08, cv_death: 0.08, acm: 0.08, allcause_mortality: 0.08,
+    hf: 0.15, hf_hosp: 0.15, renal: 0.12, renal_composite: 0.12,
+    surrogate: 0.70, other: 0.15
+  };
   const eventRate = EVENT_RATES[endpointType] ?? 0.15;
   const events    = enrollment * eventRate;
 
@@ -1995,7 +2000,7 @@ function conditionalPower(target, similarTrials) {
     const lambdaEst = estimatedSMD * Math.sqrt(n / 2);
     power = normalCDF(lambdaEst - za) + normalCDF(-lambdaEst - za);
     curveLabel = 'SMD';
-  } else if (endpointType === 'hf' || endpointType === 'mortality' || endpointType === 'mace' || endpointType === 'renal') {
+  } else if (['hf','hf_hosp','mortality','cv_death','acm','allcause_mortality','mace','renal','renal_composite'].includes(endpointType)) {
     // Time-to-event: Schoenfeld
     estimated_hr = Math.exp(-0.05 - 0.25 * successRate);
     const xArr = [];

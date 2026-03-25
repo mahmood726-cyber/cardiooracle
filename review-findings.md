@@ -1,7 +1,11 @@
-# REVIEW CLEAN — Round 4 (5 Personas, 9 P0 + 15 P1 ALL FIXED)
-## Multi-Persona Review: CardioOracle.html (4,457 lines)
+# REVIEW CLEAN — Round 5 (5 Personas, ALL FIXES VERIFIED, 3 new P1 FIXED)
+## Multi-Persona Review: CardioOracle.html (4,462 lines)
 ### Date: 2026-03-25
-### Summary: 9/9 P0 fixed, 15/15 P1 fixed, 14 P2 deferred. 30/30 tests pass.
+### Summary: R4: 9/9 P0 + 15/15 P1 fixed. R5: 3/3 new P1 fixed. Total: 9 P0 + 18 P1 = 27 fixes. 30/30 tests pass.
+### Round 5 new fixes:
+- **R5-P1-1** [FIXED] [SM]: Endpoint type variant values (cv_death, hf_hosp, acm, allcause_mortality, renal_composite) added to EVENT_RATES + conditionalPower branch condition
+- **R5-P1-2** [FIXED] [UX]: Skip link onblur handler re-hides on blur; role="columnheader button" replaced with aria-roledescription="sortable column"
+- **R5-P1-3** [FIXED] [DE]: Brier score 0.196→0.197 for internal consistency in About modal
 
 ### Prior rounds: R1: 3P0+1P1 fixed. R2: 6P0+1P1 fixed. R3: 7P1 fixed + TruthCert v2.0 + 15 tests. Total prior: 9P0+9P1.
 
