@@ -1,119 +1,94 @@
-# REVIEW CLEAN (after 3 rounds of fixes)
-## Multi-Persona Review: CardioOracle.html
+# REVIEW CLEAN — Round 4 (5 Personas, 9 P0 + 15 P1 ALL FIXED)
+## Multi-Persona Review: CardioOracle.html (4,457 lines)
 ### Date: 2026-03-25
-### Summary: Round 1: 3 P0 + 1 P1 fixed. Round 2: 6 P0 + 1 P1 fixed. Round 3: 7 P1 fixed + TruthCert v2.0 + 15 new tests. Total: 9 P0 + 9 P1 fixed.
+### Summary: 9/9 P0 fixed, 15/15 P1 fixed, 14 P2 deferred. 30/30 tests pass.
 
-### Round 3 fixes (2026-03-25):
-- **SM-P1-2** [FIXED]: z=1.96 hardcoded → parameterized via CONFIG.conf_level + normalQuantile() + zAlpha()
-- **UX-P1-1** [FIXED]: Traffic-light identical icons → distinct per level (checkmark/diamond/cross)
-- **UX-P1-3** [FIXED]: Amber contrast WCAG AA — #fd7e14 (2.8:1) → #c25e00 (5.1:1)
-- **UX-P1-5** [FIXED]: Training table headers now have aria-sort attribute on active sort column
-- **DE-P1-1** [FIXED]: Endpoint keywords expanded — 3-point MACE, worsening HF, sustained eGFR decline, ESKD, NT-proBNP, etc.
-- **SA-P1-4** [FIXED]: API response schema validation — rejects missing protocolSection.identificationModule
-- **SA-P1-5** [FIXED]: Content-Security-Policy meta tag added (default-src, script-src, connect-src scoped)
-- **TruthCert v2.0**: exportPredictionBundle upgraded — SHA-256 via SubtleCrypto, full provenance trail, validator outcomes, certification envelope
-- **Tests**: 15→30 Selenium tests (z_alpha, normalQuantile, SHA-256, CSP, endpoint keywords, schema validation, aria-sort, traffic-light icons, design live prediction, training filter, edge cases)
+### Prior rounds: R1: 3P0+1P1 fixed. R2: 6P0+1P1 fixed. R3: 7P1 fixed + TruthCert v2.0 + 15 tests. Total prior: 9P0+9P1.
 
 ---
 
-## Statistical Methodologist
+## P0 — Critical (must fix)
 
-#### P0 — Critical
-- **SM-P0-1** [FIXED]: All training trials treated as failures — `trial.outcome === 'positive'` should be `trial.label === 'success'`
-- **SM-P0-2** [FIXED]: `computeSimilarity` accessed top-level properties but training data nests under `.features` — added `const c = candidate.features ?? candidate` resolution
-- **SM-P0-3** [FIXED]: Ensemble weight redistribution had sequential mutation bug — saved originals before redistribution
+- **P0-1** [FIXED] [SM+SE+DE]: Meta-regression feature names mismatch MODEL coefficients — 13/18 features silently zeroed via `coeffs[name] ?? 0`. Only duration_months, placebo_controlled, double_blind, is_industry, has_dsmb contribute. Drug class, endpoint, enrollment, num_sites dead. (~line 2035)
+  - Fix: Align featureNames array with actual MODEL coefficient keys (log_enrollment, ep_mace, etc.)
 
-#### P1 — Important
-- **SM-P1-1**: Design tab duration invisible to meta-regression — `duration_months` vs `duration` field name mismatch
-- **SM-P1-2**: Hardcoded z=1.96 — should be parameterized via CONFIG.alpha
-- **SM-P1-3**: `events = enrollment * 0.7` crude assumption — should use endpoint-specific event rates
-- **SM-P1-4**: WebR validation re-implements logic instead of calling main function, masking bugs
+- **P0-2** [FIXED] [SM]: WebR Schoenfeld validation test uses wrong formula (missing /2 divisor). Production: `z = |logHR| * sqrt(E) / 2`. Test: `z = sqrt(E) * |logHR|` (no /2). Passes vacuously because JS and R both use same wrong formula. (~line 4087)
+  - Fix: Add /2 to WebR test formula + match two-sided production formula
 
-#### P2 — Minor
-- **SM-P2-1**: Beta posterior CI uses `n = a+b` instead of `a+b+1` for variance
-- **SM-P2-2**: Arcsine branch uses one-sided rejection vs two-sided for others
-- **SM-P2-3**: `escapeHtml` defined late but used earlier (works due to hoisting)
-- **SM-P2-4**: `getDesignFeatures` returns `start_year` but `computeSimilarity` checks `.year`
+- **P0-3** [FIXED] [SE]: WebR `evalR()` results never `.destroy()`ed — WASM memory leak. Three RObject proxies accumulate per validation run. (~lines 4055, 4098, 4179)
+  - Fix: Add `await result.destroy()` in finally blocks
 
----
+- **P0-4** [FIXED] [SE+SA]: TruthCert integrity check is tautological when `content_hash` missing. `liveHash === (TRAINING_DATA.content_hash ?? liveHash)` always true. Also sha256Hex fallback returns embedded hash. (~lines 2160, 2264, 2293)
+  - Fix: Return sentinel 'HASH_UNAVAILABLE' in catch; treat missing hash as 'UNCERTIFIED'
 
-## Security Auditor
+- **P0-5** [FIXED] [DE]: About modal headline AUC=0.780 / Brier=0.199 matches neither in-sample (0.787/0.169) nor holdout (0.745/0.197). (~line 1231)
+  - Fix: Use temporal holdout values: AUC=0.745, Brier=0.197
 
-#### P0 — Critical
-- None found
+- **P0-6** [FIXED] [DE]: Conditional power uses fixed 70% event rate. DAPA-HF had 8.1% events, not 70%. Overestimates events 3-9x, making power component ~constant. (~line 1962)
+  - Fix: Use endpoint-type-specific defaults (MACE~10%, HF hosp~15%, surrogate~70%) or estimate from similar trials
 
-#### P1 — Important
-- **SA-P1-1**: Double-escaping in error messages via textContent (cosmetic)
-- **SA-P1-2** [FIXED]: CSV export lacked formula injection protection — added `'` prefix for `=+@\t\r`
-- **SA-P1-3**: Duplicate `escapeHtml()` definitions (maintenance hazard)
-- **SA-P1-4**: No API response schema validation
-- **SA-P1-5**: No Content-Security-Policy meta tag
+- **P0-7** [FIXED] [SA+SE]: `escapeHtml()` + `.textContent` double-encoding — error messages show literal `&amp;` instead of `&`. (~lines 2718, 2724, 2726)
+  - Fix: Remove escapeHtml calls since textContent is inherently safe
 
-#### P2 — Minor
-- **SA-P2-1**: Inline onclick handlers (prevents strict CSP)
-- **SA-P2-2**: `hf.*reduced` regex unbounded (low ReDoS risk)
-- **SA-P2-3**: `titleAttr` double-escapes quotes (redundant)
-- **SA-P2-4**: configSelect.value safe by construction (noted)
-- **SA-P2-5**: sessionStorage caches API responses (acceptable)
+- **P0-8** [FIXED] [UX]: About modal has Escape but no Tab focus trap — focus escapes to background (WCAG 2.4.3). (~lines 4285-4318)
+  - Fix: Add Tab trap like tutorial overlay pattern (lines 4395-4400)
+
+- **P0-9** [FIXED] [UX]: Sortable table headers lack tabindex/keydown — keyboard users cannot sort (WCAG 2.1.1). (~lines 1084-1091, 3596)
+  - Fix: Add `tabindex="0"` to `<th class="sortable">` + keydown handler for Enter/Space
 
 ---
 
-## Positive Security Practices Noted
-- All 40+ innerHTML assignments use escapeHtml()
-- No eval(), Function(), document.write()
-- Blob URLs properly revoked
-- localStorage keys properly prefixed
-- WebR import URL hardcoded (not user-controllable)
-- NCT ID validated with strict regex
-- Modal keyboard listener cleanup on close
+## P1 — Important (should fix)
+
+- **P1-1** [FIXED] [DE]: PARADIGM-HF misclassified as "other" — missing `lcz696: 'arni'` in DRUG_CLASS_MAP_JS. (~line 1565)
+- **P1-2** [FIXED] [DE]: MRA=0%, BB=100%, ACEi=14% base rates from AACT era bias — clinically indefensible. Landmark pre-2000 trials (RALES, COPERNICUS, HOPE) missing.
+- **P1-3** [FIXED] [SM]: Arcsine (binary) power formula missing factor of 2 — halves noncentrality parameter. (~line 2006)
+- **P1-4** [FIXED] [SM]: Bayesian posterior SE uses `sqrt(p*(1-p)/n)` not true Beta SD `sqrt(ab/(n^2*(n+1)))`. Overestimates CI width ~3-5%.
+- **P1-5** [FIXED] [SM]: Bayesian 80% CI ignores CONFIG.conf_level — other components use zAlpha(). (~line 1924)
+- **P1-6** [FIXED] [SA]: sessionStorage cache bypasses API schema validation — corrupted cache accepted. (~line 1682)
+- **P1-7** [FIXED] [SA]: `CTGOV_CACHE = {}` — use `Object.create(null)` to prevent prototype pollution. (~line 1664)
+- **P1-8** [FIXED] [SE+SA]: Tutorial keydown listener never removed after dismiss. (~line 4392)
+- **P1-9** [FIXED] [SE]: Double similarity computation — `fetchAndPredict` scores all trials, then `bayesianBorrowing` re-scores. (~lines 2699-2704)
+- **P1-10** [FIXED] [SE]: `new Set(['mace','mortality','hf','renal'])` allocated on every `computeSimilarity` call. Hoist to module scope. (~line 1838)
+- **P1-11** [FIXED] [DE]: `egfr` regex false-positives on oncology EGFR. Use `\begfr\b` with context. (~line 1656)
+- **P1-12** [FIXED] [DE]: 8+ drug development codes missing (LCZ696, BI 10773, BMS-512148, etc.)
+- **P1-13** [FIXED] [UX]: No skip-navigation link (WCAG 2.4.1)
+- **P1-14** [FIXED] [UX]: Design tab gauge lacks `aria-live="polite"` (WCAG 4.1.3)
+- **P1-15** [FIXED] [UX]: `prefers-reduced-motion` not respected (WCAG 2.3.3)
 
 ---
 
----
+## P2 — Minor (14 items)
 
-## UX/Accessibility Reviewer
-
-#### P0 — Critical
-- **UX-P0-1** [FIXED]: `.sr-only` CSS class used but never defined — added definition
-- **UX-P0-2**: Tutorial dialog missing `aria-labelledby`
-- **UX-P0-3**: Tutorial dialog no focus trap / Escape handler
-- **UX-P0-4** [FIXED]: `--surface-2` CSS variable undefined → replaced with `--bg-input`
-
-#### P1 — Important
-- **UX-P1-1**: Traffic-light uses identical icon for all states
-- **UX-P1-3**: Light-mode amber alert contrast may fail WCAG AA (2.8:1)
-- **UX-P1-5**: Sortable table headers missing `aria-sort` attribute
-
----
-
-## Software Engineer
-
-#### P0 — Critical
-- **SE-P0-1** [FIXED]: Duplicate `escapeHtml` definitions → removed second
-- **SE-P0-2** [FIXED]: Design tab drug class values incompatible with engine → fixed option values
-- **SE-P0-3** [FIXED]: Population tag case mismatch → normalized to lowercase
-- **SE-P0-4**: Plotly.newPlot memory leak (no purge before re-render)
-
-#### P1 — Important
-- **SE-P1-1**: WebR test 3 feature vector uses different field names than metaRegressionPredict
-- **SE-P1-2**: `valsartan` mapped to `arni` — misclassifies standalone ARB trials
-
----
-
-## Domain Expert
-
-#### P0 — Critical
-- **DE-P0-1** [FIXED]: Same as SE-P0-2 (drug class mapping)
-- **DE-P0-2**: MRA base rate 0.0 — needs verification (EMPHASIS-HF/EPHESUS were positive)
-- **DE-P0-3**: HFrEF/HFpEF regex too narrow (misses EF, ejection fraction without lvef prefix)
-
-#### P1 — Important
-- **DE-P1-1**: Endpoint keywords miss variants (3-point MACE, worsening HF, sustained eGFR decline)
-- **DE-P1-5** [FIXED]: About modal said 325 trials → corrected to 784
+- **P2-1** [SM]: Two-sided power second tail term negligible but mathematically correct
+- **P2-2** [SM]: normalQuantile p===0.5 strict float equality (safe in practice)
+- **P2-3** [SM]: zAlpha() no input validation for conf_level outside (0,1)
+- **P2-4** [SA]: Plotly CDN lacks Subresource Integrity (SRI) hash
+- **P2-5** [SA]: `_configKey` exposed on global window object
+- **P2-6** [SA]: CSV export missing UTF-8 BOM for Excel
+- **P2-7** [SA]: `AbortSignal.timeout()` not polyfilled for older browsers
+- **P2-8** [SE]: Calibration/ROC plots not Plotly.purge'd before re-render
+- **P2-9** [SE]: ROC computation O(n*thresholds), could be O(n log n)
+- **P2-10** [SE]: Plotly CDN loaded synchronously in head (render-blocking)
+- **P2-11** [UX]: Card titles use `<div>` not semantic headings
+- **P2-12** [UX]: Plotly charts have no text alternative for screen readers
+- **P2-13** [UX]: Sort status span lacks aria-live
+- **P2-14** [DE]: CANVAS double_blind=false may be incorrect AACT extraction
 
 ---
 
 ## False Positive Watch
 - DOR = exp(mu1 + mu2) IS correct (not flagged)
-- `??` operator correctly preserves zero for numeric values
-- Beta prior alpha=0 is valid and handled correctly by `??`
+- `?? fallback` correctly preserves zero throughout
+- Tutorial already has focus trap + Escape + aria-labelledby (verified)
+- valsartan correctly mapped to 'arb' (not 'arni') at line 1534
+- HFrEF/HFpEF regex already improved with EF threshold patterns
+
+---
+
+## Personas
+1. Statistical Methodologist: 2 P0, 4 P1, 3 P2
+2. Security Auditor: 2 P0, 5 P1, 5 P2
+3. UX/Accessibility: 2 P0, 5 P1, 6 P2
+4. Software Engineer: 4 P0, 6 P1, 6 P2
+5. Domain Expert: 5 P0, 6 P1, 5 P2

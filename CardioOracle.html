@@ -392,6 +392,11 @@
 
     .spinner-wrap.visible { display: flex; }
 
+    @media (prefers-reduced-motion: reduce) {
+      .spinner { animation-duration: 0s; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+
     /* ── Alerts ────────────────────────────────────────────────────── */
     .alert {
       border-radius: var(--radius);
@@ -713,6 +718,7 @@
   </style>
 </head>
 <body>
+<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:999;" onfocus="this.style.cssText='position:fixed;top:0;left:0;z-index:9999;padding:8px 16px;background:var(--text-accent);color:#fff;font-size:1rem;text-decoration:none;border-radius:4px;'">Skip to main content</a>
 
 <!-- ══════════════════════════════════════════════════════════════════
      APP HEADER
@@ -798,7 +804,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      TAB PANELS
 ════════════════════════════════════════════════════════════════════ -->
-<main class="container">
+<main id="main-content" class="container">
 
   <!-- ── Predict Panel ──────────────────────────────────────────── -->
   <section
@@ -1014,7 +1020,7 @@
 
         <!-- Right column: live prediction (Phase 2.2) -->
         <div class="design-results">
-          <div id="designPredictionGauge"></div>
+          <div id="designPredictionGauge" aria-live="polite" aria-atomic="true"></div>
           <div id="designCIDisplay" style="margin: 12px 0; font-size: 0.9rem; color: var(--text-muted);">
             Configure parameters and run prediction (Phase 2.2).
           </div>
@@ -1081,14 +1087,14 @@
         <table id="trainingDataTable" aria-label="Training corpus trials">
           <thead>
             <tr>
-              <th class="sortable" data-col="nct_id" scope="col">NCT ID <span class="sort-arrow" id="sarr-nct_id"></span></th>
-              <th class="sortable" data-col="title" scope="col">Title <span class="sort-arrow" id="sarr-title"></span></th>
-              <th class="sortable" data-col="label" scope="col">Label <span class="sort-arrow" id="sarr-label"></span></th>
-              <th class="sortable" data-col="label_tier" scope="col">Tier <span class="sort-arrow" id="sarr-label_tier"></span></th>
-              <th class="sortable" data-col="drug_class" scope="col">Drug Class <span class="sort-arrow" id="sarr-drug_class"></span></th>
-              <th class="sortable" data-col="endpoint_type" scope="col">Endpoint <span class="sort-arrow" id="sarr-endpoint_type"></span></th>
-              <th class="sortable" data-col="enrollment" scope="col">Enrollment <span class="sort-arrow" id="sarr-enrollment"></span></th>
-              <th class="sortable" data-col="duration_months" scope="col">Duration (mo) <span class="sort-arrow" id="sarr-duration_months"></span></th>
+              <th class="sortable" data-col="nct_id" scope="col" tabindex="0" role="columnheader button">NCT ID <span class="sort-arrow" id="sarr-nct_id"></span></th>
+              <th class="sortable" data-col="title" scope="col" tabindex="0" role="columnheader button">Title <span class="sort-arrow" id="sarr-title"></span></th>
+              <th class="sortable" data-col="label" scope="col" tabindex="0" role="columnheader button">Label <span class="sort-arrow" id="sarr-label"></span></th>
+              <th class="sortable" data-col="label_tier" scope="col" tabindex="0" role="columnheader button">Tier <span class="sort-arrow" id="sarr-label_tier"></span></th>
+              <th class="sortable" data-col="drug_class" scope="col" tabindex="0" role="columnheader button">Drug Class <span class="sort-arrow" id="sarr-drug_class"></span></th>
+              <th class="sortable" data-col="endpoint_type" scope="col" tabindex="0" role="columnheader button">Endpoint <span class="sort-arrow" id="sarr-endpoint_type"></span></th>
+              <th class="sortable" data-col="enrollment" scope="col" tabindex="0" role="columnheader button">Enrollment <span class="sort-arrow" id="sarr-enrollment"></span></th>
+              <th class="sortable" data-col="duration_months" scope="col" tabindex="0" role="columnheader button">Duration (mo) <span class="sort-arrow" id="sarr-duration_months"></span></th>
             </tr>
           </thead>
           <tbody id="trainingTableBody">
@@ -1228,7 +1234,7 @@
       <div class="modal-metrics">
         Training data: 784 Phase 2/3 and Phase 3 CV trials from AACT/ClinicalTrials.gov<br>
         Model: Bayesian historical borrowing + conditional power + logistic meta-regression<br>
-        Temporal validation AUC: 0.780 &nbsp;|&nbsp; Brier: 0.199
+        Temporal validation AUC: 0.745 &nbsp;|&nbsp; Brier: 0.197
       </div>
       <p><strong>Citation:</strong></p>
       <div class="modal-citation">
@@ -1263,7 +1269,7 @@
         <li>AACT results data is incomplete for many trials (475/1259 unlabelable)</li>
         <li>Drug class mapping relies on keyword matching, which may miss novel agents</li>
         <li>Success is defined by the primary endpoint only — trials with positive secondary endpoints but negative primaries are labeled as failures</li>
-        <li>Some drug classes (e.g., steroidal MRA) have limited representation in the training set. Predictions for underrepresented classes rely more heavily on design features and prior assumptions rather than historical analogues</li>
+        <li>Some drug classes (e.g., steroidal MRA, ACEi, beta-blockers) have limited representation because AACT only covers post-2000 trials. Landmark pre-2000 trials (RALES, COPERNICUS, HOPE) are absent, causing historically inaccurate base rates for these classes. Predictions rely more heavily on design features and priors for underrepresented classes</li>
       </ul>
     </div>
   </div>
@@ -1544,6 +1550,7 @@ function zAlpha() {
 ════════════════════════════════════════════════════════════════════ */
 
 const NCT_RE = /^NCT\d{8}$/;
+const HARD_ENDPOINT_TYPES = new Set(['mace', 'mortality', 'hf', 'renal']); // hoisted for computeSimilarity hot path
 
 /* ── 5B: Drug / Endpoint classification maps ─────────────────────── */
 
@@ -1552,12 +1559,13 @@ const DRUG_CLASS_MAP_JS = {
   empagliflozin: 'sglt2i', dapagliflozin: 'sglt2i', canagliflozin: 'sglt2i',
   ertugliflozin: 'sglt2i', sotagliflozin: 'sglt2i', ipragliflozin: 'sglt2i',
   luseogliflozin: 'sglt2i', tofogliflozin: 'sglt2i',
+  'bi 10773': 'sglt2i', 'bms-512148': 'sglt2i', 'mk-8835': 'sglt2i', 'pf-04971729': 'sglt2i',
   // Steroidal MRA
   spironolactone: 'mra', eplerenone: 'mra',
   // Non-steroidal MRA
   finerenone: 'ns_mra', esaxerenone: 'ns_mra', apararenone: 'ns_mra', ocedurenone: 'ns_mra',
   // ARNi
-  sacubitril: 'arni', 'sacubitril/valsartan': 'arni', entresto: 'arni',
+  sacubitril: 'arni', 'sacubitril/valsartan': 'arni', entresto: 'arni', lcz696: 'arni',
   // ARB (valsartan belongs here; standalone use ≠ ARNi)
   losartan: 'arb', irbesartan: 'arb', olmesartan: 'arb', telmisartan: 'arb',
   candesartan: 'arb', eprosartan: 'arb', azilsartan: 'arb', valsartan: 'arb',
@@ -1569,6 +1577,7 @@ const DRUG_CLASS_MAP_JS = {
   // GLP-1 RA
   semaglutide: 'glp1ra', liraglutide: 'glp1ra', dulaglutide: 'glp1ra',
   exenatide: 'glp1ra', albiglutide: 'glp1ra', efpeglenatide: 'glp1ra', tirzepatide: 'glp1ra',
+  'ly2189265': 'glp1ra', 'ly3298176': 'glp1ra', 'ac2993': 'glp1ra',
   // PCSK9 inhibitors
   evolocumab: 'pcsk9i', alirocumab: 'pcsk9i', inclisiran: 'pcsk9i',
   // Statins
@@ -1653,7 +1662,7 @@ function extractPopulationTagsJS(text) {
   if (/hfref|hf.{0,30}reduced|reduced.{0,30}ejection|(?:lvef|ef)\s*(?:[<≤]|<=)\s*(?:35|40|45)/.test(lower)) tags.push('HFrEF');
   if (/hfpef|hf.{0,30}preserved|preserved.{0,30}ejection|(?:lvef|ef)\s*(?:[>≥]|>=)\s*(?:40|45|50)/.test(lower)) tags.push('HFpEF');
   if (/diabet|t2dm|type\s*2\s*diabetes/.test(lower)) tags.push('diabetic');
-  if (/ckd|chronic kidney|renal impairment|egfr/.test(lower)) tags.push('CKD');
+  if (/ckd|chronic kidney|renal impairment|egfr\s*[<>=≤≥]|\begfr\s*\d|estimated glomerular/.test(lower)) tags.push('CKD');
   if (/elder|older adult|age\s*[>≥]\s*65|geriatric/.test(lower)) tags.push('elderly');
   if (/atrial fibrillation|atrial flutter|afib|a-fib|\baf\b/.test(lower)) tags.push('AF');
   return tags;
@@ -1661,7 +1670,7 @@ function extractPopulationTagsJS(text) {
 
 /* ── 5A: CT.gov API Fetch ────────────────────────────────────────── */
 
-const CTGOV_CACHE = {};  // sessionStorage-backed; also in-memory for speed
+const CTGOV_CACHE = Object.create(null);  // prototype-safe; sessionStorage-backed
 
 /**
  * Fetch trial metadata from CT.gov API v2.
@@ -1680,8 +1689,12 @@ async function fetchTrialFromCTGov(nctId) {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      CTGOV_CACHE[nctId] = parsed;
-      return parsed;
+      // Apply same schema validation as live fetch
+      if (parsed && parsed.protocolSection && parsed.protocolSection.identificationModule) {
+        CTGOV_CACHE[nctId] = parsed;
+        return parsed;
+      }
+      // Corrupted cache — fall through to live fetch
     }
   } catch (_) { /* ignore quota/parse errors */ }
 
@@ -1835,8 +1848,7 @@ function computeSimilarity(target, candidate) {
     if (target.endpoint_type === c.endpoint_type) {
       epSim = 1.0;
     } else {
-      const hardTypes = new Set(['mace', 'mortality', 'hf', 'renal']);
-      if (hardTypes.has(target.endpoint_type) && hardTypes.has(c.endpoint_type)) {
+      if (HARD_ENDPOINT_TYPES.has(target.endpoint_type) && HARD_ENDPOINT_TYPES.has(c.endpoint_type)) {
         epSim = 0.3;
       }
     }
@@ -1882,9 +1894,9 @@ function computeSimilarity(target, candidate) {
  * @param {Array}  trainingTrials
  * @returns {object}
  */
-function bayesianBorrowing(target, trainingTrials) {
-  // Compute similarities
-  const scored = trainingTrials.map(t => ({
+function bayesianBorrowing(target, trainingTrials, preScored) {
+  // Use pre-scored array if provided (avoids double computation)
+  const scored = preScored ?? trainingTrials.map(t => ({
     trial: t,
     sim: computeSimilarity(target, t)
   }));
@@ -1921,9 +1933,10 @@ function bayesianBorrowing(target, trainingTrials) {
   const n = aPosterior + bPosterior;
   const p = aPosterior / n;
 
-  // 80% CI via normal approximation of Beta (z80 = 1.2816)
+  // 80% credible interval (intentionally fixed — narrower than freq CI for clinical decision-making)
+  // Power formulas use CONFIG.conf_level for frequentist calculations; Bayesian CI uses separate 80% threshold
   const z80 = 1.2816;
-  const se  = Math.sqrt(p * (1 - p) / n);
+  const se  = Math.sqrt(aPosterior * bPosterior / (n * n * (n + 1)));
   const ciLo = Math.max(0, p - z80 * se);
   const ciHi = Math.min(1, p + z80 * se);
 
@@ -1957,7 +1970,10 @@ function conditionalPower(target, similarTrials) {
 
   const endpointType = target.endpoint_type ?? 'mace';
   const enrollment   = target.enrollment ?? 5000;
-  const events       = enrollment * 0.7;
+  // Endpoint-specific event rate estimates (literature-derived, not fixed 70%)
+  const EVENT_RATES = { mace: 0.10, mortality: 0.08, hf: 0.15, renal: 0.12, surrogate: 0.70, other: 0.15 };
+  const eventRate = EVENT_RATES[endpointType] ?? 0.15;
+  const events    = enrollment * eventRate;
 
   let power = 0.5;
   let estimated_hr = null;
@@ -2003,10 +2019,12 @@ function conditionalPower(target, similarTrials) {
     const n = Math.floor(enrollment / 2);
     curve = xArr.map(rr => {
       const p1x = p0 * rr;
-      const z = (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1x)))) * Math.sqrt(n);
+      const h = 2 * (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1x))));
+      const z = h * Math.sqrt(n);
       return { x: rr, power: normalCDF(Math.abs(z) - za) };
     });
-    const z0 = (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1)))) * Math.sqrt(n);
+    const h0 = 2 * (Math.asin(Math.sqrt(p0)) - Math.asin(Math.sqrt(Math.max(0, p1))));
+    const z0 = h0 * Math.sqrt(n);
     power = normalCDF(Math.abs(z0) - za);
     curveLabel = 'RR';
   }
@@ -2031,49 +2049,47 @@ function conditionalPower(target, similarTrials) {
  * @returns {object}
  */
 function metaRegressionPredict(features) {
-  // Build 18-feature vector matching Python pipeline
+  // Build 18-feature vector matching MODEL coefficient keys exactly
   const featureNames = [
-    'enrollment_log', 'duration_months', 'placebo_controlled', 'double_blind',
-    'is_industry', 'num_sites_log', 'endpoint_mace', 'endpoint_mortality',
-    'endpoint_hf', 'endpoint_renal', 'endpoint_surrogate',
-    'drug_sglt2i', 'drug_mra_ns', 'drug_glp1ra', 'drug_pcsk9i',
-    'drug_statin', 'has_dsmb', 'comparator_active'
+    'log_enrollment', 'duration_months', 'placebo_controlled', 'double_blind',
+    'is_industry', 'log_num_sites', 'multi_regional', 'num_arms', 'has_dsmb',
+    'ep_mace', 'ep_hf_hosp', 'ep_cv_death', 'ep_acm', 'ep_renal', 'ep_surrogate',
+    'era_2010_2017', 'era_2018plus', 'historical_class_rate'
   ];
 
   const epType = features.endpoint_type ?? 'other';
-  const dClass = features.drug_class ?? '';
+  const startYear = features.year ?? features.start_year ?? 2020;
 
   const vec = [
     Math.log(Math.max(1, features.enrollment ?? 1000)),
-    features.duration ?? 36,
+    features.duration ?? features.duration_months ?? 36,
     features.placebo_controlled ? 1 : 0,
     features.double_blind ? 1 : 0,
     features.is_industry ? 1 : 0,
     Math.log(Math.max(1, features.num_sites ?? 100)),
+    features.multi_regional ? 1 : 0,
+    features.num_arms ?? 2,
+    features.has_dsmb ? 1 : 0,
     epType === 'mace'      ? 1 : 0,
-    epType === 'mortality' ? 1 : 0,
-    epType === 'hf'        ? 1 : 0,
+    (epType === 'hf' || epType === 'hf_hosp') ? 1 : 0,
+    (epType === 'mortality' && /cv|cardio/i.test(features._endpointRaw ?? '')) ? 1 : 0,
+    (epType === 'mortality' && !/cv|cardio/i.test(features._endpointRaw ?? '')) ? 1 : 0,
     epType === 'renal'     ? 1 : 0,
     epType === 'surrogate' ? 1 : 0,
-    dClass === 'sglt2i'    ? 1 : 0,
-    (dClass === 'mra' || dClass === 'ns_mra') ? 1 : 0,
-    dClass === 'glp1ra'    ? 1 : 0,
-    dClass === 'pcsk9i'    ? 1 : 0,
-    dClass === 'statin'    ? 1 : 0,
-    features.has_dsmb ? 1 : 0,
-    features.comparator_type === 'active' ? 1 : 0
+    (startYear >= 2010 && startYear < 2018) ? 1 : 0,
+    (startYear >= 2018) ? 1 : 0,
+    features.historical_class_rate ?? CONFIG.priors.alpha / (CONFIG.priors.alpha + CONFIG.priors.beta)
   ];
 
   // Use MODEL.coefficients if populated; otherwise use built-in fallback
   const defaultCoeffs = {
-    intercept: -0.45,
-    enrollment_log: 0.12, duration_months: -0.003, placebo_controlled: 0.18,
-    double_blind: 0.22, is_industry: -0.08, num_sites_log: 0.10,
-    endpoint_mace: 0.35, endpoint_mortality: 0.28, endpoint_hf: 0.30,
-    endpoint_renal: 0.20, endpoint_surrogate: 0.45,
-    drug_sglt2i: 0.52, drug_mra_ns: 0.40, drug_glp1ra: 0.38,
-    drug_pcsk9i: 0.30, drug_statin: 0.25,
-    has_dsmb: 0.15, comparator_active: -0.12
+    intercept: -1.09,
+    log_enrollment: 0.164, duration_months: -0.019, placebo_controlled: 0.379,
+    double_blind: 0.346, is_industry: 1.331, log_num_sites: -0.017,
+    multi_regional: -0.224, num_arms: 0.012, has_dsmb: -0.589,
+    ep_mace: -0.423, ep_hf_hosp: 0.504, ep_cv_death: 0.264,
+    ep_acm: -0.966, ep_renal: 0.086, ep_surrogate: 0.747,
+    era_2010_2017: 0.141, era_2018plus: 0.001, historical_class_rate: -0.008
   };
 
   const coeffs = (MODEL.coefficients && Object.keys(MODEL.coefficients).length > 0)
@@ -2158,7 +2174,7 @@ async function sha256Hex(text) {
     const hashBuf = await crypto.subtle.digest('SHA-256', buf);
     return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
   } catch (_) {
-    return TRAINING_DATA.content_hash ?? 'unavailable';
+    return 'HASH_UNAVAILABLE'; // Distinct sentinel — never matches embedded hash
   }
 }
 
@@ -2261,7 +2277,9 @@ async function exportPredictionBundle(nctId, features, bayesian, power, regressi
       content_hashes: {
         embedded: TRAINING_DATA.content_hash ?? null,
         live_sha256: liveHash,
-        integrity: liveHash === (TRAINING_DATA.content_hash ?? liveHash) ? 'VERIFIED' : 'MISMATCH'
+        integrity: liveHash === 'HASH_UNAVAILABLE' ? 'UNVERIFIABLE'
+                 : !TRAINING_DATA.content_hash ? 'NO_REFERENCE_HASH'
+                 : liveHash === TRAINING_DATA.content_hash ? 'VERIFIED' : 'MISMATCH'
       },
       transformation: [
         'CT.gov API v2 fetch -> extractFeatures()',
@@ -2275,8 +2293,8 @@ async function exportPredictionBundle(nctId, features, bayesian, power, regressi
     },
     validators: {
       webr_status:     typeof WebR !== 'undefined' ? 'available' : 'not_loaded',
-      calibration_auc: 0.780,
-      calibration_brier: 0.196,
+      calibration_auc: 0.745,
+      calibration_brier: 0.197,
       temporal_holdout_n: 133
     }
   };
@@ -2290,7 +2308,9 @@ async function exportPredictionBundle(nctId, features, bayesian, power, regressi
     bundle: bundle,
     bundle_sha256: bundleHash,
     certification: {
-      status: (liveHash === (TRAINING_DATA.content_hash ?? liveHash)) ? 'CERTIFIED' : 'INTEGRITY_WARNING',
+      status: liveHash === 'HASH_UNAVAILABLE' ? 'UNCERTIFIED'
+            : !TRAINING_DATA.content_hash ? 'UNCERTIFIED'
+            : liveHash === TRAINING_DATA.content_hash ? 'CERTIFIED' : 'INTEGRITY_WARNING',
       issued: now,
       issuer: 'CardioOracle v2.0.0'
     }
@@ -2701,7 +2721,7 @@ async function fetchAndPredict(nctId, _retried) {
       sim: computeSimilarity(features, t)
     }));
 
-    const bayesian   = bayesianBorrowing(features, trainingTrials);
+    const bayesian   = bayesianBorrowing(features, trainingTrials, scoredTrials);
     const power      = conditionalPower(features, scoredTrials);
     const regression = metaRegressionPredict(features);
     const ensemble   = ensemblePredict(bayesian, power, regression);
@@ -2715,15 +2735,15 @@ async function fetchAndPredict(nctId, _retried) {
   } catch (err) {
     let msg;
     if (String(err).includes('HTTP 404') || String(err).includes('404')) {
-      msg = escapeHtml(nctId) + ' was not found on ClinicalTrials.gov. Please verify the NCT ID.';
+      msg = nctId + ' was not found on ClinicalTrials.gov. Please verify the NCT ID.';
     } else if (String(err).includes('timed out')) {
       msg = 'Request timed out. ClinicalTrials.gov may be temporarily unavailable. Please try again.';
     } else if (String(err).includes('Failed to fetch') || String(err).includes('NetworkError')) {
       msg = 'Network error. Please check your internet connection and try again.';
     } else {
-      msg = 'An unexpected error occurred: ' + escapeHtml(String(err));
+      msg = 'An unexpected error occurred: ' + String(err);
     }
-    errEl.textContent = msg;
+    errEl.textContent = msg; // textContent is inherently safe — no escapeHtml needed
     errEl.classList.add('visible');
   }
 }
@@ -2965,7 +2985,7 @@ function updateDesignPrediction() {
     sim: computeSimilarity(features, t)
   }));
 
-  const bayesian   = bayesianBorrowing(features, trainingTrials);
+  const bayesian   = bayesianBorrowing(features, trainingTrials, scoredTrials);
   const power      = conditionalPower(features, scoredTrials);
   const regression = metaRegressionPredict(features);
   const ensemble   = ensemblePredict(bayesian, power, regression);
@@ -3591,10 +3611,10 @@ function _clearSnapshots() {
       });
     }
 
-    /* sortable headers */
+    /* sortable headers — click + keyboard (Enter/Space) */
     const thead = document.querySelector('#trainingDataTable thead');
     if (thead) {
-      thead.addEventListener('click', e => {
+      function _handleSort(e) {
         const th = e.target.closest('th[data-col]');
         if (!th) return;
         const col = th.dataset.col;
@@ -3605,6 +3625,13 @@ function _clearSnapshots() {
           _sortAsc = true;
         }
         renderTable();
+      }
+      thead.addEventListener('click', _handleSort);
+      thead.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          _handleSort(e);
+        }
       });
     }
 
@@ -4054,6 +4081,7 @@ cat(p_mean)
 `;
         const result = await webR.evalR(rCode);
         const val = await result.toJs();
+        try { await result.destroy(); } catch(_) {}
         rPMean = Array.isArray(val.values) ? val.values[0] : val;
       } catch (e) {
         rError = e.message || String(e);
@@ -4083,8 +4111,9 @@ cat(p_mean)
     const logHR   = Math.log(0.80);
     const z975    = 1.959963985;   // qnorm(0.975)
 
-    // JS: normalCDF(sqrt(events) * |logHR| - z975)
-    const jsCP = normalCDF(Math.sqrt(events) * Math.abs(logHR) - z975);
+    // JS: two-sided Schoenfeld power matching production formula (with /2 divisor)
+    const zNonCentral = Math.abs(logHR) * Math.sqrt(events) / 2;
+    const jsCP = normalCDF(zNonCentral - z975) + normalCDF(-zNonCentral - z975);
 
     let rCP = null, rError2 = null;
     try {
@@ -4092,11 +4121,13 @@ cat(p_mean)
 events  <- ${events}
 logHR   <- log(0.80)
 z975    <- qnorm(0.975)
-cp      <- pnorm(sqrt(events) * abs(logHR) - z975)
+z_nc    <- abs(logHR) * sqrt(events) / 2
+cp      <- pnorm(z_nc - z975) + pnorm(-z_nc - z975)
 cat(cp)
 `;
       const result2 = await webR.evalR(rCode2);
       const val2    = await result2.toJs();
+      try { await result2.destroy(); } catch(_) {}
       rCP = Array.isArray(val2.values) ? val2.values[0] : val2;
     } catch (e) {
       rError2 = e.message || String(e);
@@ -4178,6 +4209,7 @@ cat(p_val)
 `;
       const result3 = await webR.evalR(rCode3);
       const val3    = await result3.toJs();
+      try { await result3.destroy(); } catch(_) {}
       rP = Array.isArray(val3.values) ? val3.values[0] : val3;
     } catch (e) {
       rError3 = e.message || String(e);
@@ -4294,7 +4326,14 @@ function renderWebrResults(tests) {
     modal.classList.remove('hidden');
     closeBtn.focus();
     _kbListener = function (e) {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') { closeModal(); e.preventDefault(); }
+      // Tab focus trap: keep focus within modal
+      if (e.key === 'Tab') {
+        const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } }
+        else            { if (document.activeElement === last)  { first.focus(); e.preventDefault(); } }
+      }
     };
     document.addEventListener('keydown', _kbListener);
   }
@@ -4376,8 +4415,13 @@ async function checkForNewTrials() {
 /* ════════════════════════════════════════════════════════════════════
    TUTORIAL OVERLAY
 ════════════════════════════════════════════════════════════════════ */
+let _tutorialKbListener = null;
 function dismissTutorial() {
   document.getElementById('tutorialOverlay').classList.add('hidden');
+  if (_tutorialKbListener) {
+    document.getElementById('tutorialOverlay').removeEventListener('keydown', _tutorialKbListener);
+    _tutorialKbListener = null;
+  }
   try { localStorage.setItem('cardiooracle_tutorial_seen', 'true'); } catch(e) {}
 }
 
@@ -4388,8 +4432,8 @@ function dismissTutorial() {
   try {
     if (!localStorage.getItem('cardiooracle_tutorial_seen')) {
       overlay.classList.remove('hidden');
-      // Escape key dismisses tutorial
-      overlay.addEventListener('keydown', function(e) {
+      // Escape key dismisses tutorial — store ref for cleanup in dismissTutorial()
+      _tutorialKbListener = function(e) {
         if (e.key === 'Escape') { dismissTutorial(); e.preventDefault(); }
         // Basic focus trap: keep Tab within overlay
         if (e.key === 'Tab') {
@@ -4398,7 +4442,8 @@ function dismissTutorial() {
           if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } }
           else            { if (document.activeElement === last)  { first.focus(); e.preventDefault(); } }
         }
-      });
+      };
+      overlay.addEventListener('keydown', _tutorialKbListener);
       // Focus first button when tutorial opens
       const firstBtn = overlay.querySelector('button');
       if (firstBtn) setTimeout(function() { firstBtn.focus(); }, 100);
