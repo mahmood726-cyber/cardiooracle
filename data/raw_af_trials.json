@@ -1,0 +1,2557 @@
+[
+  {
+    "nct_id": "NCT00116428",
+    "title": "NAVISTAR® THERMOCOOL® Catheter for the Radiofrequency Ablation of Symptomatic Paroxysmal Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 167,
+    "start_date": "2004-10-01",
+    "primary_completion_date": "2007-10-01",
+    "start_year": 2004,
+    "duration_months": 35.98,
+    "sponsor_name": "Biosense Webster, Inc.",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "The Percentage of Chronic Success of the NAVISTAR THERMOCOOL Catheter for the Treatment of Symptomatic Paroxysmal Atrial Fibrillation (PAF)",
+    "num_sites": 17,
+    "num_countries": 5,
+    "multi_regional": true,
+    "population_tags": [
+      "HFrEF",
+      "HFpEF",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "The Percentage of Chronic Success of the NAVISTAR THERMOCOOL Catheter for the Treatment of Symptomatic Paroxysmal Atrial Fibrillation (PAF)",
+        "p_value": 0.001,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Log Rank"
+      },
+      {
+        "title": "The Percentage of Subjects Who Experienced Incidences of Early Onset (Within 7 Days of Ablation Procedure) Serious Catheter-related Adverse Events",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00129545",
+    "title": "WATCHMAN Left Atrial Appendage System for Embolic PROTECTion in Patients With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 800,
+    "start_date": "2005-02-28",
+    "primary_completion_date": "2013-08-31",
+    "start_year": 2005,
+    "duration_months": 102.05,
+    "sponsor_name": "Boston Scientific Corporation",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 3,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Composite of Stroke, Systemic Embolism and Cardiovascular or Unexplained Death",
+    "num_sites": 62,
+    "num_countries": 3,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Composite of Stroke, Systemic Embolism and Cardiovascular or Unexplained Death",
+        "p_value": null,
+        "ci_lower": 0.42,
+        "ci_upper": 1.07,
+        "param_type": "Risk Ratio (RR)",
+        "param_value": 0.61,
+        "method": null
+      },
+      {
+        "title": "The Occurrence of Life-threatening Events, Including Device Embolization or Serious Bleeding Events",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00141778",
+    "title": "Renin-angiotensin-aldosterone System (RAAS), Inflammation, and Post-Operative Atrial Fibrillation (AF)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 455,
+    "start_date": "2005-04-30",
+    "primary_completion_date": "2010-07-31",
+    "start_year": 2005,
+    "duration_months": 63.01,
+    "sponsor_name": "Vanderbilt University",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 3,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "acei",
+    "endpoint_type": "other",
+    "endpoint_text": "Postoperative Atrial Fibrillation",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Postoperative Atrial Fibrillation",
+        "p_value": 0.95,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Chi-squared"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00174785",
+    "title": "A Trial With Dronedarone to Prevent Hospitalization or Death in Patients With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 4628,
+    "start_date": "2005-06-30",
+    "primary_completion_date": "2008-03-31",
+    "start_year": 2005,
+    "duration_months": 33.02,
+    "sponsor_name": "Sanofi",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "acm",
+    "endpoint_text": "First Hospitalization for Cardiovascular Reason or Death From Any Cause",
+    "num_sites": 37,
+    "num_countries": 37,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "First Hospitalization for Cardiovascular Reason or Death From Any Cause",
+        "p_value": 0.0001,
+        "ci_lower": 0.69,
+        "ci_upper": 0.84,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.76,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00249795",
+    "title": "Atrial Fibrillation Clopidogrel Trial With Irbesartan for Prevention of Vascular Events (ACTIVE I)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 9016,
+    "start_date": "2003-06-30",
+    "primary_completion_date": "2009-08-31",
+    "start_year": 2003,
+    "duration_months": 74.05,
+    "sponsor_name": "Sanofi",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "arb",
+    "endpoint_type": "other",
+    "endpoint_text": "First Occurence of Any Component of the Composite of Myocardial Infarction, Stroke or Vascular Death as Per Adjudication",
+    "num_sites": 30,
+    "num_countries": 30,
+    "multi_regional": true,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "First Occurence of Any Component of the Composite of Myocardial Infarction, Stroke or Vascular Death as Per Adjudication",
+        "p_value": 0.857,
+        "ci_lower": 0.907,
+        "ci_upper": 1.085,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.992,
+        "method": "Log Rank"
+      },
+      {
+        "title": "First Occurence of Any Component of the Composite of Myocardial Infarction, Stroke, Vascular Death or Hospitalization for Heart Failure as Per Adjudication",
+        "p_value": 0.12,
+        "ci_lower": 0.869,
+        "ci_upper": 1.016,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.94,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00249873",
+    "title": "Atrial Fibrillation Clopidogrel Trial With Irbesartan for Prevention of Vascular Events (ACTIVE A)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 7554,
+    "start_date": "2003-06-30",
+    "primary_completion_date": "2009-03-31",
+    "start_year": 2003,
+    "duration_months": 69.03,
+    "sponsor_name": "Sanofi",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "antiplat",
+    "endpoint_type": "other",
+    "endpoint_text": "First Occurence of Any Component of the Composite of Stroke, Non-Central Nervous System (Non-CNS) Systemic Embolism, Myocardial Infarction or Vascular Death as Per Adjudication",
+    "num_sites": 30,
+    "num_countries": 30,
+    "multi_regional": true,
+    "population_tags": [
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "First Occurence of Any Component of the Composite of Stroke, Non-Central Nervous System (Non-CNS) Systemic Embolism, Myocardial Infarction or Vascular Death as Per Adjudication",
+        "p_value": 0.0133,
+        "ci_lower": 0.81,
+        "ci_upper": 0.98,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.89,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00252967",
+    "title": "Atorvastatin Therapy for the Prevention of Atrial Fibrillation (SToP-AF)",
+    "status": "TERMINATED",
+    "why_stopped": "Insufficient power to show therapy difference at interim analysis.",
+    "enrollment": 64,
+    "start_date": "2005-10-31",
+    "primary_completion_date": "2008-11-30",
+    "start_year": 2005,
+    "duration_months": 36.99,
+    "sponsor_name": "Emory University",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "statin",
+    "endpoint_type": "other",
+    "endpoint_text": "Time of Atrial Fibrillation Recurrence",
+    "num_sites": 3,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Time of Atrial Fibrillation Recurrence",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00262600",
+    "title": "Randomized Evaluation of Long Term Anticoagulant Therapy (RE-LY) With Dabigatran Etexilate",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 18113,
+    "start_date": "2005-12-31",
+    "primary_completion_date": "2009-04-30",
+    "start_year": 2005,
+    "duration_months": 39.95,
+    "sponsor_name": "Boehringer Ingelheim",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 3,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Yearly Event Rate for Composite Endpoint of Stroke/SEE",
+    "num_sites": 984,
+    "num_countries": 44,
+    "multi_regional": true,
+    "population_tags": [
+      "diabetic",
+      "CKD",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Yearly Event Rate for Composite Endpoint of Stroke/SEE",
+        "p_value": 0.0001,
+        "ci_lower": 0.74,
+        "ci_upper": 1.1,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.9,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Yearly Event Rate for Composite Endpoint of Stroke/SEE",
+        "p_value": 0.0001,
+        "ci_lower": 0.52,
+        "ci_upper": 0.81,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.65,
+        "method": "Regression, Cox"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00390546",
+    "title": "Multicenter Study of Antiarrhythmic Medications for Treatment of Infants With Supraventricular Tachycardia",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 72,
+    "start_date": "2006-10-31",
+    "primary_completion_date": "2010-08-31",
+    "start_year": 2006,
+    "duration_months": 46.0,
+    "sponsor_name": "University of British Columbia",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Incidence of Recurrent Supraventricular Tachycardia (SVT) Requiring Medical Intervention to Terminate the Episode.",
+    "num_sites": 14,
+    "num_countries": 2,
+    "multi_regional": true,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Incidence of Recurrent Supraventricular Tachycardia (SVT) Requiring Medical Intervention to Terminate the Episode.",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00392054",
+    "title": "First Line Radiofrequency Ablation Versus Antiarrhythmic Drugs for Atrial Fibrillation Treatment (The RAAFT Study)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 127,
+    "start_date": "2006-08-31",
+    "primary_completion_date": "2012-02-29",
+    "start_year": 2006,
+    "duration_months": 65.97,
+    "sponsor_name": "Population Health Research Institute",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Recurrence of Atrial Tachyarrhythmia",
+    "num_sites": 16,
+    "num_countries": 5,
+    "multi_regional": true,
+    "population_tags": [
+      "HFrEF",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Recurrence of Atrial Tachyarrhythmia",
+        "p_value": 0.0016,
+        "ci_lower": 0.35,
+        "ci_upper": 0.9,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.56,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Comparison of Proportion of Patients With an Occurrence of Any of a Cluster of Serious Complications in Either Arm",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00403767",
+    "title": "An Efficacy and Safety Study of Rivaroxaban With Warfarin for the Prevention of Stroke and Non-Central Nervous System Systemic Embolism in Patients With Non-Valvular Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 14269,
+    "start_date": "2006-12-31",
+    "primary_completion_date": "2010-09-30",
+    "start_year": 2006,
+    "duration_months": 44.98,
+    "sponsor_name": "Johnson & Johnson Pharmaceutical Research & Development, L.L.C.",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "The Composite Event of Stroke/Non-CNS Systemic Embolism: Primary Efficacy (Non-Inferiority)",
+    "num_sites": 932,
+    "num_countries": 44,
+    "multi_regional": true,
+    "population_tags": [
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "The Composite Event of Stroke/Non-CNS Systemic Embolism: Primary Efficacy (Non-Inferiority)",
+        "p_value": 0.001,
+        "ci_lower": 0.66,
+        "ci_upper": 0.96,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.79,
+        "method": "Cox Proportional Hazards model"
+      },
+      {
+        "title": "The Composite of Event of Stroke/Non-CNS Systemic Embolism: Primary Efficacy (Superiority)",
+        "p_value": 0.015,
+        "ci_lower": 0.65,
+        "ci_upper": 0.95,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.79,
+        "method": "Cox Proportional Hazards model"
+      },
+      {
+        "title": "The Composite Event of Major/Non-major Clinically Relevant Bleeding Events: Primary Safety",
+        "p_value": 0.442,
+        "ci_lower": 0.96,
+        "ci_upper": 1.11,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.03,
+        "method": "Cox Proportional Hazards model"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00412984",
+    "title": "Apixaban for the Prevention of Stroke in Subjects With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 20976,
+    "start_date": "2006-12-31",
+    "primary_completion_date": "2011-05-25",
+    "start_year": 2006,
+    "duration_months": 52.76,
+    "sponsor_name": "Bristol-Myers Squibb",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period",
+    "num_sites": 1111,
+    "num_countries": 41,
+    "multi_regional": true,
+    "population_tags": [
+      "HFrEF",
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Rate of Adjudicated Stroke or Systemic Embolism (SE) During the Intended Treatment Period",
+        "p_value": 0.0114,
+        "ci_lower": 0.66,
+        "ci_upper": 0.95,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.79,
+        "method": "Cox Proportional Hazards Model"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00477230",
+    "title": "Pivotal Clinical Study of Endoscopic Ablation for Atrial Fibrillation (AF) in Patients That Have Failed Drugs",
+    "status": "TERMINATED",
+    "why_stopped": "Study terminated based on decision of Sponsor.",
+    "enrollment": 64,
+    "start_date": "2007-03-31",
+    "primary_completion_date": "2009-05-31",
+    "start_year": 2007,
+    "duration_months": 26.02,
+    "sponsor_name": "CardioFocus",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Freedom for Symptomatic Episode of Atrial Fibrillation at One Year",
+    "num_sites": 18,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Freedom for Symptomatic Episode of Atrial Fibrillation at One Year",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00489736",
+    "title": "Efficacy & Safety of Dronedarone Versus Amiodarone for the Maintenance of Sinus Rhythm in Patients With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 504,
+    "start_date": "2007-06-30",
+    "primary_completion_date": "2008-10-31",
+    "start_year": 2007,
+    "duration_months": 16.07,
+    "sponsor_name": "Sanofi",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Treatment Failure",
+    "num_sites": 23,
+    "num_countries": 23,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Treatment Failure",
+        "p_value": 0.0001,
+        "ci_lower": 1.28,
+        "ci_upper": 1.98,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.59,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00494871",
+    "title": "Efficacy and Safety of Rivaroxaban for the Prevention of Stroke in Subjects With Non-Valvular Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1280,
+    "start_date": "2007-06-30",
+    "primary_completion_date": "2009-12-31",
+    "start_year": 2007,
+    "duration_months": 30.06,
+    "sponsor_name": "Bayer",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Event Rate of the Composite Endpoint of Adjudicated Major Bleeding or Adjudicated Non-major Clinically Relevant Bleeding",
+    "num_sites": 165,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Event Rate of the Composite Endpoint of Adjudicated Major Bleeding or Adjudicated Non-major Clinically Relevant Bleeding",
+        "p_value": 0.025,
+        "ci_lower": 0.87,
+        "ci_upper": 1.42,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.11,
+        "method": "Regression, Cox"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00496769",
+    "title": "A Phase III Study of Apixaban in Patients With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 6421,
+    "start_date": "2007-08-31",
+    "primary_completion_date": "2010-11-30",
+    "start_year": 2007,
+    "duration_months": 39.0,
+    "sponsor_name": "Bristol-Myers Squibb",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period",
+    "num_sites": 503,
+    "num_countries": 36,
+    "multi_regional": true,
+    "population_tags": [
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period",
+        "p_value": 1e-05,
+        "ci_lower": 0.32,
+        "ci_upper": 0.62,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.45,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00514735",
+    "title": "Tailored Treatment of Permanent Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 210,
+    "start_date": "2007-05-31",
+    "primary_completion_date": "2010-11-30",
+    "start_year": 2007,
+    "duration_months": 42.02,
+    "sponsor_name": "Medtronic Cardiac Rhythm and Heart Failure",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Chronic Effectiveness",
+    "num_sites": 24,
+    "num_countries": 2,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Chronic Effectiveness",
+        "p_value": 0.0001,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Chi-squared"
+      },
+      {
+        "title": "Acute Safety",
+        "p_value": 0.1427,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Fisher Exact"
+      },
+      {
+        "title": "Chronic Safety",
+        "p_value": 0.0033,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "t-test, 1 sided"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00523978",
+    "title": "A Clinical Study of the Arctic Front Cryoablation Balloon for the Treatment of Paroxysmal Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 245,
+    "start_date": "2006-10-31",
+    "primary_completion_date": "2010-08-31",
+    "start_year": 2006,
+    "duration_months": 46.0,
+    "sponsor_name": "Medtronic Cardiac Rhythm and Heart Failure",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Acute Procedural Success (APS)",
+    "num_sites": 26,
+    "num_countries": 2,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Acute Procedural Success (APS)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Freedom From Chronic Treatment Failure (CTF)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Treatment Success",
+        "p_value": 0.0001,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Fisher Exact"
+      },
+      {
+        "title": "Freedom From Major Atrial Fibrillation Events (MAFEs)",
+        "p_value": 0.001,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "t-test, 1 sided"
+      },
+      {
+        "title": "Cryoablation Procedure Events (CPEs)",
+        "p_value": 0.001,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Fisher Exact"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00624520",
+    "title": "Mental Stress Reduction in Defibrillator Patients",
+    "status": "TERMINATED",
+    "why_stopped": "Exhaustion of subject population pool, greater than expected drop-out rates . Data analysis approved by DMC for study completions",
+    "enrollment": 129,
+    "start_date": "2008-09-30",
+    "primary_completion_date": "2012-05-31",
+    "start_year": 2008,
+    "duration_months": 43.99,
+    "sponsor_name": "VA Office of Research and Development",
+    "sponsor_class": "FED",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Mental Stress Induced Elevation in \"Double Product\" by Math Stress Task",
+    "num_sites": 2,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Mental Stress Induced Elevation in \"Double Product\" by Math Stress Task",
+        "p_value": 0.18,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": "Mean Difference (Final Values)",
+        "param_value": 891.0,
+        "method": "ANOVA"
+      },
+      {
+        "title": "Mental Stress Induced Elevation in Double Product by Math Stress Task",
+        "p_value": 0.025,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": "Effect size (Cohen's d)",
+        "param_value": 0.38,
+        "method": "ANCOVA"
+      },
+      {
+        "title": "Mental Stress Induced Elevation in \"Double Product\" by Anger-recall Task",
+        "p_value": 0.81,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": "Mean Difference (Final Values)",
+        "param_value": 80.0,
+        "method": "ANOVA"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00781391",
+    "title": "Global Study to Assess the Safety and Effectiveness of Edoxaban (DU-176b) vs Standard Practice of Dosing With Warfarin in Patients With Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 21105,
+    "start_date": "2008-11-30",
+    "primary_completion_date": "2013-04-30",
+    "start_year": 2008,
+    "duration_months": 52.96,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 3,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+    "num_sites": 1009,
+    "num_countries": 46,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0001,
+        "ci_lower": 0.632,
+        "ci_upper": 0.985,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.79,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0055,
+        "ci_lower": 0.874,
+        "ci_upper": 1.314,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.07,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0001,
+        "ci_lower": 0.719,
+        "ci_upper": 1.029,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.86,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0074,
+        "ci_lower": 0.955,
+        "ci_upper": 1.336,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.13,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0001,
+        "ci_lower": 0.634,
+        "ci_upper": 0.989,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.79,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0064,
+        "ci_lower": 0.878,
+        "ci_upper": 1.32,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.08,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0001,
+        "ci_lower": 0.72,
+        "ci_upper": 1.032,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.86,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.0084,
+        "ci_lower": 0.958,
+        "ci_upper": 1.34,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.13,
+        "method": "Cox proportional hazards model"
+      },
+      {
+        "title": "Compare Edoxaban to Warfarin for Superiority for Composite of Stroke and Systemic Embolic Events (SEE).",
+        "p_value": 0.081,
+        "ci_lower": 0.709,
+        "ci_upper": 1.068,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.87,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00786474",
+    "title": "Effectiveness of Bridging Anticoagulation for Surgery (The BRIDGE Study)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1884,
+    "start_date": "2009-07-31",
+    "primary_completion_date": "2015-02-28",
+    "start_year": 2009,
+    "duration_months": 66.96,
+    "sponsor_name": "Duke University",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Arterial Thromboembolic Events",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Arterial Thromboembolic Events",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Major Bleeding",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00808067",
+    "title": "RELY-ABLE Long Term Multi-center Extension of Dabigatran Treatment in Patients With Atrial Fibrillation Who Completed RE-LY Trial",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 5897,
+    "start_date": "2008-11-30",
+    "primary_completion_date": "2012-12-31",
+    "start_year": 2008,
+    "duration_months": 49.02,
+    "sponsor_name": "Boehringer Ingelheim",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Major Bleeding, Annualized Rate of Subjects With Major Bleeds",
+    "num_sites": 567,
+    "num_countries": 35,
+    "multi_regional": true,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Major Bleeding, Annualized Rate of Subjects With Major Bleeds",
+        "p_value": 0.0055,
+        "ci_lower": 0.64,
+        "ci_upper": 0.93,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.77,
+        "method": "Regression, Cox"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00953212",
+    "title": "Prophylaxis to Reduce Postoperative Atrial Fibrillation in Cardiac Surgery",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 304,
+    "start_date": "2009-08-31",
+    "primary_completion_date": "2012-01-31",
+    "start_year": 2009,
+    "duration_months": 29.01,
+    "sponsor_name": "MaineHealth",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 4,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Occurrence of Post-operative Atrial Fibrillation Requiring Treatment After Open Heart Surgery",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Occurrence of Post-operative Atrial Fibrillation Requiring Treatment After Open Heart Surgery",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT00970489",
+    "title": "Omega-3 Fatty Acids for Prevention of Post-Operative Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1516,
+    "start_date": "2010-08-31",
+    "primary_completion_date": "2012-05-31",
+    "start_year": 2010,
+    "duration_months": 20.99,
+    "sponsor_name": "Brigham and Women's Hospital",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Any First Post-op Atrial Fibrillation or Flutter (AF)",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Any First Post-op Atrial Fibrillation or Flutter (AF)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01151137",
+    "title": "Permanent Atrial fibriLLAtion Outcome Study Using Dronedarone on Top of Standard Therapy",
+    "status": "TERMINATED",
+    "why_stopped": "The study was stopped because of safety concerns",
+    "enrollment": 3236,
+    "start_date": "2010-07-31",
+    "primary_completion_date": "2011-09-30",
+    "start_year": 2010,
+    "duration_months": 14.0,
+    "sponsor_name": "Sanofi",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Overview of the Two Co-primary Outcomes",
+    "num_sites": 37,
+    "num_countries": 37,
+    "multi_regional": true,
+    "population_tags": [
+      "HFrEF",
+      "diabetic",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Overview of the Two Co-primary Outcomes",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Time to First Co-primary Outcome (Cumulative Incidence Function)",
+        "p_value": 0.0019,
+        "ci_lower": 1.337,
+        "ci_upper": 3.936,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 2.294,
+        "method": "Log Rank"
+      },
+      {
+        "title": "Time to Second Co-primary Outcome (Cumulative Incidence Function)",
+        "p_value": 0.0001,
+        "ci_lower": 1.448,
+        "ci_upper": 2.617,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.947,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01174160",
+    "title": "A Study of the Efficacy and Safety of Vernakalant Hydrochloride (MK-6621) in Patients With Atrial Fibrillation (MK-6621-010 AM4)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 123,
+    "start_date": "2010-08-31",
+    "primary_completion_date": "2012-09-30",
+    "start_year": 2010,
+    "duration_months": 25.0,
+    "sponsor_name": "Advanz Pharma",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Proportion of Patients With Treatment-induced Conversion of Atrial Fibrillation to Sinus Rhythm",
+    "num_sites": 0,
+    "num_countries": 0,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Proportion of Patients With Treatment-induced Conversion of Atrial Fibrillation to Sinus Rhythm",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01182441",
+    "title": "Evaluation of the WATCHMAN Left Atrial Appendage (LAA) Closure Device in Patients With Atrial Fibrillation Versus Long Term Warfarin Therapy",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 407,
+    "start_date": "2010-11-30",
+    "primary_completion_date": "2013-01-31",
+    "start_year": 2010,
+    "duration_months": 26.05,
+    "sponsor_name": "Boston Scientific Corporation",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Primary Safety Endpoint (Device Group Only)",
+    "num_sites": 41,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "HFrEF",
+      "elderly",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Primary Safety Endpoint (Device Group Only)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": 2.652,
+        "param_type": "probability of experiencing an event",
+        "param_value": 2.2,
+        "method": null
+      },
+      {
+        "title": "Composite of Stroke, Systemic Embolism, and Death (Cardiovascular and Unknown)",
+        "p_value": null,
+        "ci_lower": 0.57,
+        "ci_upper": 1.89,
+        "param_type": "Risk Ratio (RR)",
+        "param_value": 1.07,
+        "method": null
+      },
+      {
+        "title": "Composite of Ischemic Stroke or Systemic Embolism",
+        "p_value": null,
+        "ci_lower": -0.019,
+        "ci_upper": 0.0273,
+        "param_type": "Risk Difference (RD)",
+        "param_value": 0.0053,
+        "method": null
+      },
+      {
+        "title": "Composite of Ischemic Stroke or Systemic Embolism",
+        "p_value": null,
+        "ci_lower": 0.5,
+        "ci_upper": 4.2,
+        "param_type": "Risk Ratio (RR)",
+        "param_value": 1.6,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01198275",
+    "title": "n-3 Polyunsaturated Fatty Acids (PUFAs) in the Prevention of Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 199,
+    "start_date": "2006-01-31",
+    "primary_completion_date": "2008-05-31",
+    "start_year": 2006,
+    "duration_months": 27.96,
+    "sponsor_name": "Azienda Socio Sanitaria Territoriale degli Spedali Civili di Brescia",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Probability of Maintenance of Sinus Rhythm at One-year Follow up.(Number of Patients Who Maintained Sinus Rhythm)",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Probability of Maintenance of Sinus Rhythm at One-year Follow up.(Number of Patients Who Maintained Sinus Rhythm)",
+        "p_value": 0.05,
+        "ci_lower": 0.292,
+        "ci_upper": 0.666,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.441,
+        "method": "Kaplan Meyer analysis"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01456000",
+    "title": "HeartLight Ablation in Patients With Paroxysmal Atrial Fibrillation (PAF)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 405,
+    "start_date": "2012-01-31",
+    "primary_completion_date": "2014-12-31",
+    "start_year": 2012,
+    "duration_months": 34.99,
+    "sponsor_name": "CardioFocus",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants That Meeting the Efficacy Success Criteria as Described in the Outcome Measure Description",
+    "num_sites": 21,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants That Meeting the Efficacy Success Criteria as Described in the Outcome Measure Description",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01656772",
+    "title": "Vdrive Evaluation of Remote Steering and Testing in Lasso Electrophysiology Procedures Study",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 120,
+    "start_date": "2012-08-31",
+    "primary_completion_date": "2013-12-31",
+    "start_year": 2012,
+    "duration_months": 16.0,
+    "sponsor_name": "Stereotaxis",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "The Primary Effectiveness Endpoint is the Successful Navigation and EGM Recording of Each Pre-specified Pulmonary Vein Per Procedure Between Both the Control and the Investigational Device Groups.",
+    "num_sites": 5,
+    "num_countries": 3,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "The Primary Effectiveness Endpoint is the Successful Navigation and EGM Recording of Each Pre-specified Pulmonary Vein Per Procedure Between Both the Control and the Investigational Device Groups.",
+        "p_value": 0.0405,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Farrington and Manning"
+      },
+      {
+        "title": "Safety Outcome to be Assessed by Comparing the Rate of Adjudicated Serious Adverse Events Within 7 Days of the Procedure Between Both the Control and the Investigational Device Groups.",
+        "p_value": 0.0441,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Z-statistic"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01674647",
+    "title": "Explore the Efficacy and Safety of Once-daily Oral Rivaroxaban for the Prevention of Cardiovascular Events in Subjects With Nonvalvular Atrial Fibrillation Scheduled for Cardioversion",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1504,
+    "start_date": "2012-10-31",
+    "primary_completion_date": "2014-01-31",
+    "start_year": 2012,
+    "duration_months": 15.01,
+    "sponsor_name": "Bayer",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "cv_death",
+    "endpoint_text": "Number of Participants With Composite of the Following Events, Adjudicated Centrally: Stroke, Transient Ischemic Attack, Non-central Nervous System Systemic Embolism, Myocardial Infarction and Cardiovascular Death",
+    "num_sites": 178,
+    "num_countries": 17,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Composite of the Following Events, Adjudicated Centrally: Stroke, Transient Ischemic Attack, Non-central Nervous System Systemic Embolism, Myocardial Infarction and Cardiovascular Death",
+        "p_value": null,
+        "ci_lower": 0.15,
+        "ci_upper": 1.73,
+        "param_type": "Risk Ratio (RR)",
+        "param_value": 0.5,
+        "method": "no statistical test performed"
+      },
+      {
+        "title": "Number of Participants With Major Bleedings as Per Central Adjudication",
+        "p_value": null,
+        "ci_lower": 0.21,
+        "ci_upper": 2.67,
+        "param_type": "Risk Ratio (RR)",
+        "param_value": 0.76,
+        "method": "no test performed"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01729871",
+    "title": "A Study Exploring Two Treatment Strategies in Patients With Atrial Fibrillation Who Undergo Catheter Ablation Therapy",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 253,
+    "start_date": "2013-02-28",
+    "primary_completion_date": "2014-10-31",
+    "start_year": 2013,
+    "duration_months": 20.04,
+    "sponsor_name": "Janssen Scientific Affairs, LLC",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Incidence of Post-Procedure Major Bleeding Events",
+    "num_sites": 44,
+    "num_countries": 5,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Incidence of Post-Procedure Major Bleeding Events",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01824394",
+    "title": "nMARQ™ Pulmonary Vein Isolation System for the Treatment of Paroxysmal Atrial Fibrillation",
+    "status": "TERMINATED",
+    "why_stopped": "Business Decision",
+    "enrollment": 481,
+    "start_date": "2013-04-01",
+    "primary_completion_date": "2017-11-26",
+    "start_year": 2013,
+    "duration_months": 55.85,
+    "sponsor_name": "Biosense Webster, Inc.",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Early Onset Primary Adverse Events",
+    "num_sites": 0,
+    "num_countries": 0,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Early Onset Primary Adverse Events",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Incidence of Early Onset Primary Adverse Events for the Intent-to-Treat and As-Treated Population",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01830543",
+    "title": "A Study Exploring Two Strategies of Rivaroxaban (JNJ39039039; BAY-59-7939) and One of Oral Vitamin K Antagonist in Patients With Atrial Fibrillation Who Undergo Percutaneous Coronary Intervention",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 2124,
+    "start_date": "2013-05-10",
+    "primary_completion_date": "2016-07-28",
+    "start_year": 2013,
+    "duration_months": 38.6,
+    "sponsor_name": "Janssen Scientific Affairs, LLC",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 3,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Percentage of Participants With Clinically Significant Bleeding",
+    "num_sites": 348,
+    "num_countries": 25,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Percentage of Participants With Clinically Significant Bleeding",
+        "p_value": 0.001,
+        "ci_lower": 0.47,
+        "ci_upper": 0.76,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.59,
+        "method": "Log Rank"
+      },
+      {
+        "title": "Percentage of Participants With Clinically Significant Bleeding",
+        "p_value": 0.001,
+        "ci_lower": 0.5,
+        "ci_upper": 0.8,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.63,
+        "method": "Log Rank"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01857622",
+    "title": "Safety and Pharmacokinetics Study of DU-176b Administered to Non-valvular Atrial Fibrillation With Severe Renal Impairment",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 93,
+    "start_date": "2011-11-30",
+    "primary_completion_date": "2013-01-31",
+    "start_year": 2011,
+    "duration_months": 14.06,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 3,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Incidence of Any Adjudicated Bleeding Events",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Incidence of Any Adjudicated Bleeding Events",
+        "p_value": null,
+        "ci_lower": -14.7,
+        "ci_upper": 26.8,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 3.8,
+        "method": "Wilcoxon (Mann-Whitney)"
+      },
+      {
+        "title": "Incidence of Any Adjudicated Bleeding Events",
+        "p_value": null,
+        "ci_lower": -15.4,
+        "ci_upper": 25.2,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 2.7,
+        "method": "Wilcoxon (Mann-Whitney)"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01898221",
+    "title": "Vein of Marshall Ethanol Infusion for Persistent Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 343,
+    "start_date": "2013-10-31",
+    "primary_completion_date": "2019-12-31",
+    "start_year": 2013,
+    "duration_months": 73.99,
+    "sponsor_name": "The Methodist Hospital Research Institute",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Amount of Treated Subjects With Freedom of Symptomatic Post-procedural AF or Flutter at 12 and 15 Months Post Procedure and Less Than 1 Min/Day of AF or Flutter on 4-week EKG Monitor.",
+    "num_sites": 12,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Amount of Treated Subjects With Freedom of Symptomatic Post-procedural AF or Flutter at 12 and 15 Months Post Procedure and Less Than 1 Min/Day of AF or Flutter on 4-week EKG Monitor.",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01924065",
+    "title": "Risk of Stroke and Silent Cerebrovascular Thromboembolism After Cardioversion of Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 112,
+    "start_date": "2013-08-31",
+    "primary_completion_date": "2017-08-31",
+    "start_year": 2013,
+    "duration_months": 48.0,
+    "sponsor_name": "Suleyman Demirel University",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Combined Clinical Thromboembolic or Hemorrhagic Event, Death or Silent Cerebral Thromboemboli",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Combined Clinical Thromboembolic or Hemorrhagic Event, Death or Silent Cerebral Thromboemboli",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Efficacy Clinical End-point",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Ischemic Stroke/Transient Ischemic Attack",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Acute Ischemia in MRI",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Mortality",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Hemorrhagic Stroke",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Gastrointestinal Bleeding",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT01985425",
+    "title": "Colchicine For Prevention of Perioperative Atrial Fibrillation in Patients Undergoing Thoracic Surgery Pilot Study",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 100,
+    "start_date": "2014-04-30",
+    "primary_completion_date": "2015-04-30",
+    "start_year": 2014,
+    "duration_months": 11.99,
+    "sponsor_name": "Population Health Research Institute",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Clinically Significant Atrial Fibrillation",
+    "num_sites": 2,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Clinically Significant Atrial Fibrillation",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02072434",
+    "title": "Edoxaban vs. Warfarin in Subjects Undergoing Cardioversion of Nonvalvular Atrial Fibrillation (NVAF)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 2199,
+    "start_date": "2014-03-25",
+    "primary_completion_date": "2016-02-03",
+    "start_year": 2014,
+    "duration_months": 22.34,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Percentage of Participants With Composite Endpoint of Stroke, Systemic Embolic Stroke (SEE), Myocardial Infarction (MI) and Cardiovascular (CV) Mortality From Randomization to End of Follow up",
+    "num_sites": 228,
+    "num_countries": 19,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Percentage of Participants With Composite Endpoint of Stroke, Systemic Embolic Stroke (SEE), Myocardial Infarction (MI) and Cardiovascular (CV) Mortality From Randomization to End of Follow up",
+        "p_value": null,
+        "ci_lower": 0.12,
+        "ci_upper": 1.43,
+        "param_type": "Odds Ratio (OR)",
+        "param_value": 0.46,
+        "method": null
+      },
+      {
+        "title": "Percentage of Participants With Composite Endpoints of Major and Clinically-relevant Non-major (CRNM) Bleeding",
+        "p_value": null,
+        "ci_lower": 0.64,
+        "ci_upper": 3.55,
+        "param_type": "Odds Ratio (OR)",
+        "param_value": 1.48,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02132767",
+    "title": "Rate Control Versus Rhythm Control For Postoperative Atrial Fibrillation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 523,
+    "start_date": "2014-05-31",
+    "primary_completion_date": "2015-09-30",
+    "start_year": 2014,
+    "duration_months": 16.0,
+    "sponsor_name": "Icahn School of Medicine at Mount Sinai",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Total Number of Days in Hospital",
+    "num_sites": 23,
+    "num_countries": 2,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Total Number of Days in Hospital",
+        "p_value": 0.76,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": "Wilcoxon (Mann-Whitney)"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02164864",
+    "title": "Evaluation of Dual Therapy With Dabigatran vs. Triple Therapy With Warfarin in Patients With AF That Undergo a PCI With Stenting (REDUAL-PCI)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 2725,
+    "start_date": "2014-07-22",
+    "primary_completion_date": "2017-06-05",
+    "start_year": 2014,
+    "duration_months": 34.46,
+    "sponsor_name": "Boehringer Ingelheim",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 3,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Time to First Adjudicated ISTH MBE or CRNMBE",
+    "num_sites": 421,
+    "num_countries": 41,
+    "multi_regional": true,
+    "population_tags": [
+      "CKD",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Time to First Adjudicated ISTH MBE or CRNMBE",
+        "p_value": 0.0001,
+        "ci_lower": 0.42,
+        "ci_upper": 0.63,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.52,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Time to First Adjudicated ISTH MBE or CRNMBE",
+        "p_value": 0.0001,
+        "ci_lower": 0.58,
+        "ci_upper": 0.88,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.72,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Time to First Adjudicated ISTH MBE or CRNMBE",
+        "p_value": 0.001,
+        "ci_lower": 0.42,
+        "ci_upper": 0.63,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.52,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Time to First Adjudicated ISTH MBE or CRNMBE",
+        "p_value": 0.002,
+        "ci_lower": 0.58,
+        "ci_upper": 0.88,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 0.72,
+        "method": "Regression, Cox"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02283294",
+    "title": "Apixaban for Early Prevention of Recurrent Embolic Stroke and Hemorrhagic Transformation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 91,
+    "start_date": "2015-04-30",
+    "primary_completion_date": "2019-06-30",
+    "start_year": 2015,
+    "duration_months": 50.0,
+    "sponsor_name": "University of South Florida",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With a Composite Endpoint of Fatal Stroke, Recurrent Ischemic Stroke, or TIA",
+    "num_sites": 5,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With a Composite Endpoint of Fatal Stroke, Recurrent Ischemic Stroke, or TIA",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02801669",
+    "title": "Study of DU-176b Aged 80 Years or Older",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 984,
+    "start_date": "2016-08-05",
+    "primary_completion_date": "2019-12-27",
+    "start_year": 2016,
+    "duration_months": 40.71,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With a Composite Endpoint of Stroke and Systemic Embolic Events (SEE) in Participants Who Were Administered DU-176b Compared With Placebo",
+    "num_sites": 164,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With a Composite Endpoint of Stroke and Systemic Embolic Events (SEE) in Participants Who Were Administered DU-176b Compared With Placebo",
+        "p_value": 0.0003,
+        "ci_lower": 0.188,
+        "ci_upper": 0.608,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.339,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Number of Participants With Stroke and Systemic Embolic Events (SEE), Including Subcomponents of Stroke and Composite Event of Ischemic Stroke and SEE in Participants Who Were Administered DU-176b Compared With Placebo",
+        "p_value": null,
+        "ci_lower": 0.157,
+        "ci_upper": 0.57,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.299,
+        "method": null
+      },
+      {
+        "title": "Number of Participants With Stroke and Systemic Embolic Events (SEE), Including Subcomponents of Stroke and Composite Event of Ischemic Stroke and SEE in Participants Who Were Administered DU-176b Compared With Placebo",
+        "p_value": null,
+        "ci_lower": 0.126,
+        "ci_upper": 2.011,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.503,
+        "method": null
+      },
+      {
+        "title": "Number of Participants With Stroke and Systemic Embolic Events (SEE), Including Subcomponents of Stroke and Composite Event of Ischemic Stroke and SEE in Participants Who Were Administered DU-176b Compared With Placebo",
+        "p_value": null,
+        "ci_lower": 0.16,
+        "ci_upper": 0.585,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.306,
+        "method": null
+      },
+      {
+        "title": "Number of Participants With Stroke and Systemic Embolic Events (SEE), Including Subcomponents of Stroke and Composite Event of Ischemic Stroke and SEE in Participants Who Were Administered DU-176b Compared With Placebo",
+        "p_value": null,
+        "ci_lower": 0.193,
+        "ci_upper": 0.624,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 0.347,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02866175",
+    "title": "Edoxaban Treatment Versus Vitamin K Antagonist in Patients With Atrial Fibrillation Undergoing Percutaneous Coronary Intervention",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1506,
+    "start_date": "2017-02-24",
+    "primary_completion_date": "2019-06-06",
+    "start_year": 2017,
+    "duration_months": 27.33,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": false,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Adjudicated Major or Clinically Relevant Non-major Bleeding As First Event Defined by International Society on Thrombosis and Haemostasis Following Edoxaban-based Regimen Compared With Vitamin K Antagonist (VKA)-Based Regimen",
+    "num_sites": 200,
+    "num_countries": 18,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Adjudicated Major or Clinically Relevant Non-major Bleeding As First Event Defined by International Society on Thrombosis and Haemostasis Following Edoxaban-based Regimen Compared With Vitamin K Antagonist (VKA)-Based Regimen",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02942576",
+    "title": "Edoxaban Treatment Versus Vitamin K Antagonist (VKA) in Patients With Atrial Fibrillation (AF) Undergoing Catheter Ablation",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 632,
+    "start_date": "2017-03-21",
+    "primary_completion_date": "2018-09-24",
+    "start_year": 2017,
+    "duration_months": 18.14,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants Who Experienced the Composite of All-cause Death, Stroke (VARC-2), and Major Bleeding (ISTH) in the Edoxaban Group Compared With Vitamin K Antagonist (VKA) Group in Participants Undergoing Catheter Ablation (Adjudicated Data)",
+    "num_sites": 75,
+    "num_countries": 11,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants Who Experienced the Composite of All-cause Death, Stroke (VARC-2), and Major Bleeding (ISTH) in the Edoxaban Group Compared With Vitamin K Antagonist (VKA) Group in Participants Undergoing Catheter Ablation (Adjudicated Data)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "Number of Participants Who Experienced Major Bleeding (International Society on Thrombosis and Hemostasis [ISTH]) in the Edoxaban Group Compared With VKA Group Among Participants Undergoing Catheter Ablation (Adjudicated Data)",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT02943785",
+    "title": "Edoxaban Compared to Standard Care After Heart Valve Replacement Using a Catheter in Patients With Atrial Fibrillation (ENVISAGE-TAVI AF)",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 1426,
+    "start_date": "2017-03-21",
+    "primary_completion_date": "2021-02-28",
+    "start_year": 2017,
+    "duration_months": 47.31,
+    "sponsor_name": "Daiichi Sankyo",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "anticoag",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants Who Experienced Net Adverse Clinical Events (Adjudicated Data) Based on ISTH Criteria in Participants Taking Edoxaban vs VKA",
+    "num_sites": 230,
+    "num_countries": 14,
+    "multi_regional": true,
+    "population_tags": [],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants Who Experienced Net Adverse Clinical Events (Adjudicated Data) Based on ISTH Criteria in Participants Taking Edoxaban vs VKA",
+        "p_value": 0.0141,
+        "ci_lower": 0.85,
+        "ci_upper": 1.31,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 1.05,
+        "method": "Regression, Cox"
+      },
+      {
+        "title": "Number of Participants Who Experienced Major Bleeding (Adjudicated Data) Based on ISTH Criteria in Participants Taking Edoxaban vs VKA",
+        "p_value": 0.9267,
+        "ci_lower": 1.03,
+        "ci_upper": 1.91,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 1.4,
+        "method": "Regression, Cox"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT03021343",
+    "title": "Effect of Colchicine on the Incidence of Atrial Fibrillation in Open Heart Surgery Patients",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 360,
+    "start_date": "2012-10-31",
+    "primary_completion_date": "2015-01-31",
+    "start_year": 2012,
+    "duration_months": 27.01,
+    "sponsor_name": "Jordan Collaborating Cardiology Group",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": false,
+    "comparator_type": "active",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "The Number of Participants With Atrial Fibrillation",
+    "num_sites": 0,
+    "num_countries": 0,
+    "multi_regional": false,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "The Number of Participants With Atrial Fibrillation",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      },
+      {
+        "title": "The Number of Participants With Colchicine Side Effects",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT03464019",
+    "title": "Efficacy and Safety of Etripamil for the Termination of Spontaneous Paroxysmal Supraventricular Tachycardia (PSVT).",
+    "status": "TERMINATED",
+    "why_stopped": "The closure of the event-driven study was terminated due to the total sample size was reached.",
+    "enrollment": 1097,
+    "start_date": "2018-06-18",
+    "primary_completion_date": "2023-01-20",
+    "start_year": 2018,
+    "duration_months": 55.1,
+    "sponsor_name": "Milestone Pharmaceuticals Inc.",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 6,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "The Time to Conversion of an Episode of PSVT to Sinus Rhythm (SR) After Study Drug Administration.",
+    "num_sites": 161,
+    "num_countries": 9,
+    "multi_regional": true,
+    "population_tags": [
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "The Time to Conversion of an Episode of PSVT to Sinus Rhythm (SR) After Study Drug Administration.",
+        "p_value": 0.1212,
+        "ci_lower": 0.726,
+        "ci_upper": 1.623,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 1.086,
+        "method": "Peto-Peto test"
+      },
+      {
+        "title": "The Time to Conversion of an Episode of PSVT to Sinus Rhythm (SR) After Study Drug Administration.",
+        "p_value": 0.001,
+        "ci_lower": 1.868,
+        "ci_upper": 4.371,
+        "param_type": "Hazard Ratio (HR)",
+        "param_value": 2.857,
+        "method": "Wilcoxon"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT04134845",
+    "title": "A Clinical Trial Utilizing Dantrolene in Patients With Ventricular Arrhythmias.",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 68,
+    "start_date": "2020-08-21",
+    "primary_completion_date": "2025-05-29",
+    "start_year": 2020,
+    "duration_months": 57.23,
+    "sponsor_name": "Vanderbilt University Medical Center",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Inducible Sustained Ventricular Tachycardia/ Ventricular Fibrillation (VT/VF) Utilizing Standardized Stimulation Protocol.",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "HFrEF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Inducible Sustained Ventricular Tachycardia/ Ventricular Fibrillation (VT/VF) Utilizing Standardized Stimulation Protocol.",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT04600921",
+    "title": "Ertugliflozin to Reduce Arrhythmic Burden in ICD/CRT patientS (ERASe-Trial) - a Phase III Study",
+    "status": "TERMINATED",
+    "why_stopped": "The feasibility (recruitment) of the high number of patients (402 patients with HFrEF or HFmrEF) was impossible due to the rapid increase in SGLT2 inhibitors in patients with heart failure.",
+    "enrollment": 55,
+    "start_date": "2021-06-24",
+    "primary_completion_date": "2023-06-23",
+    "start_year": 2021,
+    "duration_months": 23.95,
+    "sponsor_name": "Medical University of Graz",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "sglt2i",
+    "endpoint_type": "other",
+    "endpoint_text": "Change in Number of Supraventricular Tachycardia (svT)/ Ventricular Fibrillation (VF) Episodes",
+    "num_sites": 8,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "HFrEF",
+      "diabetic",
+      "CKD"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Change in Number of Supraventricular Tachycardia (svT)/ Ventricular Fibrillation (VF) Episodes",
+        "p_value": 0.001,
+        "ci_lower": 0.04,
+        "ci_upper": 0.61,
+        "param_type": "Rate Ratio",
+        "param_value": 0.16,
+        "method": "Negative binomial regression model"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT05643573",
+    "title": "A Study to Learn How Well the Study Treatment Asundexian Works and How Safe it is Compared to Apixaban to Prevent Stroke or Systemic Embolism in People With Irregular and Often Rapid Heartbeat (Atrial Fibrillation), and at Risk for Stroke",
+    "status": "TERMINATED",
+    "why_stopped": "Independent Data Monitoring Committee (IDMC) recommendation to stop the study",
+    "enrollment": 14830,
+    "start_date": "2022-12-05",
+    "primary_completion_date": "2024-01-31",
+    "start_year": 2022,
+    "duration_months": 13.86,
+    "sponsor_name": "Bayer",
+    "sponsor_class": "INDUSTRY",
+    "is_industry": true,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": false,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With Composite of Stroke or Systemic Embolism",
+    "num_sites": 1069,
+    "num_countries": 38,
+    "multi_regional": true,
+    "population_tags": [
+      "CKD",
+      "AF"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With Composite of Stroke or Systemic Embolism",
+        "p_value": 0.0001,
+        "ci_lower": 2.457,
+        "ci_upper": 5.833,
+        "param_type": "Cox Proportional Hazard",
+        "param_value": 3.785,
+        "method": "Log Rank"
+      },
+      {
+        "title": "Number of Participants With Composite of Stroke or Systemic Embolism",
+        "p_value": 0.0001,
+        "ci_lower": 2.46,
+        "ci_upper": 5.839,
+        "param_type": "Fine-Gray model",
+        "param_value": 3.79,
+        "method": "Gray's test"
+      },
+      {
+        "title": "Number of Participants With International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding",
+        "p_value": 0.0001,
+        "ci_lower": 0.185,
+        "ci_upper": 0.552,
+        "param_type": "Fine-Gray model",
+        "param_value": 0.319,
+        "method": "Log Rank"
+      },
+      {
+        "title": "Number of Participants With International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding",
+        "p_value": 0.0001,
+        "ci_lower": 0.182,
+        "ci_upper": 0.547,
+        "param_type": "Fine-Gray model",
+        "param_value": 0.316,
+        "method": "Gray's test"
+      },
+      {
+        "title": "Number of Participants With Composite of Stroke, Systemic Embolism, or ISTH Major Bleeding",
+        "p_value": 0.0011,
+        "ci_lower": 1.207,
+        "ci_upper": 2.149,
+        "param_type": "Fine-Gray model",
+        "param_value": 1.61,
+        "method": "Log Rank"
+      },
+      {
+        "title": "Number of Participants With Composite of Stroke, Systemic Embolism, or ISTH Major Bleeding",
+        "p_value": 0.0013,
+        "ci_lower": 1.197,
+        "ci_upper": 2.134,
+        "param_type": "Fine-Gray model",
+        "param_value": 1.599,
+        "method": "Gray's test"
+      }
+    ]
+  },
+  {
+    "nct_id": "NCT06675500",
+    "title": "Evaluation of the Role of Magnesium in Prevention of AF Post Cardiac Surgery",
+    "status": "COMPLETED",
+    "why_stopped": null,
+    "enrollment": 130,
+    "start_date": "2024-11-01",
+    "primary_completion_date": "2025-04-15",
+    "start_year": 2024,
+    "duration_months": 5.42,
+    "sponsor_name": "Ain Shams University",
+    "sponsor_class": "OTHER",
+    "is_industry": false,
+    "has_dsmb": true,
+    "num_arms": 2,
+    "placebo_controlled": true,
+    "comparator_type": "placebo",
+    "double_blind": true,
+    "drug_class": "other",
+    "endpoint_type": "other",
+    "endpoint_text": "Number of Participants With New Episodes of Atrial Fibrillation",
+    "num_sites": 1,
+    "num_countries": 1,
+    "multi_regional": false,
+    "population_tags": [
+      "CKD"
+    ],
+    "primary_outcomes": [
+      {
+        "title": "Number of Participants With New Episodes of Atrial Fibrillation",
+        "p_value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "param_type": null,
+        "param_value": null,
+        "method": null
+      }
+    ]
+  }
+]

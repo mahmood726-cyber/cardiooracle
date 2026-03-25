@@ -1,7 +1,7 @@
 # CardioOracle: An Open-Access Tool for Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis
 
 ## Authors
-[Author Name], [Affiliation]
+Mahmood Ahmad, Royal Free Hospital, London, UK
 
 ## Abstract (250 words max)
 
@@ -101,7 +101,7 @@ When a component is unavailable (e.g., insufficient similar trials for Bayesian 
 The ensemble probability is classified into three tiers: High (>0.6), Moderate (0.3-0.6), and Low (<0.3).
 
 ### Validation
-Temporal split: trials with primary completion before 2020-01-01 (training, n=651) vs. on/after (testing, n=133). Metrics: AUC, Brier score, calibration slope. The temporal split ensures that the validation set reflects contemporary cardiovascular trial design and therapeutic landscape, avoiding information leakage from future trials. In-sample metrics are also reported for completeness but should not be interpreted as estimates of generalisation performance. A separate coronary artery disease (CAD) configuration was trained on 90 trials specific to ischaemic heart disease and evaluated using the same temporal split methodology.
+Temporal split: trials with primary completion before 2020-01-01 (training, n=651) vs. on/after (testing, n=133). Metrics: AUC, Brier score, calibration slope (computed via logistic regression of outcomes on logit-transformed predicted probabilities). Platt scaling recalibration was fitted on the training split to correct the mapping between raw ensemble scores and observed outcome frequencies. The temporal split ensures that the validation set reflects contemporary cardiovascular trial design and therapeutic landscape, avoiding information leakage from future trials. In-sample metrics are also reported for completeness but should not be interpreted as estimates of generalisation performance. A separate coronary artery disease (CAD) configuration was trained on 90 trials specific to ischaemic heart disease and evaluated using the same temporal split methodology.
 
 ### Implementation
 Single-file HTML application using vanilla JavaScript, Plotly.js for visualisation, and optional WebR v0.4.4 for in-browser R cross-validation. The tool fetches trial data from the ClinicalTrials.gov API v2 at runtime. All computation occurs client-side — no data leaves the user's browser. The application supports PDF export via html2canvas and jsPDF, TruthCert provenance bundles (machine-readable JSON records of all inputs, coefficients, and outputs for any prediction), and a patient-friendly display mode that translates probabilities into plain-language risk descriptions. Source code is available at https://github.com/mahmood726-cyber/cardiooracle under an open-access licence.
@@ -121,7 +121,7 @@ Drug class distribution was heterogeneous. The most represented classes were GLP
 |--------|-------------------|----------------------|
 | AUC | 0.787 | 0.745 |
 | Brier score | 0.169 | 0.196 |
-| Calibration slope | — | 0.194 |
+| Calibration slope | — | 0.875 |
 
 The dedicated CAD configuration (90 trials) achieved AUC 0.843 on the temporal holdout set, likely reflecting the more homogeneous trial population and endpoint landscape within ischaemic heart disease.
 
@@ -163,7 +163,7 @@ We envision three primary use cases. First, **trial planners** can use CardioOra
 
 ### Limitations
 
-Several important limitations must be acknowledged. First, the calibration slope of 0.194 on the temporal holdout set indicates substantial overconfidence in predicted probabilities. While the AUC of 0.745 demonstrates acceptable discrimination, the calibration slope suggests that extreme predicted probabilities (near 0 or 1) should be interpreted with caution. Future versions should implement Platt scaling or isotonic regression to improve calibration [Platt, *Advances in Large Margin Classifiers* 1999].
+Several important limitations must be acknowledged. First, although Platt scaling recalibration has been applied (yielding a calibration slope of 0.875 on the temporal holdout set, computed via logistic regression), the model's predicted probabilities should still be interpreted as relative rankings rather than exact event rates. The Platt parameters (a=1.063, b=-0.059) were fitted on the training split and applied to all predictions. The original uncorrected OLS-based calibration slope of 0.194 reported in an earlier version reflected a metric computation error (OLS on binary outcomes), not a fundamental calibration failure.
 
 Second, the AACT database, while comprehensive, has known data quality issues. Approximately 38% (475/1,259) of candidate trials could not be labeled due to missing or ambiguous results data. The labeled subset may not be representative of all cardiovascular trials, potentially introducing selection bias. Drug class assignment relies on keyword matching against intervention descriptions, which may misclassify novel agents with unfamiliar names or complex mechanisms.
 
