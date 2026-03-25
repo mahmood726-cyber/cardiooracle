@@ -163,7 +163,7 @@ We envision three primary use cases. First, **trial planners** can use CardioOra
 
 ### Limitations
 
-Several important limitations must be acknowledged. First, although Platt scaling recalibration has been applied (yielding a calibration slope of 0.875 on the temporal holdout set, computed via logistic regression), the model's predicted probabilities should still be interpreted as relative rankings rather than exact event rates. The Platt parameters (a=1.063, b=-0.059) were fitted on the training split and applied to all predictions. The original uncorrected OLS-based calibration slope of 0.194 reported in an earlier version reflected a metric computation error (OLS on binary outcomes), not a fundamental calibration failure.
+Several important limitations must be acknowledged. First, the calibration slope on the temporal holdout set is 0.194, indicating that predicted probabilities are overconfident (too spread relative to observed outcomes). Platt scaling recalibration converges to the identity function (a=0, b=1), confirming that the training-set probabilities are already optimally calibrated for training data and the poor test-set slope reflects a generalization gap rather than a correctable post-hoc issue. With only 133 test trials, calibration slope is inherently noisy. Predicted probabilities should be interpreted as relative rankings rather than absolute success rates; the discrimination metric (AUC = 0.745) is the appropriate measure of predictive utility.
 
 Second, the AACT database, while comprehensive, has known data quality issues. Approximately 38% (475/1,259) of candidate trials could not be labeled due to missing or ambiguous results data. The labeled subset may not be representative of all cardiovascular trials, potentially introducing selection bias. Drug class assignment relies on keyword matching against intervention descriptions, which may misclassify novel agents with unfamiliar names or complex mechanisms.
 
@@ -181,8 +181,21 @@ The availability of an open-access trial prediction tool raises important ethica
 
 Several enhancements are planned. Additional therapeutic area configurations (arrhythmia/atrial fibrillation, pulmonary hypertension, peripheral vascular disease) will broaden the tool's applicability. Improved calibration via Platt scaling, trained on the temporal holdout set, should narrow the gap between predicted and observed probabilities. A living update mechanism that periodically queries ClinicalTrials.gov for newly posted results would allow the training corpus to grow over time, improving predictions for emerging drug classes. Integration with natural language processing of protocol documents could capture design features not available in structured registry fields. Finally, formal benchmarking against expert panels and prediction markets on a prospective cohort of cardiovascular trials would provide the strongest evidence of the tool's added value.
 
+## Conclusions
+
+CardioOracle is the first open-access, browser-based tool for predicting cardiovascular trial outcomes using a hybrid ensemble of Bayesian historical borrowing, conditional power analysis, and logistic meta-regression. Trained on 651 Phase 3 CV trials from AACT and temporally validated on 133 post-2020 trials (AUC = 0.745), it provides probabilistic success estimates for prospective trials based on design features alone. The tool democratises trial outcome prediction — previously limited to industry analytics teams with proprietary databases — and may assist investigators, funders, and regulators in evidence-informed trial design and portfolio prioritisation.
+
 ## Data Availability
+
 All training data, model coefficients, and source code are available at https://github.com/mahmood726-cyber/cardiooracle. The labeled dataset is deposited at [ZENODO DOI].
+
+## Funding
+
+[FUNDING_PLACEHOLDER]
+
+## Competing interests
+
+The author declares no competing interests. CardioOracle is not affiliated with or endorsed by any pharmaceutical company, regulatory agency, or trial sponsor.
 
 ## References
 
