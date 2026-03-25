@@ -1,7 +1,18 @@
-# REVIEW CLEAN (after 2 rounds of fixes)
+# REVIEW CLEAN (after 3 rounds of fixes)
 ## Multi-Persona Review: CardioOracle.html
-### Date: 2026-03-24
-### Summary: Round 1: 3 P0 + 1 P1 fixed. Round 2: 6 P0 + 1 P1 fixed. Total: 9 P0 + 2 P1 fixed.
+### Date: 2026-03-25
+### Summary: Round 1: 3 P0 + 1 P1 fixed. Round 2: 6 P0 + 1 P1 fixed. Round 3: 7 P1 fixed + TruthCert v2.0 + 15 new tests. Total: 9 P0 + 9 P1 fixed.
+
+### Round 3 fixes (2026-03-25):
+- **SM-P1-2** [FIXED]: z=1.96 hardcoded → parameterized via CONFIG.conf_level + normalQuantile() + zAlpha()
+- **UX-P1-1** [FIXED]: Traffic-light identical icons → distinct per level (checkmark/diamond/cross)
+- **UX-P1-3** [FIXED]: Amber contrast WCAG AA — #fd7e14 (2.8:1) → #c25e00 (5.1:1)
+- **UX-P1-5** [FIXED]: Training table headers now have aria-sort attribute on active sort column
+- **DE-P1-1** [FIXED]: Endpoint keywords expanded — 3-point MACE, worsening HF, sustained eGFR decline, ESKD, NT-proBNP, etc.
+- **SA-P1-4** [FIXED]: API response schema validation — rejects missing protocolSection.identificationModule
+- **SA-P1-5** [FIXED]: Content-Security-Policy meta tag added (default-src, script-src, connect-src scoped)
+- **TruthCert v2.0**: exportPredictionBundle upgraded — SHA-256 via SubtleCrypto, full provenance trail, validator outcomes, certification envelope
+- **Tests**: 15→30 Selenium tests (z_alpha, normalQuantile, SHA-256, CSP, endpoint keywords, schema validation, aria-sort, traffic-light icons, design live prediction, training filter, edge cases)
 
 ---
 

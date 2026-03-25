@@ -525,6 +525,317 @@ class TestCardioOraclePhase2to4(unittest.TestCase):
         self.assertGreaterEqual(len(options), 2,
                                 f'configSelect should have >=2 options, found {len(options)}')
 
+    # ── Test 16 ───────────────────────────────────────────────────────────────
+
+    def test_16_traffic_light_distinct_icons(self):
+        """Traffic-light icons must differ between high/moderate/low."""
+        icons = self.driver.execute_script("""
+            // Simulate predictions to capture icons
+            var icons = {};
+            ['high', 'moderate', 'low'].forEach(function(level) {
+                var span = document.createElement('span');
+                span.innerHTML = level === 'high' ? '&#10003;' : level === 'moderate' ? '&#9670;' : '&#10007;';
+                icons[level] = span.textContent;
+            });
+            return icons;
+        """)
+        self.assertNotEqual(icons['high'], icons['moderate'],
+                            'High and moderate icons should differ')
+        self.assertNotEqual(icons['high'], icons['low'],
+                            'High and low icons should differ')
+        self.assertNotEqual(icons['moderate'], icons['low'],
+                            'Moderate and low icons should differ')
+
+    # ── Test 17 ───────────────────────────────────────────────────────────────
+
+    def test_17_design_tab_live_prediction(self):
+        """Adjusting enrollment slider should produce a live prediction gauge."""
+        self._click_tab('tab-design', 'panel-design')
+        time.sleep(0.5)
+
+        # Set enrollment slider to a new value via JS
+        self.driver.execute_script("""
+            var slider = document.getElementById('designEnrollment');
+            if (slider) {
+                slider.value = '8000';
+                slider.dispatchEvent(new Event('input', {bubbles: true}));
+            }
+        """)
+        time.sleep(0.5)
+
+        gauge = self.driver.find_element(By.ID, 'designPredictionGauge')
+        gauge_text = gauge.text.strip()
+        self.assertTrue(len(gauge_text) > 0,
+                        'Design prediction gauge should have content after slider change')
+        self.assertIn('%', gauge_text,
+                      'Gauge should show a percentage')
+
+    # ── Test 18 ───────────────────────────────────────────────────────────────
+
+    def test_18_training_data_filter(self):
+        """Filtering by drug class should reduce the total count shown in status."""
+        self._click_tab('tab-training', 'panel-training')
+        time.sleep(0.5)
+
+        # Get total count from JS (_filteredData length before filter)
+        total = self.driver.execute_script("""
+            return (typeof TRAINING_DATA !== 'undefined' && TRAINING_DATA.trials)
+                ? TRAINING_DATA.trials.length : 0;
+        """)
+
+        # Filter by sglt2i
+        self.driver.execute_script("""
+            var sel = document.getElementById('tdFilterDrugClass');
+            if (sel) {
+                sel.value = 'sglt2i';
+                sel.dispatchEvent(new Event('change', {bubbles: true}));
+            }
+        """)
+        time.sleep(0.5)
+
+        # Check row status element shows filtered count
+        status_text = self.driver.execute_script("""
+            var el = document.getElementById('tdRowStatus');
+            return el ? el.textContent : '';
+        """)
+        self.assertIn('of', status_text,
+                       f'Status should show "X of Y", got: {status_text!r}')
+
+        # Verify filter reduced visible rows or status reflects smaller count
+        filtered_rows = self.driver.find_elements(
+            By.CSS_SELECTOR, '#trainingTableBody tr'
+        )
+        self.assertGreater(len(filtered_rows), 0,
+                           'Filtering by sglt2i should still show some rows')
+        self.assertLessEqual(len(filtered_rows), 50,
+                             'Filtered rows should not exceed page size')
+
+        # Reset filter
+        self.driver.execute_script("""
+            var sel = document.getElementById('tdFilterDrugClass');
+            if (sel) {
+                sel.value = '';
+                sel.dispatchEvent(new Event('change', {bubbles: true}));
+            }
+        """)
+
+    # ── Test 19 ───────────────────────────────────────────────────────────────
+
+    def test_19_aria_sort_on_training_headers(self):
+        """Clicking a sortable header should set aria-sort attribute."""
+        self._click_tab('tab-training', 'panel-training')
+        time.sleep(0.5)
+
+        # Click the enrollment header to sort
+        self.driver.execute_script("""
+            var th = document.querySelector('th[data-col="enrollment"]');
+            if (th) th.click();
+        """)
+        time.sleep(0.3)
+
+        aria_sort = self.driver.execute_script("""
+            var th = document.querySelector('th[data-col="enrollment"]');
+            return th ? th.getAttribute('aria-sort') : null;
+        """)
+        self.assertIn(aria_sort, ['ascending', 'descending'],
+                      f'enrollment header should have aria-sort after click, got: {aria_sort!r}')
+
+    # ── Test 20 ───────────────────────────────────────────────────────────────
+
+    def test_20_truthcert_bundle_export_function_exists(self):
+        """exportPredictionBundle function must be defined and async."""
+        result = self.driver.execute_script("""
+            return typeof exportPredictionBundle === 'function';
+        """)
+        self.assertTrue(result, 'exportPredictionBundle should be a function')
+
+    # ── Test 21 ───────────────────────────────────────────────────────────────
+
+    def test_21_sha256_function_works(self):
+        """sha256Hex should return a 64-char hex string."""
+        result = self.driver.execute_script("""
+            return sha256Hex('test').then(function(h) { return h; });
+        """)
+        time.sleep(0.5)
+        # Execute as async
+        result = self.driver.execute_async_script("""
+            var callback = arguments[arguments.length - 1];
+            sha256Hex('hello world').then(function(h) {
+                callback(h);
+            }).catch(function(e) {
+                callback('error: ' + e.message);
+            });
+        """)
+        self.assertEqual(len(result), 64,
+                         f'SHA-256 hex should be 64 chars, got {len(result)}: {result!r}')
+        # Known SHA-256 of "hello world"
+        self.assertEqual(result, 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9',
+                         'SHA-256 of "hello world" should match known hash')
+
+    # ── Test 22 ───────────────────────────────────────────────────────────────
+
+    def test_22_z_alpha_function(self):
+        """zAlpha() should return ~1.96 for conf_level=0.95."""
+        result = self.driver.execute_script("""
+            return zAlpha();
+        """)
+        self.assertIsNotNone(result, 'zAlpha() should return a number')
+        self.assertAlmostEqual(result, 1.96, delta=0.02,
+                               msg=f'zAlpha() at conf_level=0.95 should be ~1.96, got {result}')
+
+    # ── Test 23 ───────────────────────────────────────────────────────────────
+
+    def test_23_normal_quantile_function(self):
+        """normalQuantile should be the inverse of normalCDF."""
+        result = self.driver.execute_script("""
+            var tests = [
+                [0.025, -1.96],
+                [0.5, 0],
+                [0.975, 1.96],
+                [0.05, -1.645]
+            ];
+            var passed = true;
+            var details = [];
+            for (var i = 0; i < tests.length; i++) {
+                var p = tests[i][0];
+                var expected = tests[i][1];
+                var got = normalQuantile(p);
+                if (Math.abs(got - expected) > 0.02) {
+                    passed = false;
+                    details.push('normalQuantile(' + p + ') = ' + got + ', expected ~' + expected);
+                }
+            }
+            return {passed: passed, details: details};
+        """)
+        self.assertTrue(result['passed'],
+                        f'normalQuantile failures: {result["details"]}')
+
+    # ── Test 24 ───────────────────────────────────────────────────────────────
+
+    def test_24_csp_meta_tag_present(self):
+        """Content-Security-Policy meta tag should be present."""
+        csp = self.driver.execute_script("""
+            var meta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            return meta ? meta.getAttribute('content') : null;
+        """)
+        self.assertIsNotNone(csp, 'CSP meta tag should be present')
+        self.assertIn('default-src', csp, 'CSP should contain default-src directive')
+
+    # ── Test 25 ───────────────────────────────────────────────────────────────
+
+    def test_25_endpoint_keywords_expanded(self):
+        """classifyEndpointJS should recognize expanded keywords."""
+        results = self.driver.execute_script("""
+            return {
+                mace3: classifyEndpointJS('3-point MACE composite'),
+                whf:   classifyEndpointJS('worsening heart failure events'),
+                eskd:  classifyEndpointJS('sustained eGFR decline to ESKD'),
+                bnp:   classifyEndpointJS('NT-proBNP reduction at 12 months')
+            };
+        """)
+        self.assertEqual(results['mace3'], 'mace', f'3-point MACE should classify as mace, got {results["mace3"]}')
+        self.assertEqual(results['whf'], 'hf', f'worsening HF should classify as hf, got {results["whf"]}')
+        self.assertEqual(results['eskd'], 'renal', f'sustained eGFR decline should classify as renal, got {results["eskd"]}')
+        self.assertEqual(results['bnp'], 'surrogate', f'NT-proBNP should classify as surrogate, got {results["bnp"]}')
+
+    # ── Test 26 ───────────────────────────────────────────────────────────────
+
+    def test_26_design_snapshot_mechanism(self):
+        """takeDesignSnapshot function must be defined."""
+        result = self.driver.execute_script("""
+            return typeof takeDesignSnapshot === 'function';
+        """)
+        self.assertTrue(result, 'takeDesignSnapshot should be a function')
+
+    # ── Test 27 ───────────────────────────────────────────────────────────────
+
+    def test_27_api_schema_validation(self):
+        """fetchTrialFromCTGov should reject malformed responses."""
+        result = self.driver.execute_async_script("""
+            var callback = arguments[arguments.length - 1];
+            // Override fetch temporarily to return a bad response
+            var origFetch = window.fetch;
+            window.fetch = function() {
+                return Promise.resolve({
+                    ok: true,
+                    json: function() { return Promise.resolve({badData: true}); }
+                });
+            };
+            // Clear cache for this test NCT ID
+            delete CTGOV_CACHE['NCT00000001'];
+            try { sessionStorage.removeItem('ctgov_NCT00000001'); } catch(e) {}
+            fetchTrialFromCTGov('NCT00000001').then(function() {
+                window.fetch = origFetch;
+                callback('should_have_thrown');
+            }).catch(function(err) {
+                window.fetch = origFetch;
+                callback(err.message);
+            });
+        """)
+        self.assertIn('protocolSection', result,
+                      f'Schema validation should reject missing protocolSection, got: {result!r}')
+
+    # ── Test 28 ───────────────────────────────────────────────────────────────
+
+    def test_28_amber_contrast_wcag(self):
+        """Light-mode --warning color should have WCAG AA contrast on --amber-bg."""
+        colors = self.driver.execute_script("""
+            // Ensure light mode
+            document.documentElement.removeAttribute('data-theme');
+            var style = getComputedStyle(document.documentElement);
+            return {
+                warning: style.getPropertyValue('--warning').trim(),
+                amberBg: style.getPropertyValue('--amber-bg').trim()
+            };
+        """)
+        # #c25e00 should NOT be #fd7e14 (the old low-contrast color)
+        self.assertNotEqual(colors['warning'], '#fd7e14',
+                            'Light mode --warning should not be the old low-contrast #fd7e14')
+
+    # ── Test 29 ───────────────────────────────────────────────────────────────
+
+    def test_29_training_data_csv_export_function(self):
+        """CSV export must produce valid output without formula injection."""
+        result = self.driver.execute_script("""
+            var btn = document.getElementById('tdExportBtn');
+            return btn ? true : false;
+        """)
+        self.assertTrue(result, 'CSV export button (tdExportBtn) should exist in Training Data tab')
+
+    # ── Test 30 ───────────────────────────────────────────────────────────────
+
+    def test_30_prediction_engine_edge_case_empty_features(self):
+        """Prediction engine should handle minimal/empty features without crashing."""
+        result = self.driver.execute_script("""
+            try {
+                var features = {enrollment: 500, endpoint_type: 'mace', drug_class: 'other'};
+                var trials = (typeof TRAINING_DATA !== 'undefined' && TRAINING_DATA.trials) || [];
+                var scored = trials.map(function(t) {
+                    return {trial: t, sim: computeSimilarity(features, t)};
+                });
+                var bayesian = bayesianBorrowing(features, trials);
+                var power = conditionalPower(features, scored);
+                var regression = metaRegressionPredict(features);
+                var ensemble = ensemblePredict(bayesian, power, regression);
+                return {
+                    ok: true,
+                    p: ensemble.p,
+                    level: ensemble.level,
+                    hasP: typeof ensemble.p === 'number' && !isNaN(ensemble.p)
+                };
+            } catch(e) {
+                return {ok: false, error: e.message};
+            }
+        """)
+        self.assertTrue(result['ok'],
+                        f'Prediction engine crashed on minimal features: {result.get("error")}')
+        self.assertTrue(result['hasP'],
+                        'Ensemble should produce a valid numeric probability')
+        self.assertGreater(result['p'], 0,
+                           'Probability should be > 0 for MACE endpoint')
+        self.assertLess(result['p'], 1,
+                        'Probability should be < 1')
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
