@@ -316,17 +316,35 @@ def compute_metrics(predictions):
         tied = sum(0.5 for p in pos for nn in neg if p[0] == nn[0])
         auc = (concordant + tied) / (len(pos) * len(neg))
 
-    # Calibration slope (logistic regression of y on logit(p))
+    mean_y = sum(y) / n
+
+    # Calibration slope (logistic regression of y on logit(p) — NOT OLS on binary)
     logits = []
     for p in prob:
         p_clamp = max(0.001, min(0.999, p))
         logits.append(math.log(p_clamp / (1 - p_clamp)))
 
-    mean_logit = sum(logits) / n
-    mean_y = sum(y) / n
-    ssxy = sum((logits[i] - mean_logit) * (y[i] - mean_y) for i in range(n))
-    ssxx = sum((logits[i] - mean_logit)**2 for i in range(n))
-    cal_slope = ssxy / ssxx if ssxx > 0 else 0
+    # Newton-Raphson for logistic calibration: y ~ Bernoulli(expit(a*logit(p) + b))
+    a, b = 1.0, 0.0
+    for _ in range(50):
+        eta = [a * logits[i] + b for i in range(n)]
+        mu = [1 / (1 + math.exp(-max(-20, min(20, e)))) for e in eta]
+        w = [mu[i] * (1 - mu[i]) + 1e-12 for i in range(n)]
+        g_a = sum((y[i] - mu[i]) * logits[i] for i in range(n))
+        g_b = sum(y[i] - mu[i] for i in range(n))
+        H_aa = -sum(w[i] * logits[i]**2 for i in range(n))
+        H_ab = -sum(w[i] * logits[i] for i in range(n))
+        H_bb = -sum(w[i] for i in range(n))
+        det = H_aa * H_bb - H_ab**2
+        if abs(det) < 1e-15:
+            break
+        da = -(H_bb * g_a - H_ab * g_b) / det
+        db = -(H_aa * g_b - H_ab * g_a) / det
+        a += da
+        b += db
+        if abs(da) < 1e-8 and abs(db) < 1e-8:
+            break
+    cal_slope = a
 
     # Accuracy at 0.5 threshold
     correct = sum(1 for i in range(n) if (prob[i] >= 0.5) == (y[i] == 1))
@@ -375,8 +393,9 @@ def main():
         # Predict each test trial
         year_preds = []
         for target in test:
-            # Update historical class rate from training only
+            # Fix P0-2: overwrite historical_class_rate with train-only value to prevent leakage
             target_rate = class_rates.get(target['drug_class'], 0.5)
+            target['historical_class_rate'] = target_rate
 
             p_bayes, conf = bayesian_borrowing(target, train)
             p_power = conditional_power(target, target_rate)
@@ -405,15 +424,25 @@ def main():
     # Overall metrics
     overall = compute_metrics(all_predictions)
 
+    # P1-6: Per-component metrics
+    bayes_m = compute_metrics([{'actual': p['actual'], 'predicted': p['p_bayes']} for p in all_predictions])
+    power_m = compute_metrics([{'actual': p['actual'], 'predicted': p['p_power']} for p in all_predictions])
+    reg_m = compute_metrics([{'actual': p['actual'], 'predicted': p['p_reg']} for p in all_predictions])
+
     print(f"\n{'='*50}")
     print("OVERALL BACKTEST RESULTS")
     print(f"{'='*50}")
-    print(f"  Total predictions: {overall['n']}")
-    print(f"  AUC: {overall['auc']}")
-    print(f"  Brier Score: {overall['brier']}")
-    print(f"  Calibration Slope: {overall['cal_slope']}")
-    print(f"  Accuracy: {overall['accuracy']}")
-    print(f"  Base rate: {overall['base_rate']}")
+    if overall:
+        print(f"  Total predictions: {overall.get('n', 0)}")
+        print(f"  AUC: {overall.get('auc', '?')}")
+        print(f"  Brier Score: {overall.get('brier', '?')}")
+        print(f"  Calibration Slope: {overall.get('cal_slope', '?')}")
+        print(f"  Accuracy: {overall.get('accuracy', '?')}")
+        print(f"  Base rate: {overall.get('base_rate', '?')}")
+    else:
+        print("  Insufficient predictions for overall metrics")
+
+    print(f"\n  Per-component AUC: Bayesian={bayes_m.get('auc','?')}, Power={power_m.get('auc','?')}, Regression={reg_m.get('auc','?')}")
 
     # Export
     fields = list(all_predictions[0].keys())
