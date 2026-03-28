@@ -1,0 +1,97 @@
+{
+  "title": "CardioOracle: Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis (AUC 0.787)",
+  "slug": "cardiooracle",
+  "author": "Mahmood Ahmad",
+  "date": "2026-03-26",
+  "body": "Can the probability of a cardiovascular clinical trial meeting its primary endpoint be predicted from historical trial characteristics and design features? We trained an ensemble on 784 labelled Phase 2/3 and Phase 3 cardiovascular trials from the ClinicalTrials.gov AACT database, with outcomes assigned via automated p-value extraction, confidence interval heuristics, and manual landmark curation. CardioOracle combines Bayesian historical borrowing from similar completed trials, conditional power analysis using endpoint-specific formulas, and L2-regularised logistic meta-regression on 18 design features in a weighted ensemble. The model achieved AUC of 0.787 (95% CI 0.75 to 0.82, Brier score 0.169) in-sample and 0.745 (Brier 0.196) on 133 temporally held-out post-2020 trials. Leave-one-out analysis confirmed directional accuracy for major outcomes trials including DELIVER, FINEARTS-HF, and EMPACT-MI. Historical trial data contain quantitatively exploitable signals about cardiovascular trial success that can meaningfully inform prospective design decisions. Predictions are limited by the observational training data and cannot replace prospective trial monitoring or adaptive interim analyses.",
+  "word_count": 156,
+  "sentence_count": 7,
+  "sentences": [
+    {
+      "role": "Question",
+      "text": "Can the probability of a cardiovascular clinical trial meeting its primary endpoint be predicted from historical trial characteristics and design features?"
+    },
+    {
+      "role": "Dataset",
+      "text": "We trained an ensemble on 784 labelled Phase 2/3 and Phase 3 cardiovascular trials from the ClinicalTrials.gov AACT database, with outcomes assigned via automated p-value extraction, confidence interval heuristics, and manual landmark curation."
+    },
+    {
+      "role": "Method",
+      "text": "CardioOracle combines Bayesian historical borrowing from similar completed trials, conditional power analysis using endpoint-specific formulas, and L2-regularised logistic meta-regression on 18 design features in a weighted ensemble."
+    },
+    {
+      "role": "Primary result",
+      "text": "The model achieved AUC of 0.787 (95% CI 0.75 to 0.82, Brier score 0.169) in-sample and 0.745 (Brier 0.196) on 133 temporally held-out post-2020 trials."
+    },
+    {
+      "role": "Robustness",
+      "text": "Leave-one-out analysis confirmed directional accuracy for major outcomes trials including DELIVER, FINEARTS-HF, and EMPACT-MI."
+    },
+    {
+      "role": "Interpretation",
+      "text": "Historical trial data contain quantitatively exploitable signals about cardiovascular trial success that can meaningfully inform prospective design decisions."
+    },
+    {
+      "role": "Boundary",
+      "text": "Predictions are limited by the observational training data and cannot replace prospective trial monitoring or adaptive interim analyses."
+    }
+  ],
+  "notes": {
+    "app": "CardioOracle v1.0",
+    "data": "AACT database: 784 labelled CV trials + 133 temporal holdout",
+    "code": "https://github.com/mahmood726-cyber/cardiooracle",
+    "doi": "",
+    "version": "1.0",
+    "date": "2026-03-26",
+    "certainty": "moderate",
+    "validation": "DRAFT"
+  },
+  "type": "methods",
+  "primary_estimand": "AUC for trial outcome prediction",
+  "validation": {
+    "status": "pass",
+    "checks": [
+      {
+        "name": "single paragraph",
+        "ok": true,
+        "detail": "Body must not contain blank-line paragraph breaks."
+      },
+      {
+        "name": "sentence count",
+        "ok": true,
+        "detail": "Found 7 sentences."
+      },
+      {
+        "name": "word count",
+        "ok": true,
+        "detail": "Found 156 words."
+      },
+      {
+        "name": "no headings",
+        "ok": true,
+        "detail": "No markdown headings allowed in body."
+      },
+      {
+        "name": "no links",
+        "ok": true,
+        "detail": "No links or DOI links allowed in body."
+      },
+      {
+        "name": "result sentence has interval",
+        "ok": true,
+        "detail": "Sentence 4 should include a confidence interval."
+      },
+      {
+        "name": "result sentence has estimand",
+        "ok": true,
+        "detail": "Sentence 4 should name an effect measure or test metric."
+      },
+      {
+        "name": "boundary sentence present",
+        "ok": true,
+        "detail": "Sentence 7 should express a limitation, harm, or scope boundary."
+      }
+    ]
+  },
+  "schema": "e156-v0.2"
+}

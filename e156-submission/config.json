@@ -1,0 +1,61 @@
+{
+  "title": "CardioOracle: Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis (AUC 0.787)",
+  "slug": "cardiooracle",
+  "path": "C:\\Models\\CardioOracle",
+  "type": "methods",
+  "primary_estimand": "AUC for trial outcome prediction",
+  "certainty": "moderate",
+  "summary": "An ensemble of Bayesian borrowing, conditional power, and meta-regression predicts cardiovascular trial success with AUC 0.787 in-sample and 0.745 on temporal holdout.",
+  "study_count": 784,
+  "participant_count": null,
+  "body": "Can the probability of a cardiovascular clinical trial meeting its primary endpoint be predicted from historical trial characteristics and design features? We trained an ensemble on 784 labelled Phase 2/3 and Phase 3 cardiovascular trials from the ClinicalTrials.gov AACT database, with outcomes assigned via automated p-value extraction, confidence interval heuristics, and manual landmark curation. CardioOracle combines Bayesian historical borrowing from similar completed trials, conditional power analysis using endpoint-specific formulas, and L2-regularised logistic meta-regression on 18 design features in a weighted ensemble. The model achieved AUC of 0.787 (95% CI 0.75 to 0.82, Brier score 0.169) in-sample and 0.745 (Brier 0.196) on 133 temporally held-out post-2020 trials. Leave-one-out analysis confirmed directional accuracy for major outcomes trials including DELIVER, FINEARTS-HF, and EMPACT-MI. Historical trial data contain quantitatively exploitable signals about cardiovascular trial success that can meaningfully inform prospective design decisions. Predictions are limited by the observational training data and cannot replace prospective trial monitoring or adaptive interim analyses.",
+  "notes": {
+    "app": "CardioOracle v1.0",
+    "data": "AACT database: 784 labelled CV trials + 133 temporal holdout",
+    "code": "https://github.com/mahmood726-cyber/cardiooracle",
+    "doi": "",
+    "version": "1.0",
+    "date": "2026-03-26",
+    "certainty": "moderate",
+    "validation": "DRAFT"
+  },
+  "author": "Mahmood Ahmad",
+  "date": "2026-03-26",
+  "sentences": [
+    {
+      "role": "Question",
+      "text": "Can the probability of a cardiovascular clinical trial meeting its primary endpoint be predicted from historical trial characteristics and design features?"
+    },
+    {
+      "role": "Dataset",
+      "text": "We trained an ensemble on 784 labelled Phase 2/3 and Phase 3 cardiovascular trials from the ClinicalTrials.gov AACT database, with outcomes assigned via automated p-value extraction, confidence interval heuristics, and manual landmark curation."
+    },
+    {
+      "role": "Method",
+      "text": "CardioOracle combines Bayesian historical borrowing from similar completed trials, conditional power analysis using endpoint-specific formulas, and L2-regularised logistic meta-regression on 18 design features in a weighted ensemble."
+    },
+    {
+      "role": "Primary result",
+      "text": "The model achieved AUC of 0.787 (95% CI 0.75 to 0.82, Brier score 0.169) in-sample and 0.745 (Brier 0.196) on 133 temporally held-out post-2020 trials."
+    },
+    {
+      "role": "Robustness",
+      "text": "Leave-one-out analysis confirmed directional accuracy for major outcomes trials including DELIVER, FINEARTS-HF, and EMPACT-MI."
+    },
+    {
+      "role": "Interpretation",
+      "text": "Historical trial data contain quantitatively exploitable signals about cardiovascular trial success that can meaningfully inform prospective design decisions."
+    },
+    {
+      "role": "Boundary",
+      "text": "Predictions are limited by the observational training data and cannot replace prospective trial monitoring or adaptive interim analyses."
+    }
+  ],
+  "affiliation": "Tahir Heart Institute",
+  "email": "mahmood.ahmad2@nhs.net",
+  "references": [
+    "Roever C. Bayesian random-effects meta-analysis using the bayesmeta R package. J Stat Softw. 2020;93(6):1-51.",
+    "Higgins JPT, Thompson SG, Spiegelhalter DJ. A re-evaluation of random-effects meta-analysis. J R Stat Soc Ser A. 2009;172(1):137-159.",
+    "Borenstein M, Hedges LV, Higgins JPT, Rothstein HR. Introduction to Meta-Analysis. 2nd ed. Wiley; 2021."
+  ]
+}
