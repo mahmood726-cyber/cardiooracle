@@ -191,7 +191,7 @@ All training data, model coefficients, and source code are available at https://
 
 ## Funding
 
-[FUNDING_PLACEHOLDER]
+No external funding was received for this work.
 
 ## Competing interests
 

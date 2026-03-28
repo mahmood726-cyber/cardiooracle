@@ -1,0 +1,30 @@
+{
+  "title": "CardioOracle: A Browser-Based Cardiovascular Trial Outcome Predictor",
+  "description": "Open-access tool for predicting cardiovascular trial outcomes using a hybrid ensemble of Bayesian historical borrowing, conditional power analysis, and logistic meta-regression. Trained on 651 Phase 3 CV trials from AACT, temporally validated on 133 post-2020 trials (AUC = 0.745, calibration slope = 0.874). Includes labeled dataset, model coefficients, and 25 timestamped prospective predictions.",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Ahmad, Mahmood",
+      "affiliation": "Royal Free Hospital, London, United Kingdom",
+      "orcid": "0009-0003-7781-4478"
+    }
+  ],
+  "keywords": [
+    "cardiovascular trials",
+    "trial prediction",
+    "Bayesian historical borrowing",
+    "conditional power",
+    "meta-regression",
+    "clinical trial design",
+    "AACT"
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/mahmood726-cyber/cardiooracle",
+      "scheme": "url"
+    }
+  ]
+}
