@@ -705,6 +705,43 @@
       /* Expand all collapsibles for print */
       .collapsible-body { display: block !important; }
     }
+
+/* ═══ PROSPECTIVE VALIDATION TAB ═══════════════════════════════════ */
+.pv-panels { display: flex; flex-direction: column; gap: 1.5rem; }
+.pv-toolbar { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.pv-toolbar .search-input { max-width: 200px; }
+.pv-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+.pv-badge--recruiting { background: var(--green-bg); color: var(--success); }
+.pv-badge--active { background: var(--green-bg); color: var(--success); }
+.pv-badge--completed { background: var(--amber-bg); color: var(--warning); }
+.pv-badge--results { background: #cfe2ff; color: #084298; }
+[data-theme="dark"] .pv-badge--results { background: #031633; color: #6ea8fe; }
+.pv-badge--terminated { background: var(--red-bg); color: var(--danger); }
+.pv-badge--new { background: var(--tab-active); color: #fff; margin-left: 4px; font-size: 0.65rem; }
+.pv-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.pv-table th, .pv-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.pv-table th { font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; }
+.pv-table th:hover { color: var(--text-accent); }
+.pv-table tr.pv-correct { background: var(--green-bg); }
+.pv-table tr.pv-incorrect { background: var(--red-bg); }
+.pv-chain-ok { color: var(--success); font-weight: 600; }
+.pv-chain-broken { color: var(--danger); font-weight: 600; }
+.pv-progress-msg { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 1.1rem; }
+.pv-chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 900px) { .pv-chart-grid { grid-template-columns: 1fr; } }
+.pv-chart-box { background: var(--bg-card); border-radius: var(--radius); padding: 1rem; border: 1px solid var(--border); }
+.pv-chart-box h3 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+.pv-resolve-form { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; background: var(--bg-input); border-radius: var(--radius); margin-top: 0.5rem; }
+.pv-resolve-form label { font-weight: 500; font-size: 0.85rem; }
+.pv-resolve-form input, .pv-resolve-form select, .pv-resolve-form textarea { font-size: 0.85rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text); }
+.pv-resolve-form textarea { min-height: 50px; resize: vertical; }
+.pv-timeline-chart { width: 100%; min-height: 300px; }
+.pv-score-summary { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.pv-score-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1.25rem; text-align: center; min-width: 120px; }
+.pv-score-card .pv-score-val { font-size: 1.5rem; font-weight: 700; color: var(--text-accent); }
+.pv-score-card .pv-score-lbl { font-size: 0.75rem; color: var(--text-muted); }
+.pv-empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+.pv-empty-state p { margin: 0.5rem 0; }
   </style>
   <style>
     .tutorial-steps { display: flex; flex-direction: column; gap: 16px; }
