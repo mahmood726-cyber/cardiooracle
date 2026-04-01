@@ -4633,6 +4633,591 @@ function dismissTutorial() {
   } catch(e) {}
 })();
 
+/* ════════════════════════════════════════════════════════════════════
+   SECTION PV — PROSPECTIVE VALIDATION SYSTEM
+════════════════════════════════════════════════════════════════════ */
+(function initProspectiveValidation() {
+'use strict';
+
+// === CONSTANTS ===
+const PV_KEYS = {
+  cohort: 'cardiooracle_pv_cohort',
+  resolutions: 'cardiooracle_pv_resolutions',
+  queue: 'cardiooracle_pv_queue',
+  lastDiscover: 'cardiooracle_pv_last_discovery',
+  lastStatus: 'cardiooracle_pv_last_status_check',
+  seeded: 'cardiooracle_pv_seeded'
+};
+const PV_MODEL_VERSION = 'cardiooracle_v1.0';
+
+// === SEED DATA (placeholder — will be populated in Task 11) ===
+const SEED_PREDICTIONS = [];
+
+// === HASH CHAIN ENGINE ===
+
+async function pvComputeEntryHash(entry, prevHash) {
+  const parts = [
+    entry.nct_id,
+    entry.locked_at,
+    String(entry.prediction.p_ensemble),
+    String(entry.prediction.p_bayes),
+    String(entry.prediction.p_power),
+    String(entry.prediction.p_reg),
+    entry.trial_snapshot.drug_class,
+    entry.trial_snapshot.endpoint_type,
+    String(entry.trial_snapshot.enrollment ?? 0),
+    String(entry.trial_snapshot.duration_months ?? 0),
+    entry.training_hash,
+    prevHash ?? 'NULL'
+  ];
+  return sha256Hex(parts.join('|'));
+}
+
+async function pvComputeResolutionHash(res) {
+  const parts = [
+    res.nct_id, res.resolved_at, res.outcome,
+    String(res.evidence.p_value ?? ''),
+    String(res.evidence.hr ?? ''),
+    res.prediction_entry_hash
+  ];
+  return sha256Hex(parts.join('|'));
+}
+
+async function pvVerifyChain(chain) {
+  let prevHash = null;
+  for (let i = 0; i < chain.length; i++) {
+    const expected = await pvComputeEntryHash(chain[i], prevHash);
+    if (expected !== chain[i].entry_hash) return { valid: false, brokenAt: i };
+    prevHash = chain[i].entry_hash;
+  }
+  return { valid: true, brokenAt: null };
+}
+
+async function pvVerifyResolutions(resolutions) {
+  for (let i = 0; i < resolutions.length; i++) {
+    const expected = await pvComputeResolutionHash(resolutions[i]);
+    if (expected !== resolutions[i].resolution_hash) return { valid: false, brokenAt: i };
+  }
+  return { valid: true, brokenAt: null };
+}
+
+// === LOCALSTORAGE PERSISTENCE ===
+
+function pvLoad(key) {
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+  catch (_) { return null; }
+}
+function pvSave(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); }
+  catch (e) { console.warn('PV localStorage save failed:', e); }
+}
+function pvGetCohort() { return pvLoad(PV_KEYS.cohort) ?? []; }
+function pvSaveCohort(cohort) { pvSave(PV_KEYS.cohort, cohort); }
+function pvGetResolutions() { return pvLoad(PV_KEYS.resolutions) ?? []; }
+function pvSaveResolutions(res) { pvSave(PV_KEYS.resolutions, res); }
+function pvGetQueue() { return pvLoad(PV_KEYS.queue) ?? []; }
+function pvSaveQueue(q) { pvSave(PV_KEYS.queue, q); }
+
+// === SEED ON FIRST LOAD ===
+
+async function pvSeedIfNeeded() {
+  if (localStorage.getItem(PV_KEYS.seeded) === '1') return;
+  if (pvGetCohort().length > 0) { localStorage.setItem(PV_KEYS.seeded, '1'); return; }
+
+  const trainingJson = JSON.stringify((typeof TRAINING_DATA !== 'undefined' ? TRAINING_DATA.trials : null) ?? []);
+  const trainingHash = await sha256Hex(trainingJson);
+
+  const cohort = [];
+  let prevHash = null;
+  const seedTimestamp = '2026-03-25T10:43:16.485Z';
+
+  for (let i = 0; i < SEED_PREDICTIONS.length; i++) {
+    const s = SEED_PREDICTIONS[i];
+    const entry = {
+      seq: i + 1,
+      nct_id: s.nct_id,
+      locked_at: seedTimestamp,
+      prediction: {
+        p_ensemble: s.prediction.p_success,
+        p_bayes: s.prediction.components.bayesian,
+        p_power: s.prediction.components.power,
+        p_reg: s.prediction.components.regression,
+        confidence: s.prediction.level.toUpperCase()
+      },
+      trial_snapshot: {
+        title: s.title,
+        drug_class: s.features.drug_class,
+        endpoint_type: s.features.endpoint_type,
+        enrollment: s.features.enrollment,
+        duration_months: s.features.duration_months,
+        phase: 'PHASE3',
+        area: s.area
+      },
+      model_version: PV_MODEL_VERSION,
+      training_hash: trainingHash,
+      prev_hash: prevHash,
+      status: 'RECRUITING',
+      last_status_check: null,
+      entry_hash: ''
+    };
+    entry.entry_hash = await pvComputeEntryHash(entry, prevHash);
+    prevHash = entry.entry_hash;
+    cohort.push(entry);
+  }
+
+  pvSaveCohort(cohort);
+  localStorage.setItem(PV_KEYS.seeded, '1');
+}
+
+// === PREDICT AND LOCK ===
+
+async function pvPredictAndLock(ctgovData, area) {
+  const features = extractFeatures(ctgovData);
+  const trainingTrials = TRAINING_DATA.trials ?? [];
+  const scoredTrials = trainingTrials.map(t => ({ trial: t, sim: computeSimilarity(features, t) }));
+  const bayesian = bayesianBorrowing(features, trainingTrials, scoredTrials);
+  const power = conditionalPower(features, scoredTrials);
+  const regression = metaRegressionPredict(features);
+  const ensemble = ensemblePredict(bayesian, power, regression);
+
+  const nctId = ctgovData.protocolSection?.identificationModule?.nctId
+             ?? ctgovData.identificationModule?.nctId ?? '';
+
+  const trainingJson = JSON.stringify(trainingTrials);
+  const trainingHash = await sha256Hex(trainingJson);
+
+  const cohort = pvGetCohort();
+  const prevHash = cohort.length > 0 ? cohort[cohort.length - 1].entry_hash : null;
+
+  const entry = {
+    seq: cohort.length + 1,
+    nct_id: nctId,
+    locked_at: new Date().toISOString(),
+    prediction: {
+      p_ensemble: ensemble.p,
+      p_bayes: bayesian.p ?? null,
+      p_power: power.power ?? null,
+      p_reg: regression.p ?? null,
+      confidence: ensemble.levelLabel?.toUpperCase() ?? 'MODERATE'
+    },
+    trial_snapshot: {
+      title: features.title ?? nctId,
+      drug_class: features.drug_class ?? 'unknown',
+      endpoint_type: features.endpoint_type ?? 'unknown',
+      enrollment: features.enrollment,
+      duration_months: features.duration,
+      phase: (ctgovData.protocolSection?.designModule?.phases ?? [''])[0] ?? '',
+      area: area
+    },
+    model_version: PV_MODEL_VERSION,
+    training_hash: trainingHash,
+    prev_hash: prevHash,
+    status: 'RECRUITING',
+    last_status_check: null,
+    entry_hash: ''
+  };
+  entry.entry_hash = await pvComputeEntryHash(entry, prevHash);
+  cohort.push(entry);
+  pvSaveCohort(cohort);
+  return entry;
+}
+
+// === MANUAL ADD ===
+
+async function pvHandleAddTrial() {
+  const input = document.getElementById('pv-manualNctInput');
+  const nctId = (input.value ?? '').trim().toUpperCase();
+  if (!nctId || !nctId.startsWith('NCT')) {
+    pvShowStatus('pv-discoverStatus', 'Please enter a valid NCT ID.', 'var(--danger)');
+    return;
+  }
+  const cohort = pvGetCohort();
+  if (cohort.some(e => e.nct_id === nctId)) {
+    pvShowStatus('pv-discoverStatus', nctId + ' is already in the cohort.', 'var(--warning)');
+    return;
+  }
+  const queue = pvGetQueue();
+  if (queue.some(e => e.nct_id === nctId)) {
+    pvShowStatus('pv-discoverStatus', nctId + ' is already in the review queue.', 'var(--warning)');
+    return;
+  }
+
+  pvShowStatus('pv-discoverStatus', 'Fetching ' + nctId + '...', 'var(--text-muted)');
+  try {
+    const ctgovData = await fetchTrialFromCTGov(nctId);
+    const features = extractFeatures(ctgovData);
+    const predictability = pvAssessPredictability(features);
+    queue.push({
+      nct_id: nctId,
+      title: features.title ?? nctId,
+      drug_class: features.drug_class ?? 'unknown',
+      endpoint_type: features.endpoint_type ?? 'unknown',
+      enrollment: features.enrollment,
+      phase: (ctgovData.protocolSection?.designModule?.phases ?? [''])[0] ?? '',
+      predictability: predictability,
+      area: pvInferArea(features, ctgovData),
+      _ctgovData: ctgovData
+    });
+    pvSaveQueue(queue);
+    pvRenderReviewQueue();
+    input.value = '';
+    pvShowStatus('pv-discoverStatus', nctId + ' added to review queue.', 'var(--success)');
+  } catch (err) {
+    pvShowStatus('pv-discoverStatus', 'Error: ' + String(err), 'var(--danger)');
+  }
+}
+
+function pvAssessPredictability(features) {
+  let score = 0;
+  if (features.drug_class && features.drug_class !== 'unknown') score++;
+  if (features.endpoint_type && features.endpoint_type !== 'unknown') score++;
+  if (features.enrollment !== null && features.enrollment > 0) score++;
+  if (score === 3) return 'Ready';
+  if (score >= 1) return 'Partial';
+  return 'Skip';
+}
+
+function pvInferArea(features, ctgovData) {
+  const conds = ((ctgovData.protocolSection?.conditionsModule?.conditions) ?? []).join(' ').toLowerCase();
+  if (/atrial\s*(fib|flut)/i.test(conds)) return 'af';
+  if (/coronary|acute coronary|myocardial infarction|angina/i.test(conds)) return 'cad';
+  return 'cardiorenal';
+}
+
+function pvShowStatus(elId, text, color) {
+  const el = document.getElementById(elId);
+  if (el) { el.textContent = text; el.style.color = color ?? 'var(--text-muted)'; }
+}
+
+// === AUTO DISCOVERY ===
+
+const PV_DISCOVERY_QUERIES = [
+  { area: 'cardiorenal', conditions: 'heart failure OR chronic kidney disease OR cardiorenal' },
+  { area: 'cad', conditions: 'coronary artery disease OR acute coronary syndrome OR myocardial infarction' },
+  { area: 'af', conditions: 'atrial fibrillation OR atrial flutter' }
+];
+
+async function pvAutoDiscover() {
+  const lastCheck = localStorage.getItem(PV_KEYS.lastDiscover);
+  if (lastCheck) {
+    const elapsed = Date.now() - new Date(lastCheck).getTime();
+    if (elapsed < 3600000) {
+      pvShowStatus('pv-discoverStatus', 'Last checked ' + Math.round(elapsed/60000) + 'm ago. Try again later.', 'var(--warning)');
+      return;
+    }
+  }
+
+  const cohort = pvGetCohort();
+  const queue = pvGetQueue();
+  const existingIds = new Set([...cohort.map(e => e.nct_id), ...queue.map(e => e.nct_id)]);
+  pvShowStatus('pv-discoverStatus', 'Discovering trials (0/' + PV_DISCOVERY_QUERIES.length + ')...', 'var(--text-muted)');
+  let totalFound = 0;
+
+  for (let qi = 0; qi < PV_DISCOVERY_QUERIES.length; qi++) {
+    const q = PV_DISCOVERY_QUERIES[qi];
+    pvShowStatus('pv-discoverStatus', 'Searching ' + q.area + ' (' + (qi+1) + '/' + PV_DISCOVERY_QUERIES.length + ')...', 'var(--text-muted)');
+    try {
+      const url = 'https://clinicaltrials.gov/api/v2/studies?query.cond=' +
+        encodeURIComponent(q.conditions) +
+        '&filter.overallStatus=RECRUITING&filter.phase=PHASE2,PHASE3&fields=protocolSection&pageSize=50';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const resp = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const studies = data.studies ?? [];
+      for (const study of studies) {
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        if (!nctId || existingIds.has(nctId)) continue;
+        const features = extractFeatures(study);
+        const predictability = pvAssessPredictability(features);
+        if (predictability === 'Skip') continue;
+        queue.push({
+          nct_id: nctId, title: features.title ?? nctId,
+          drug_class: features.drug_class ?? 'unknown',
+          endpoint_type: features.endpoint_type ?? 'unknown',
+          enrollment: features.enrollment,
+          phase: (study.protocolSection?.designModule?.phases ?? [''])[0] ?? '',
+          predictability: predictability, area: q.area, _ctgovData: study
+        });
+        existingIds.add(nctId);
+        totalFound++;
+      }
+    } catch (err) { console.warn('PV discovery error for ' + q.area + ':', err); }
+    if (qi < PV_DISCOVERY_QUERIES.length - 1) await new Promise(r => setTimeout(r, 1000));
+  }
+
+  pvSaveQueue(queue);
+  localStorage.setItem(PV_KEYS.lastDiscover, new Date().toISOString());
+  pvRenderReviewQueue();
+  pvShowStatus('pv-discoverStatus', 'Found ' + totalFound + ' new candidate' + (totalFound !== 1 ? 's' : '') + '.', 'var(--success)');
+}
+
+// === REVIEW QUEUE ===
+
+function pvRenderReviewQueue() {
+  const queue = pvGetQueue();
+  const section = document.getElementById('pv-reviewSection');
+  const tbody = document.getElementById('pv-reviewTbody');
+  const countEl = document.getElementById('pv-reviewCount');
+  const reviewable = queue.filter(q => q._ctgovData || q.nct_id);
+  countEl.textContent = String(reviewable.length);
+  section.style.display = reviewable.length > 0 ? '' : 'none';
+  tbody.innerHTML = '';
+  for (const item of reviewable) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><code>' + pvEsc(item.nct_id) + '</code></td>' +
+      '<td>' + pvEsc((item.title ?? '').slice(0, 60)) + (item.title && item.title.length > 60 ? '...' : '') + '</td>' +
+      '<td>' + pvEsc(item.drug_class) + '</td><td>' + pvEsc(item.endpoint_type) + '</td>' +
+      '<td>' + (item.enrollment ?? '?') + '</td><td>' + pvEsc(item.phase) + '</td>' +
+      '<td>' + pvEsc(item.predictability) + '</td><td></td>';
+    const actionCell = tr.lastElementChild;
+    const approveBtn = document.createElement('button');
+    approveBtn.className = 'search-btn';
+    approveBtn.textContent = 'Approve';
+    approveBtn.style.cssText = 'padding:2px 8px;font-size:0.8rem;margin-right:4px';
+    approveBtn.addEventListener('click', () => pvApproveFromQueue(item.nct_id));
+    const rejectBtn = document.createElement('button');
+    rejectBtn.textContent = 'Reject';
+    rejectBtn.style.cssText = 'padding:2px 8px;font-size:0.8rem;background:var(--danger);color:#fff;border:none;border-radius:4px;cursor:pointer';
+    rejectBtn.addEventListener('click', () => pvRejectFromQueue(item.nct_id));
+    actionCell.appendChild(approveBtn);
+    actionCell.appendChild(rejectBtn);
+    tbody.appendChild(tr);
+  }
+}
+
+async function pvApproveFromQueue(nctId) {
+  const queue = pvGetQueue();
+  const idx = queue.findIndex(q => q.nct_id === nctId);
+  if (idx === -1) return;
+  const item = queue[idx];
+  let ctgovData = item._ctgovData;
+  if (!ctgovData) {
+    try { ctgovData = await fetchTrialFromCTGov(nctId); }
+    catch (err) { pvShowStatus('pv-discoverStatus', 'Failed to fetch ' + nctId + ': ' + err, 'var(--danger)'); return; }
+  }
+  try {
+    await pvPredictAndLock(ctgovData, item.area ?? 'cardiorenal');
+    queue.splice(idx, 1);
+    const cleanQueue = queue.map(q => { const { _ctgovData, ...rest } = q; return rest; });
+    pvSaveQueue(cleanQueue);
+    pvRenderReviewQueue();
+    pvRenderCohortTable();
+    pvShowStatus('pv-discoverStatus', nctId + ' locked into cohort.', 'var(--success)');
+  } catch (err) { pvShowStatus('pv-discoverStatus', 'Error locking ' + nctId + ': ' + err, 'var(--danger)'); }
+}
+
+function pvRejectFromQueue(nctId) {
+  let queue = pvGetQueue();
+  queue = queue.filter(q => q.nct_id !== nctId);
+  pvSaveQueue(queue);
+  pvRenderReviewQueue();
+}
+
+function pvEsc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// === COHORT TABLE ===
+
+function pvRenderCohortTable() {
+  const cohort = pvGetCohort();
+  const resolutions = pvGetResolutions();
+  const resMap = Object.fromEntries(resolutions.map(r => [r.nct_id, r]));
+  const tbody = document.getElementById('pv-cohortTbody');
+  const countEl = document.getElementById('pv-cohortCount');
+  countEl.textContent = String(cohort.length);
+  tbody.innerHTML = '';
+  for (const entry of cohort) {
+    const res = resMap[entry.nct_id];
+    const tr = document.createElement('tr');
+    const statusBadge = pvStatusBadge(entry.status, entry._statusChanged);
+    const pFmt = (entry.prediction.p_ensemble * 100).toFixed(1) + '%';
+    tr.innerHTML =
+      '<td>' + entry.seq + '</td>' +
+      '<td><code>' + pvEsc(entry.nct_id) + '</code></td>' +
+      '<td>' + pvEsc(entry.trial_snapshot.area ?? '') + '</td>' +
+      '<td>' + pvEsc(entry.trial_snapshot.drug_class) + '</td>' +
+      '<td>' + pvEsc(entry.trial_snapshot.endpoint_type) + '</td>' +
+      '<td><strong>' + pFmt + '</strong></td>' +
+      '<td>' + pvEsc(entry.prediction.confidence) + '</td>' +
+      '<td style="font-size:0.75rem">' + pvEsc(entry.locked_at.slice(0, 10)) + '</td>' +
+      '<td>' + statusBadge + (res ? ' <span style="font-size:0.75rem;font-weight:600">' + pvEsc(res.outcome) + '</span>' : '') + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function pvStatusBadge(status, isNew) {
+  const s = (status ?? 'UNKNOWN').toUpperCase();
+  let cls = 'pv-badge ';
+  if (s.includes('RECRUIT') || s.includes('ACTIVE')) cls += 'pv-badge--recruiting';
+  else if (s.includes('COMPLETED')) cls += 'pv-badge--completed';
+  else if (s.includes('RESULT')) cls += 'pv-badge--results';
+  else if (s.includes('TERMIN') || s.includes('WITHDR') || s.includes('SUSPEND')) cls += 'pv-badge--terminated';
+  else cls += 'pv-badge--recruiting';
+  let label = s.replace(/_/g, ' ');
+  if (label.length > 15) label = label.slice(0, 15) + '...';
+  let html = '<span class="' + cls + '">' + pvEsc(label) + '</span>';
+  if (isNew) html += '<span class="pv-badge pv-badge--new">NEW</span>';
+  return html;
+}
+
+// === STATUS MONITORING ===
+
+async function pvCheckAllStatuses() {
+  const cohort = pvGetCohort();
+  if (cohort.length === 0) { pvShowStatus('pv-statusProgress', 'No trials in cohort.', 'var(--warning)'); return; }
+  const btn = document.getElementById('pv-checkStatusBtn');
+  btn.disabled = true;
+  let changedCount = 0;
+  for (let i = 0; i < cohort.length; i++) {
+    pvShowStatus('pv-statusProgress', 'Checking ' + (i+1) + '/' + cohort.length + '...', 'var(--text-muted)');
+    try {
+      const url = 'https://clinicaltrials.gov/api/v2/studies/' +
+        encodeURIComponent(cohort[i].nct_id) + '?fields=protocolSection.statusModule';
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 10000);
+      const resp = await fetch(url, { signal: controller.signal });
+      clearTimeout(tid);
+      if (resp.ok) {
+        const data = await resp.json();
+        const newStatus = data.protocolSection?.statusModule?.overallStatus ?? cohort[i].status;
+        const hasResults = !!(data.hasResults);
+        const oldStatus = cohort[i].status;
+        cohort[i].status = hasResults ? 'HAS_RESULTS' : newStatus.toUpperCase().replace(/ /g, '_');
+        cohort[i]._statusChanged = (cohort[i].status !== (oldStatus ?? '').toUpperCase().replace(/ /g, '_'));
+        if (cohort[i]._statusChanged) changedCount++;
+        cohort[i].last_status_check = new Date().toISOString();
+      }
+    } catch (err) { console.warn('PV status check failed for ' + cohort[i].nct_id + ':', err); }
+    if (i < cohort.length - 1) await new Promise(r => setTimeout(r, 500));
+  }
+  pvSaveCohort(cohort);
+  localStorage.setItem(PV_KEYS.lastStatus, new Date().toISOString());
+  pvRenderCohortTable();
+  pvUpdateResolveQueue();
+  btn.disabled = false;
+  pvShowStatus('pv-statusProgress', 'Done. ' + changedCount + ' status change' + (changedCount !== 1 ? 's' : '') + ' detected.', changedCount > 0 ? 'var(--success)' : 'var(--text-muted)');
+}
+
+// === CHAIN VERIFICATION UI ===
+
+async function pvVerifyChainUI() {
+  const statusEl = document.getElementById('pv-chainStatus');
+  statusEl.textContent = 'Verifying...';
+  statusEl.className = '';
+  const cohort = pvGetCohort();
+  const resolutions = pvGetResolutions();
+  const chainResult = await pvVerifyChain(cohort);
+  const resResult = await pvVerifyResolutions(resolutions);
+  if (chainResult.valid && resResult.valid) {
+    statusEl.textContent = 'Chain integrity verified (' + cohort.length + ' predictions, ' + resolutions.length + ' resolutions).';
+    statusEl.className = 'pv-chain-ok';
+  } else {
+    let msg = 'CHAIN BROKEN: ';
+    if (!chainResult.valid) msg += 'Prediction entry #' + (chainResult.brokenAt + 1) + ' tampered. ';
+    if (!resResult.valid) msg += 'Resolution entry #' + (resResult.brokenAt + 1) + ' tampered.';
+    statusEl.textContent = msg;
+    statusEl.className = 'pv-chain-broken';
+  }
+}
+
+// === OUTCOME RESOLUTION ===
+
+function pvUpdateResolveQueue() {
+  const cohort = pvGetCohort();
+  const resolutions = pvGetResolutions();
+  const resolvedIds = new Set(resolutions.map(r => r.nct_id));
+  const candidates = cohort.filter(e => {
+    if (resolvedIds.has(e.nct_id)) return false;
+    const s = (e.status ?? '').toUpperCase();
+    return s.includes('COMPLETED') || s.includes('RESULT') || s.includes('TERMIN');
+  });
+  const section = document.getElementById('pv-resolveSection');
+  const countEl = document.getElementById('pv-resolveCount');
+  const list = document.getElementById('pv-resolveList');
+  countEl.textContent = String(candidates.length);
+  section.style.display = candidates.length > 0 ? '' : 'none';
+  list.innerHTML = '';
+  for (const entry of candidates) {
+    const div = document.createElement('div');
+    div.className = 'pv-resolve-form';
+    div.setAttribute('data-nctid', entry.nct_id);
+    const isSafetyTerminated = (entry.status ?? '').toUpperCase().includes('TERMIN');
+    div.innerHTML =
+      '<label><strong>' + pvEsc(entry.nct_id) + '</strong> — ' + pvEsc(entry.trial_snapshot.title) +
+      ' <span class="pv-badge pv-badge--' + (isSafetyTerminated ? 'terminated' : 'completed') + '">' + pvEsc(entry.status) + '</span></label>' +
+      '<div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">' +
+        '<label>Outcome: <select class="pv-resolve-outcome">' +
+          '<option value="">Select</option>' +
+          '<option value="SUCCESS">Success</option>' +
+          '<option value="FAILURE">Failure</option>' +
+          '<option value="SAFETY_FAILURE"' + (isSafetyTerminated ? ' selected' : '') + '>Safety Failure</option>' +
+        '</select></label>' +
+        '<label>p-value: <input type="text" class="pv-resolve-pval" placeholder="e.g. 0.003" style="width:80px"></label>' +
+        '<label>Effect (HR/OR): <input type="text" class="pv-resolve-effect" placeholder="e.g. 0.82" style="width:80px"></label>' +
+        '<label>CI lower: <input type="text" class="pv-resolve-ci-lo" placeholder="0.72" style="width:70px"></label>' +
+        '<label>CI upper: <input type="text" class="pv-resolve-ci-hi" placeholder="0.94" style="width:70px"></label>' +
+      '</div>' +
+      '<label>DOI / Source: <input type="text" class="pv-resolve-doi" placeholder="https://doi.org/..." style="width:100%"></label>' +
+      '<label>Notes: <textarea class="pv-resolve-notes" placeholder="Optional evidence notes"></textarea></label>' +
+      '<button class="search-btn pv-resolve-confirm" type="button" style="align-self:flex-start">Confirm Resolution</button>';
+    list.appendChild(div);
+    div.querySelector('.pv-resolve-confirm').addEventListener('click', () => pvConfirmResolution(entry.nct_id, div));
+  }
+}
+
+async function pvConfirmResolution(nctId, formDiv) {
+  const outcome = formDiv.querySelector('.pv-resolve-outcome').value;
+  if (!outcome) { pvShowStatus('pv-statusProgress', 'Please select an outcome.', 'var(--danger)'); return; }
+  const parseFlt = (sel) => { const v = parseFloat(formDiv.querySelector(sel).value); return isFinite(v) ? v : null; };
+  const cohort = pvGetCohort();
+  const entry = cohort.find(e => e.nct_id === nctId);
+  if (!entry) return;
+  const resolution = {
+    nct_id: nctId,
+    resolved_at: new Date().toISOString(),
+    outcome: outcome,
+    evidence: {
+      p_value: parseFlt('.pv-resolve-pval'),
+      hr: parseFlt('.pv-resolve-effect'),
+      ci_lower: parseFlt('.pv-resolve-ci-lo'),
+      ci_upper: parseFlt('.pv-resolve-ci-hi'),
+      doi: formDiv.querySelector('.pv-resolve-doi').value.trim() || null,
+      notes: formDiv.querySelector('.pv-resolve-notes').value.trim() || null,
+      source: 'manual'
+    },
+    prediction_entry_hash: entry.entry_hash,
+    resolution_hash: ''
+  };
+  resolution.resolution_hash = await pvComputeResolutionHash(resolution);
+  const resolutions = pvGetResolutions();
+  resolutions.push(resolution);
+  pvSaveResolutions(resolutions);
+  pvUpdateResolveQueue();
+  pvRenderCohortTable();
+  pvShowStatus('pv-statusProgress', nctId + ' resolved as ' + outcome + '.', 'var(--success)');
+}
+
+// Expose PV functions to global scope for event wiring in Task 10
+window.pvHandleAddTrial = pvHandleAddTrial;
+window.pvAutoDiscover = pvAutoDiscover;
+window.pvCheckAllStatuses = pvCheckAllStatuses;
+window.pvVerifyChainUI = pvVerifyChainUI;
+window.pvRenderCohortTable = pvRenderCohortTable;
+window.pvRenderReviewQueue = pvRenderReviewQueue;
+window.pvUpdateResolveQueue = pvUpdateResolveQueue;
+window.pvSeedIfNeeded = pvSeedIfNeeded;
+window.pvGetCohort = pvGetCohort;
+window.pvGetResolutions = pvGetResolutions;
+
+})();
+
 </script>
 
 </body>
