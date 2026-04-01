@@ -828,6 +828,15 @@
     tabindex="-1"
     type="button"
   >WebR Validation</button>
+  <button
+    class="tab-btn"
+    role="tab"
+    id="tab-validation"
+    aria-selected="false"
+    aria-controls="panel-validation"
+    tabindex="-1"
+    type="button"
+  >Prospective Validation</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════
@@ -1230,6 +1239,137 @@
       <div id="webrStatus" style="margin-top:12px" aria-live="polite" aria-atomic="true"></div>
     </div>
     <div id="webrResults"></div>
+  </section>
+
+  <!-- ── Prospective Validation Panel ─────────────────────────────────────────── -->
+  <section
+    id="panel-validation"
+    class="tab-panel tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-validation"
+  >
+    <div class="pv-panels">
+
+      <!-- ── Panel 1: Cohort Management ──────────────────────── -->
+      <div class="card">
+        <h2 class="card-title">Cohort Management</h2>
+        <div class="pv-toolbar">
+          <input type="text" class="search-input pv-toolbar-input" id="pv-manualNctInput"
+                 placeholder="NCT ID (e.g. NCT06307652)" aria-label="Enter NCT ID to add">
+          <button class="search-btn" id="pv-addBtn" type="button">Add Trial</button>
+          <button class="search-btn" id="pv-discoverBtn" type="button">Auto-Discover</button>
+          <span id="pv-discoverStatus" style="font-size:0.8rem;color:var(--text-muted)" aria-live="polite"></span>
+        </div>
+
+        <!-- Review Queue -->
+        <div id="pv-reviewSection" style="display:none;margin-top:1rem">
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Review Queue
+            <span id="pv-reviewCount" class="pv-badge pv-badge--results">0</span>
+          </h3>
+          <div style="overflow-x:auto">
+            <table class="pv-table" id="pv-reviewTable">
+              <thead>
+                <tr>
+                  <th>NCT ID</th><th>Title</th><th>Drug Class</th><th>Endpoint</th>
+                  <th>Enrollment</th><th>Phase</th><th>Predictability</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="pv-reviewTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Locked Cohort -->
+        <div style="margin-top:1rem">
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Locked Cohort
+            <span id="pv-cohortCount" class="pv-badge pv-badge--recruiting">0</span>
+          </h3>
+          <div style="overflow-x:auto">
+            <table class="pv-table" id="pv-cohortTable">
+              <thead>
+                <tr>
+                  <th>Seq</th><th>NCT ID</th><th>Area</th><th>Drug</th><th>Endpoint</th>
+                  <th>P(success)</th><th>Confidence</th><th>Locked</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="pv-cohortTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Panel 2: Monitoring ─────────────────────────────── -->
+      <div class="card">
+        <h2 class="card-title">Monitoring &amp; Resolution</h2>
+        <div class="pv-toolbar">
+          <button class="search-btn" id="pv-checkStatusBtn" type="button">Check All Statuses</button>
+          <button class="search-btn" id="pv-verifyChainBtn" type="button">Verify Chain</button>
+          <span id="pv-chainStatus" aria-live="polite"></span>
+          <span id="pv-statusProgress" style="font-size:0.8rem;color:var(--text-muted)" aria-live="polite"></span>
+        </div>
+
+        <!-- Resolution Queue -->
+        <div id="pv-resolveSection" style="display:none;margin-top:1rem">
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Resolution Queue
+            <span id="pv-resolveCount" class="pv-badge pv-badge--completed">0</span>
+          </h3>
+          <div id="pv-resolveList"></div>
+        </div>
+
+        <!-- Timeline Chart -->
+        <div style="margin-top:1rem">
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Trial Timeline</h3>
+          <div id="pv-timelineChart" class="pv-timeline-chart"></div>
+        </div>
+      </div>
+
+      <!-- ── Panel 3: Analysis Dashboard ─────────────────────── -->
+      <div class="card">
+        <h2 class="card-title">Analysis Dashboard</h2>
+        <div id="pv-dashboardMsg" class="pv-progress-msg" aria-live="polite">
+          0 / 0 trials resolved &mdash; need 5+ for analysis.
+        </div>
+        <div id="pv-dashboard" style="display:none">
+          <!-- Score Summary Cards -->
+          <div class="pv-score-summary" id="pv-scoreSummary"></div>
+
+          <!-- Scorecard Table -->
+          <div style="overflow-x:auto;margin-bottom:1.5rem">
+            <table class="pv-table" id="pv-scorecardTable">
+              <thead>
+                <tr>
+                  <th>#</th><th>NCT ID</th><th>Area</th><th>Drug</th><th>Endpoint</th>
+                  <th>P(success)</th><th>Actual</th><th>Correct?</th><th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="pv-scorecardTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Chart Grid -->
+          <div class="pv-chart-grid">
+            <div class="pv-chart-box"><h3>ROC Curve</h3><div id="pv-rocChart"></div></div>
+            <div class="pv-chart-box"><h3>Calibration Plot</h3><div id="pv-calChart"></div></div>
+            <div class="pv-chart-box"><h3>Brier Decomposition</h3><div id="pv-brierChart"></div></div>
+            <div class="pv-chart-box"><h3>Decision Curve</h3><div id="pv-dcaChart"></div></div>
+            <div class="pv-chart-box"><h3>Component Comparison</h3><div id="pv-compChart"></div></div>
+            <div class="pv-chart-box"><h3>Temporal Tracking</h3><div id="pv-tempChart"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Export / Import ─────────────────────────────────── -->
+      <div class="card">
+        <h2 class="card-title">Data Management</h2>
+        <div class="pv-toolbar">
+          <button class="search-btn" id="pv-exportBtn" type="button">Export Validation Bundle</button>
+          <button class="search-btn" id="pv-importBtn" type="button">Import Validation Bundle</button>
+          <input type="file" id="pv-importFile" accept=".json" style="display:none" aria-label="Select JSON file to import">
+          <span id="pv-importStatus" style="font-size:0.8rem" aria-live="polite"></span>
+        </div>
+      </div>
+
+    </div>
   </section>
 
 </main>
