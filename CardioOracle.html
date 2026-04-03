@@ -5127,6 +5127,7 @@ async function pvCheckAllStatuses() {
   localStorage.setItem(PV_KEYS.lastStatus, new Date().toISOString());
   pvRenderCohortTable();
   pvUpdateResolveQueue();
+  pvRenderTimeline();
   btn.disabled = false;
   pvShowStatus('pv-statusProgress', 'Done. ' + changedCount + ' status change' + (changedCount !== 1 ? 's' : '') + ' detected.', changedCount > 0 ? 'var(--success)' : 'var(--text-muted)');
 }
@@ -5227,6 +5228,7 @@ async function pvConfirmResolution(nctId, formDiv) {
   pvSaveResolutions(resolutions);
   pvUpdateResolveQueue();
   pvRenderCohortTable();
+  pvRenderDashboard();
   pvShowStatus('pv-statusProgress', nctId + ' resolved as ' + outcome + '.', 'var(--success)');
 }
 

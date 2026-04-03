@@ -204,10 +204,10 @@ class TestCardioOracleShell(unittest.TestCase):
     # ── Test 02 ───────────────────────────────────────────────────────────────
 
     def test_02_tabs_present(self):
-        """Exactly 5 tab buttons (.tab-btn) must be rendered."""
+        """Exactly 6 tab buttons (.tab-btn) must be rendered."""
         tabs = self.driver.find_elements(By.CSS_SELECTOR, '.tab-btn')
-        self.assertEqual(len(tabs), 5,
-                         f'Expected 5 .tab-btn elements, found {len(tabs)}')
+        self.assertEqual(len(tabs), 6,
+                         f'Expected 6 .tab-btn elements, found {len(tabs)}')
 
     # ── Test 03 ───────────────────────────────────────────────────────────────
 
@@ -342,18 +342,18 @@ class TestCardioOracleShell(unittest.TestCase):
     # ── Test 08 ───────────────────────────────────────────────────────────────
 
     def test_08_aria_roles_present(self):
-        """ARIA roles: one tablist, 5 tab, 5 tabpanel elements must be present."""
+        """ARIA roles: one tablist, 6 tab, 6 tabpanel elements must be present."""
         tablist = self.driver.find_elements(By.CSS_SELECTOR, '[role="tablist"]')
         self.assertEqual(len(tablist), 1,
                          f'Expected 1 role="tablist", found {len(tablist)}')
 
         tab_els = self.driver.find_elements(By.CSS_SELECTOR, '[role="tab"]')
-        self.assertEqual(len(tab_els), 5,
-                         f'Expected 5 role="tab" elements, found {len(tab_els)}')
+        self.assertEqual(len(tab_els), 6,
+                         f'Expected 6 role="tab" elements, found {len(tab_els)}')
 
         tabpanel_els = self.driver.find_elements(By.CSS_SELECTOR, '[role="tabpanel"]')
-        self.assertEqual(len(tabpanel_els), 5,
-                         f'Expected 5 role="tabpanel" elements, found {len(tabpanel_els)}')
+        self.assertEqual(len(tabpanel_els), 6,
+                         f'Expected 6 role="tabpanel" elements, found {len(tabpanel_els)}')
 
 
 class TestCardioOraclePhase2to4(unittest.TestCase):
@@ -835,6 +835,416 @@ class TestCardioOraclePhase2to4(unittest.TestCase):
                            'Probability should be > 0 for MACE endpoint')
         self.assertLess(result['p'], 1,
                         'Probability should be < 1')
+
+
+class TestProspectiveValidation(unittest.TestCase):
+    """Prospective Validation (6th tab) tests: tab presence, panel structure,
+    seed data, hash chain, PRNG, statistical functions, export/import.
+
+    Uses a fresh browser session.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = None
+        for factory in (_chrome_driver, _edge_driver):
+            try:
+                cls.driver = factory()
+                break
+            except Exception:
+                continue
+        if cls.driver is None:
+            raise unittest.SkipTest('No working browser driver found')
+        cls.driver.get(FILE_URL)
+        time.sleep(3)
+        # Clear PV localStorage to trigger fresh seed
+        cls.driver.execute_script("""
+            localStorage.removeItem('cardiooracle_pv_cohort');
+            localStorage.removeItem('cardiooracle_pv_resolutions');
+            localStorage.removeItem('cardiooracle_pv_queue');
+            localStorage.removeItem('cardiooracle_pv_seeded');
+            localStorage.removeItem('cardiooracle_pv_last_discovery');
+            localStorage.removeItem('cardiooracle_pv_last_status_check');
+        """)
+        cls.driver.get(FILE_URL)
+        time.sleep(3)
+        # Dismiss tutorial overlay if visible
+        cls.driver.execute_script("""
+            var overlay = document.getElementById('tutorialOverlay');
+            if (overlay) overlay.classList.add('hidden');
+            if (typeof dismissTutorial === 'function') dismissTutorial();
+        """)
+        time.sleep(1)
+        # Wait for PV seed to complete (async operation)
+        for _ in range(20):
+            seeded = cls.driver.execute_script(
+                "return localStorage.getItem('cardiooracle_pv_seeded') === '1';"
+            )
+            if seeded:
+                break
+            time.sleep(0.5)
+        time.sleep(0.5)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.driver:
+            cls.driver.quit()
+
+    def _click_tab(self, tab_id, panel_id):
+        # Use JS click to avoid sticky header interception in headless mode
+        self.driver.execute_script(
+            "document.getElementById(arguments[0]).click();", tab_id
+        )
+        time.sleep(0.5)
+
+    # ── Test 31: PV tab button exists ────────────────────────────────────────
+
+    def test_31_pv_tab_button_exists(self):
+        """Prospective Validation tab button must exist with correct ARIA."""
+        btn = self.driver.find_element(By.ID, 'tab-validation')
+        self.assertIsNotNone(btn, 'tab-validation button should exist')
+        self.assertEqual(btn.get_attribute('role'), 'tab')
+        self.assertEqual(btn.get_attribute('aria-controls'), 'panel-validation')
+        self.assertIn('Prospective', btn.text)
+
+    # ── Test 32: PV panel structure ──────────────────────────────────────────
+
+    def test_32_pv_panel_structure(self):
+        """Panel-validation must contain cohort management, monitoring, dashboard, and data management cards."""
+        self._click_tab('tab-validation', 'panel-validation')
+        panel = self.driver.find_element(By.ID, 'panel-validation')
+        self.assertIn('active', panel.get_attribute('class'),
+                      'panel-validation should be active after clicking tab')
+
+        # Check key elements exist
+        for el_id in ['pv-manualNctInput', 'pv-addBtn', 'pv-discoverBtn',
+                      'pv-checkStatusBtn', 'pv-verifyChainBtn',
+                      'pv-exportBtn', 'pv-importBtn', 'pv-cohortTable',
+                      'pv-reviewTable', 'pv-timelineChart', 'pv-dashboard',
+                      'pv-rocChart', 'pv-calChart', 'pv-brierChart',
+                      'pv-dcaChart', 'pv-compChart', 'pv-tempChart']:
+            el = self.driver.find_elements(By.ID, el_id)
+            self.assertEqual(len(el), 1, f'Element #{el_id} should exist exactly once')
+
+    # ── Test 33: Seed data loads 25 predictions ──────────────────────────────
+
+    def test_33_seed_data_loaded(self):
+        """On first load, 25 seed predictions should be loaded into localStorage."""
+        self._click_tab('tab-validation', 'panel-validation')
+        count = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            return cohort.length;
+        """)
+        self.assertEqual(count, 25, f'Expected 25 seed predictions, got {count}')
+
+    # ── Test 34: Cohort table renders seed data ──────────────────────────────
+
+    def test_34_cohort_table_renders(self):
+        """Cohort table should display 25 rows after seeding."""
+        self._click_tab('tab-validation', 'panel-validation')
+        rows = self.driver.find_elements(By.CSS_SELECTOR, '#pv-cohortTbody tr')
+        self.assertEqual(len(rows), 25, f'Expected 25 cohort rows, got {len(rows)}')
+
+    # ── Test 35: Hash chain integrity ────────────────────────────────────────
+
+    def test_35_hash_chain_integrity(self):
+        """Chain verification should pass for the 25 seed predictions."""
+        self._click_tab('tab-validation', 'panel-validation')
+        result = self.driver.execute_async_script("""
+            var callback = arguments[arguments.length - 1];
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            (async function() {
+                var prevHash = null;
+                for (var i = 0; i < cohort.length; i++) {
+                    var entry = cohort[i];
+                    var parts = [
+                        entry.nct_id, entry.locked_at,
+                        String(entry.prediction.p_ensemble),
+                        String(entry.prediction.p_bayes),
+                        String(entry.prediction.p_power),
+                        String(entry.prediction.p_reg),
+                        entry.trial_snapshot.drug_class,
+                        entry.trial_snapshot.endpoint_type,
+                        String(entry.trial_snapshot.enrollment || 0),
+                        String(entry.trial_snapshot.duration_months || 0),
+                        entry.training_hash,
+                        prevHash || 'NULL'
+                    ];
+                    var expected = await sha256Hex(parts.join('|'));
+                    if (expected !== entry.entry_hash) {
+                        callback({valid: false, brokenAt: i, expected: expected, got: entry.entry_hash});
+                        return;
+                    }
+                    prevHash = entry.entry_hash;
+                }
+                callback({valid: true, count: cohort.length});
+            })();
+        """)
+        self.assertTrue(result['valid'],
+                        f'Hash chain broken at entry {result.get("brokenAt")}: expected {result.get("expected")}, got {result.get("got")}')
+
+    # ── Test 36: Verify Chain button works ───────────────────────────────────
+
+    def test_36_verify_chain_button(self):
+        """Clicking Verify Chain should show green integrity message."""
+        self._click_tab('tab-validation', 'panel-validation')
+        self.driver.find_element(By.ID, 'pv-verifyChainBtn').click()
+        time.sleep(1)
+        status = self.driver.find_element(By.ID, 'pv-chainStatus')
+        self.assertIn('verified', status.text.lower(),
+                      f'Expected "verified" in chain status, got: {status.text!r}')
+        self.assertIn('pv-chain-ok', status.get_attribute('class'),
+                      'Chain status should have pv-chain-ok class')
+
+    # ── Test 37: SEED_PREDICTIONS has exactly 25 entries ─────────────────────
+
+    def test_37_seed_predictions_count(self):
+        """SEED_PREDICTIONS constant should have exactly 25 trial objects."""
+        count = self.driver.execute_script("""
+            // Access through the seeded cohort since SEED_PREDICTIONS is in IIFE scope
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var nctIds = cohort.map(function(e) { return e.nct_id; });
+            var unique = new Set(nctIds);
+            return {total: cohort.length, unique: unique.size};
+        """)
+        self.assertEqual(count['total'], 25, f'Expected 25 predictions, got {count["total"]}')
+        self.assertEqual(count['unique'], 25, f'Expected 25 unique NCT IDs, got {count["unique"]}')
+
+    # ── Test 38: Each seed entry has required fields ─────────────────────────
+
+    def test_38_seed_entry_schema(self):
+        """Each locked entry should have all required fields from spec."""
+        result = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var errors = [];
+            var required = ['seq', 'nct_id', 'locked_at', 'prediction', 'trial_snapshot',
+                            'model_version', 'training_hash', 'entry_hash', 'status'];
+            var predFields = ['p_ensemble', 'p_bayes', 'p_power', 'p_reg', 'confidence'];
+            var snapFields = ['title', 'drug_class', 'endpoint_type', 'enrollment',
+                              'duration_months', 'phase', 'area'];
+            for (var i = 0; i < cohort.length; i++) {
+                var e = cohort[i];
+                for (var j = 0; j < required.length; j++) {
+                    if (!(required[j] in e)) errors.push('Entry ' + i + ' missing ' + required[j]);
+                }
+                if (e.prediction) {
+                    for (var k = 0; k < predFields.length; k++) {
+                        if (!(predFields[k] in e.prediction)) errors.push('Entry ' + i + ' prediction missing ' + predFields[k]);
+                    }
+                }
+                if (e.trial_snapshot) {
+                    for (var m = 0; m < snapFields.length; m++) {
+                        if (!(snapFields[m] in e.trial_snapshot)) errors.push('Entry ' + i + ' snapshot missing ' + snapFields[m]);
+                    }
+                }
+            }
+            return errors;
+        """)
+        self.assertEqual(len(result), 0,
+                         f'Schema validation errors: {result}')
+
+    # ── Test 39: pvComputeAUC statistical function ───────────────────────────
+
+    def test_39_pv_compute_auc(self):
+        """pvComputeAUC should return correct AUC for known data."""
+        result = self.driver.execute_script("""
+            if (typeof pvComputeAUC !== 'function') return {error: 'pvComputeAUC not exposed'};
+            // Perfect separator: probs=[0.9, 0.8, 0.2, 0.1], labels=[1, 1, 0, 0] -> AUC=1.0
+            var r1 = pvComputeAUC([1, 1, 0, 0], [0.9, 0.8, 0.2, 0.1]);
+            // Worst separator (reversed): probs=[0.1, 0.2, 0.8, 0.9], labels=[1, 1, 0, 0] -> AUC=0.0
+            var r2 = pvComputeAUC([1, 1, 0, 0], [0.1, 0.2, 0.8, 0.9]);
+            // Null when only one class present
+            var r3 = pvComputeAUC([1, 1, 1, 1], [0.5, 0.6, 0.7, 0.8]);
+            return {
+                perfect: r1 ? r1.auc : null,
+                worst: r2 ? r2.auc : null,
+                nullCase: r3
+            };
+        """)
+        if 'error' in result:
+            self.fail(result['error'])
+        self.assertAlmostEqual(result['perfect'], 1.0, places=2,
+                               msg=f'Perfect AUC should be 1.0, got {result["perfect"]}')
+        self.assertAlmostEqual(result['worst'], 0.0, places=2,
+                               msg=f'Worst AUC should be 0.0, got {result["worst"]}')
+        self.assertIsNone(result['nullCase'],
+                          'AUC should be null when only one class present')
+
+    # ── Test 40: localStorage keys use correct prefix ────────────────────────
+
+    def test_40_localstorage_keys_prefixed(self):
+        """All PV localStorage keys should use cardiooracle_pv_ prefix."""
+        keys = self.driver.execute_script("""
+            var pvKeys = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key.indexOf('cardiooracle_pv_') === 0) pvKeys.push(key);
+            }
+            return pvKeys;
+        """)
+        self.assertGreater(len(keys), 0, 'Should have at least one PV localStorage key')
+        for key in keys:
+            self.assertTrue(key.startswith('cardiooracle_pv_'),
+                            f'Key {key!r} should have cardiooracle_pv_ prefix')
+
+    # ── Test 41: Export bundle function exists and is callable ────────────────
+
+    def test_41_export_function_exists(self):
+        """pvExportBundle must be a function."""
+        result = self.driver.execute_script("""
+            return typeof pvExportBundle === 'function';
+        """)
+        self.assertTrue(result, 'pvExportBundle should be exposed as a function')
+
+    # ── Test 42: Dashboard requires 5+ resolved trials ───────────────────────
+
+    def test_42_dashboard_requires_minimum_resolved(self):
+        """Dashboard should show progress message when <5 trials resolved."""
+        self._click_tab('tab-validation', 'panel-validation')
+        msg = self.driver.find_element(By.ID, 'pv-dashboardMsg')
+        self.assertIn('need 5+', msg.text.lower(),
+                      f'Expected "need 5+" in dashboard message, got: {msg.text!r}')
+        dashboard = self.driver.find_element(By.ID, 'pv-dashboard')
+        self.assertEqual(dashboard.value_of_css_property('display'), 'none',
+                         'Dashboard charts should be hidden with <5 resolved trials')
+
+    # ── Test 43: Seed entries all have area field ────────────────────────────
+
+    def test_43_seed_areas_coverage(self):
+        """Seed data should cover all 3 therapeutic areas."""
+        areas = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var areas = {};
+            cohort.forEach(function(e) {
+                var a = (e.trial_snapshot && e.trial_snapshot.area) || 'unknown';
+                areas[a] = (areas[a] || 0) + 1;
+            });
+            return areas;
+        """)
+        self.assertIn('cardiorenal', areas, 'Should have cardiorenal trials')
+        self.assertIn('cad', areas, 'Should have CAD trials')
+        self.assertIn('af', areas, 'Should have AF trials')
+        total = sum(areas.values())
+        self.assertEqual(total, 25, f'Total across areas should be 25, got {total}')
+
+    # ── Test 44: Chain is append-only (prev_hash links) ──────────────────────
+
+    def test_44_chain_links_sequential(self):
+        """Each entry's prev_hash should equal the previous entry's entry_hash."""
+        result = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var errors = [];
+            for (var i = 0; i < cohort.length; i++) {
+                if (i === 0) {
+                    if (cohort[i].prev_hash !== null) errors.push('Entry 0 prev_hash should be null');
+                } else {
+                    if (cohort[i].prev_hash !== cohort[i-1].entry_hash) {
+                        errors.push('Entry ' + i + ' prev_hash mismatch');
+                    }
+                }
+            }
+            return errors;
+        """)
+        self.assertEqual(len(result), 0, f'Chain link errors: {result}')
+
+    # ── Test 45: PV element IDs all have pv- prefix ──────────────────────────
+
+    def test_45_element_id_prefix(self):
+        """All PV-specific element IDs (excluding Plotly internals) should have pv- prefix."""
+        pv_ids = self.driver.execute_script("""
+            var panel = document.getElementById('panel-validation');
+            if (!panel) return {error: 'panel-validation not found'};
+            var all = panel.querySelectorAll('[id]');
+            var ids = [];
+            for (var i = 0; i < all.length; i++) {
+                var id = all[i].id;
+                // Skip Plotly-generated internal elements (defs-*, clip*, etc.)
+                if (/^(defs-|clip|layer-|plot-|modebar-)/.test(id)) continue;
+                // Skip SVG <g> elements generated by Plotly
+                if (all[i].closest('.js-plotly-plot')) continue;
+                ids.push(id);
+            }
+            return ids;
+        """)
+        if isinstance(pv_ids, dict) and 'error' in pv_ids:
+            self.fail(pv_ids['error'])
+        for el_id in pv_ids:
+            self.assertTrue(el_id.startswith('pv-'),
+                            f'PV element ID {el_id!r} should start with pv-')
+
+    # ── Test 46: No duplicate element IDs in entire page ─────────────────────
+
+    def test_46_no_duplicate_ids(self):
+        """There should be no duplicate element IDs in the entire page."""
+        result = self.driver.execute_script("""
+            var all = document.querySelectorAll('[id]');
+            var counts = {};
+            for (var i = 0; i < all.length; i++) {
+                var id = all[i].id;
+                counts[id] = (counts[id] || 0) + 1;
+            }
+            var dupes = [];
+            for (var id in counts) {
+                if (counts[id] > 1) dupes.push(id + ':' + counts[id]);
+            }
+            return dupes;
+        """)
+        self.assertEqual(len(result), 0, f'Duplicate element IDs found: {result}')
+
+    # ── Test 47: Prediction probabilities are valid ──────────────────────────
+
+    def test_47_prediction_probabilities_valid(self):
+        """All seed predictions should have ensemble probabilities in (0, 1)."""
+        result = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var errors = [];
+            cohort.forEach(function(e, i) {
+                var p = e.prediction.p_ensemble;
+                if (typeof p !== 'number' || isNaN(p)) errors.push('Entry ' + i + ': p_ensemble not a number');
+                else if (p <= 0 || p >= 1) errors.push('Entry ' + i + ': p_ensemble=' + p + ' out of (0,1)');
+            });
+            return errors;
+        """)
+        self.assertEqual(len(result), 0, f'Invalid probabilities: {result}')
+
+    # ── Test 48: Model version matches ───────────────────────────────────────
+
+    def test_48_model_version_consistent(self):
+        """All entries should have model_version 'cardiooracle_v1.0'."""
+        result = self.driver.execute_script("""
+            var cohort = JSON.parse(localStorage.getItem('cardiooracle_pv_cohort') || '[]');
+            var bad = cohort.filter(function(e) { return e.model_version !== 'cardiooracle_v1.0'; });
+            return bad.length;
+        """)
+        self.assertEqual(result, 0, 'All entries should have model_version cardiooracle_v1.0')
+
+    # ── Test 49: Dark mode styling applies to PV elements ────────────────────
+
+    def test_49_dark_mode_pv_elements(self):
+        """PV elements should respect dark mode CSS variables."""
+        result = self.driver.execute_script("""
+            document.documentElement.setAttribute('data-theme', 'dark');
+            var card = document.querySelector('#panel-validation .card');
+            if (!card) return {error: 'No card in PV panel'};
+            var style = getComputedStyle(card);
+            var bg = style.backgroundColor;
+            document.documentElement.removeAttribute('data-theme');
+            return {bg: bg};
+        """)
+        if isinstance(result, dict) and 'error' in result:
+            self.fail(result['error'])
+        # In dark mode, background should NOT be white (#ffffff / rgb(255,255,255))
+        self.assertNotEqual(result['bg'], 'rgb(255, 255, 255)',
+                            'PV card background should change in dark mode')
+
+    # ── Test 50: Timeline chart container exists ─────────────────────────────
+
+    def test_50_timeline_chart_container(self):
+        """Timeline chart div should exist and have pv-timeline-chart class."""
+        self._click_tab('tab-validation', 'panel-validation')
+        el = self.driver.find_element(By.ID, 'pv-timelineChart')
+        self.assertIn('pv-timeline-chart', el.get_attribute('class'),
+                      'Timeline div should have pv-timeline-chart class')
 
 
 if __name__ == '__main__':
