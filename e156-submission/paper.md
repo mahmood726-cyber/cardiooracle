@@ -1,6 +1,6 @@
 Mahmood Ahmad
 Tahir Heart Institute
-author@example.com
+mahmood.ahmad2@nhs.net
 
 CardioOracle: Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis (AUC 0.787)
 
