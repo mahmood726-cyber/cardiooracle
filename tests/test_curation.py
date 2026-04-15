@@ -16,20 +16,17 @@ from pathlib import Path
 
 import numpy as np
 
-# Make both curate/ modules importable regardless of working directory.
-_CURATE_DIR = str(Path(__file__).resolve().parent.parent / "curate")
-if _CURATE_DIR not in sys.path:
-    sys.path.insert(0, _CURATE_DIR)
-
-from shared import classify_drug, classify_endpoint
-from extract_aact import months_between, extract_population_tags
-from label_outcomes import (
+# Curate is a package (curate/__init__.py); use package-qualified imports so
+# the relative imports inside curate/*.py modules resolve correctly.
+from curate.shared import classify_drug, classify_endpoint
+from curate.extract_aact import months_between, extract_population_tags
+from curate.label_outcomes import (
     label_trial,
     LABEL_SUCCESS,
     LABEL_FAILURE,
     LABEL_SAFETY_FAIL,
 )
-from fit_model import prepare_feature_matrix, fit_logistic_model, FEATURE_NAMES
+from curate.fit_model import prepare_feature_matrix, fit_logistic_model, FEATURE_NAMES
 
 import pytest
 
@@ -328,6 +325,7 @@ class TestFeatureMatrix:
 class TestFitModel:
     def test_returns_coefficients(self):
         """100 synthetic trials → intercept + N named coefficients returned."""
+        pytest.importorskip("sklearn", reason="fit_model tests require scikit-learn")
         np.random.seed(42)
 
         trials = []
