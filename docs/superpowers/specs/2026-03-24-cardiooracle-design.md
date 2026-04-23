@@ -141,7 +141,7 @@ P(success) = w1*P_bayesian + w2*P_power + w3*P_regression
 ## 4. Training Data Curation
 
 ### Source
-AACT PostgreSQL remote database (aact-db.ctti-clinicaltrials.org). User has existing connection scripts in `C:\Users\user\Downloads\Metaprojects\`.
+AACT PostgreSQL remote database (aact-db.ctti-clinicaltrials.org). User has existing local connection scripts for this database.
 
 ### Inclusion Criteria
 - Phase 3 (or Phase 2/3), interventional, randomized

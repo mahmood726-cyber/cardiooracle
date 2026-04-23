@@ -5,7 +5,11 @@ DB connection, drug/endpoint taxonomy, classification helpers.
 
 import os
 import re
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:  # Optional in test environments; env vars still work without it.
+    def load_dotenv(*_args, **_kwargs):
+        return False
 
 load_dotenv()
 

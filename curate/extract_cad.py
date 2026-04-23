@@ -16,7 +16,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from extract_aact import extract_trials
+from .extract_aact import extract_trials
 
 logging.basicConfig(
     level=logging.INFO,

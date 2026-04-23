@@ -17,10 +17,22 @@ import re
 import sys
 import math
 import io
+from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-HTML_PATH = r"C:\Models\CardioOracle\cardiooracle.html"
+PROJECT_ROOT = Path(__file__).resolve().parent
+HTML_PATH = next(
+    (
+        candidate
+        for candidate in (
+            PROJECT_ROOT / "cardiooracle.html",
+            PROJECT_ROOT / "CardioOracle.html",
+        )
+        if candidate.is_file()
+    ),
+    PROJECT_ROOT / "CardioOracle.html",
+)
 
 
 # ─────────────────────────────────────────────
@@ -40,7 +52,7 @@ def expit(x):
 # 1. Extract data from HTML
 # ─────────────────────────────────────────────
 print("Step 1: Reading HTML file...")
-with open(HTML_PATH, "r", encoding="utf-8") as f:
+with HTML_PATH.open("r", encoding="utf-8") as f:
     html = f.read()
 
 # Find the temporal_validation block — capture including the key for exact replacement
@@ -257,13 +269,14 @@ if new_html == html:
     print(f"  Looking for prefix: {repr(tv_prefix[:50])}")
     print(f"  Looking for TV start: {repr(tv_json_str[:80])}")
     # Write metrics to a separate file so we don't lose them
-    with open("recalibration_results.json", "w") as f:
+    results_path = PROJECT_ROOT / "recalibration_results.json"
+    with results_path.open("w", encoding="utf-8") as f:
         json.dump({
             "platt_a": a, "platt_b": b,
             "old_metrics": {"auc": old_auc, "brier": old_brier, "slope_ols": old_slope},
             "new_metrics": {"auc": new_auc, "brier": new_brier, "slope_logistic": new_slope, "slope_ols": ols_slope_old_metric},
         }, f, indent=2)
-    print("  Saved metrics to recalibration_results.json for manual patching")
+    print(f"  Saved metrics to {results_path} for manual patching")
     sys.exit(1)
 
 # ─────────────────────────────────────────────
@@ -274,7 +287,7 @@ open_divs  = len(re.findall(r'<div[\s>]', new_html))
 close_divs = len(re.findall(r'</div>', new_html))
 print(f"  Div balance: {open_divs}/{close_divs} {'OK' if open_divs == close_divs else 'MISMATCH'}")
 
-with open(HTML_PATH, "w", encoding="utf-8") as f:
+with HTML_PATH.open("w", encoding="utf-8") as f:
     f.write(new_html)
 print(f"  Saved to {HTML_PATH}")
 

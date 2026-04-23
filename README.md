@@ -68,7 +68,7 @@ python curate/fit_model.py --input data/labeled_trials.json --output data/model_
 python curate/export_training.py --labeled data/labeled_trials.json --output data/training_data.json
 ```
 
-Requires free AACT credentials: https://aact.ctti-clinicaltrials.org/users/sign_up
+Requires free AACT credentials from the official AACT sign-up page.
 
 ## Tests
 

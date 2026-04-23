@@ -4,6 +4,7 @@ Tests: title, tabs, tab switching, dark mode, invalid NCT warning,
        search bar Enter key, no console errors, ARIA roles.
 
 Usage:
+    CARDIOORACLE_RUN_BROWSER_TESTS=1 python -m pytest tests/test_prediction.py -v --timeout=60
     python -m pytest tests/test_prediction.py -v --timeout=60
 """
 
@@ -12,6 +13,7 @@ import os
 import io
 import time
 import unittest
+import shutil
 
 # UTF-8 stdout (Windows cp1252 safety) — only reconfigure when running directly,
 # not when imported by pytest (which replaces sys.stdout with its own capture object).
@@ -62,7 +64,7 @@ def _chrome_driver():
     Strategy (no network):
     1. Try each pre-cached ChromeDriver (newest first).
     2. Fall back to system PATH chromedriver.
-    3. Fall back to webdriver-manager (may download if no cache).
+    3. Optionally fall back to webdriver-manager only when explicitly enabled.
     """
     opts = _chrome_options()
 
@@ -74,19 +76,23 @@ def _chrome_driver():
         except WebDriverException:
             continue
 
-    # 2. System PATH
-    try:
-        return webdriver.Chrome(options=opts)
-    except WebDriverException:
-        pass
+    # 2. System PATH chromedriver only (avoid implicit Selenium Manager downloads)
+    system_driver = shutil.which('chromedriver')
+    if system_driver:
+        try:
+            service = ChromeService(executable_path=system_driver)
+            return webdriver.Chrome(service=service, options=opts)
+        except WebDriverException:
+            pass
 
-    # 3. webdriver-manager (last resort, may be slow on first run)
-    try:
-        from webdriver_manager.chrome import ChromeDriverManager
-        service = ChromeService(ChromeDriverManager().install())
-        return webdriver.Chrome(service=service, options=opts)
-    except Exception:
-        pass
+    # 3. webdriver-manager (opt-in only; avoids hanging on offline test hosts)
+    if os.environ.get('CARDIOORACLE_ALLOW_DRIVER_DOWNLOAD', '').lower() in {'1', 'true', 'yes'}:
+        try:
+            from webdriver_manager.chrome import ChromeDriverManager
+            service = ChromeService(ChromeDriverManager().install())
+            return webdriver.Chrome(service=service, options=opts)
+        except Exception:
+            pass
 
     raise WebDriverException('Cannot locate a working ChromeDriver.')
 
@@ -103,19 +109,22 @@ def _edge_driver():
     opts.add_argument('--inprivate')
     opts.add_argument('--window-size=1280,900')
 
-    # Try system PATH first
-    try:
-        return webdriver.Edge(options=opts)
-    except WebDriverException:
-        pass
+    # Try explicit system PATH driver first (avoid implicit Selenium Manager downloads)
+    system_driver = shutil.which('msedgedriver') or shutil.which('edgedriver')
+    if system_driver:
+        try:
+            service = EdgeService(executable_path=system_driver)
+            return webdriver.Edge(service=service, options=opts)
+        except WebDriverException:
+            pass
 
-    # webdriver-manager fallback
-    try:
-        from webdriver_manager.microsoft import EdgeChromiumDriverManager
-        service = EdgeService(EdgeChromiumDriverManager().install())
-        return webdriver.Edge(service=service, options=opts)
-    except Exception:
-        pass
+    if os.environ.get('CARDIOORACLE_ALLOW_DRIVER_DOWNLOAD', '').lower() in {'1', 'true', 'yes'}:
+        try:
+            from webdriver_manager.microsoft import EdgeChromiumDriverManager
+            service = EdgeService(EdgeChromiumDriverManager().install())
+            return webdriver.Edge(service=service, options=opts)
+        except Exception:
+            pass
 
     raise WebDriverException('Cannot locate a working EdgeDriver.')
 
@@ -125,6 +134,10 @@ class TestCardioOracleShell(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.driver = None
+        if os.environ.get('CARDIOORACLE_RUN_BROWSER_TESTS', '').lower() not in {'1', 'true', 'yes'}:
+            raise unittest.SkipTest(
+                'Browser tests are opt-in. Set CARDIOORACLE_RUN_BROWSER_TESTS=1 to enable Selenium runs.'
+            )
         # Try Chrome first, fall back to Edge
         for factory in (_chrome_driver, _edge_driver):
             try:
@@ -134,8 +147,10 @@ class TestCardioOracleShell(unittest.TestCase):
                 print(f'[WARN] Driver factory failed: {exc}')
 
         if cls.driver is None:
-            raise RuntimeError('No WebDriver available (Chrome or Edge). '
-                               'Install ChromeDriver or Edge WebDriver.')
+            raise unittest.SkipTest(
+                'No WebDriver available (Chrome or Edge). '
+                'Install ChromeDriver or Edge WebDriver.'
+            )
 
         cls.driver.set_page_load_timeout(30)
         cls.driver.get(FILE_URL)

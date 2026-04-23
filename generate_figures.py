@@ -8,7 +8,7 @@ Generates 4 figures for the manuscript:
   4. Prediction Distribution (histogram by actual outcome, test set)
 
 Uses recalibrated predictions from the HTML file (Platt scaling applied).
-Outputs 300 dpi PNG + PDF to C:\Models\CardioOracle\figures\
+Outputs 300 dpi PNG + PDF to the repo-local `figures/` directory.
 """
 
 import json
@@ -17,6 +17,8 @@ import io
 import os
 import re
 import math
+from pathlib import Path
+
 import numpy as np
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -28,9 +30,20 @@ import matplotlib.ticker as mticker
 from matplotlib.patches import FancyBboxPatch
 
 # ── Configuration ──────────────────────────────────────────────────
-OUT_DIR = r"C:\Models\CardioOracle\figures"
-HTML_PATH = r"C:\Models\CardioOracle\CardioOracle.html"
-JSON_PATH = r"C:\Models\CardioOracle\data\model_coefficients.json"
+PROJECT_ROOT = Path(__file__).resolve().parent
+OUT_DIR = PROJECT_ROOT / "figures"
+HTML_PATH = next(
+    (
+        candidate
+        for candidate in (
+            PROJECT_ROOT / "CardioOracle.html",
+            PROJECT_ROOT / "cardiooracle.html",
+        )
+        if candidate.is_file()
+    ),
+    PROJECT_ROOT / "CardioOracle.html",
+)
+JSON_PATH = PROJECT_ROOT / "data" / "model_coefficients.json"
 DPI = 300
 
 # ── Publication style ──────────────────────────────────────────────
@@ -64,7 +77,7 @@ COL_FAILURE   = '#B2182B'   # Red for failure
 
 # ── 1. Load data ──────────────────────────────────────────────────
 print("Loading data from HTML file...")
-with open(HTML_PATH, 'r', encoding='utf-8') as f:
+with HTML_PATH.open('r', encoding='utf-8') as f:
     html = f.read()
 
 # Extract cardiorenal model's temporal_validation trial_predictions
@@ -107,7 +120,7 @@ train_preds = [p for p in predictions if p['split'] == 'train']
 print(f"  {len(train_preds)} train, {len(test_preds)} test predictions")
 
 # Load coefficients from JSON
-with open(JSON_PATH, 'r', encoding='utf-8') as f:
+with JSON_PATH.open('r', encoding='utf-8') as f:
     coef_data = json.load(f)
 coefficients = coef_data['model']['coefficients']
 print(f"  {len(coefficients)} coefficients loaded")
@@ -184,8 +197,8 @@ ax1.text(0.98, 0.02, f'Temporal test set (n = {len(test_preds)})',
          transform=ax1.transAxes, ha='right', va='bottom',
          fontsize=9, color=COL_GREY)
 
-fig1.savefig(os.path.join(OUT_DIR, 'fig1_roc_curve.png'), dpi=DPI)
-fig1.savefig(os.path.join(OUT_DIR, 'fig1_roc_curve.pdf'))
+fig1.savefig(OUT_DIR / 'fig1_roc_curve.png', dpi=DPI)
+fig1.savefig(OUT_DIR / 'fig1_roc_curve.pdf')
 plt.close(fig1)
 print(f"  Saved. AUC = {auc_val:.4f}")
 
@@ -273,8 +286,8 @@ ax2.text(0.98, 0.02, f'Temporal test set (n = {len(test_preds)})',
          transform=ax2.transAxes, ha='right', va='bottom',
          fontsize=9, color=COL_GREY)
 
-fig2.savefig(os.path.join(OUT_DIR, 'fig2_calibration.png'), dpi=DPI)
-fig2.savefig(os.path.join(OUT_DIR, 'fig2_calibration.pdf'))
+fig2.savefig(OUT_DIR / 'fig2_calibration.png', dpi=DPI)
+fig2.savefig(OUT_DIR / 'fig2_calibration.pdf')
 plt.close(fig2)
 print(f"  Saved. Calibration slope = {cal_slope:.4f}")
 
@@ -367,8 +380,8 @@ ax3.text(0.98, 0.02,
          fontsize=9, color=COL_GREY)
 
 fig3.tight_layout()
-fig3.savefig(os.path.join(OUT_DIR, 'fig3_feature_importance.png'), dpi=DPI)
-fig3.savefig(os.path.join(OUT_DIR, 'fig3_feature_importance.pdf'))
+fig3.savefig(OUT_DIR / 'fig3_feature_importance.png', dpi=DPI)
+fig3.savefig(OUT_DIR / 'fig3_feature_importance.pdf')
 plt.close(fig3)
 print(f"  Saved. Top feature: {top10[0][0]} ({top10[0][1]:+.3f})")
 
@@ -433,8 +446,8 @@ ax4.text(0.98, 0.02, f'Temporal test set (n = {len(test_preds)})',
          fontsize=9, color=COL_GREY)
 
 fig4.tight_layout()
-fig4.savefig(os.path.join(OUT_DIR, 'fig4_prediction_distribution.png'), dpi=DPI)
-fig4.savefig(os.path.join(OUT_DIR, 'fig4_prediction_distribution.pdf'))
+fig4.savefig(OUT_DIR / 'fig4_prediction_distribution.png', dpi=DPI)
+fig4.savefig(OUT_DIR / 'fig4_prediction_distribution.pdf')
 plt.close(fig4)
 print(f"  Saved. Median P: success={median_s:.3f}, failure={median_f:.3f}")
 
@@ -522,24 +535,24 @@ fig.suptitle('CardioOracle: Temporal Validation (n = 133 trials, 2020+)',
              fontsize=14, fontweight='bold', y=0.98)
 fig.tight_layout(rect=[0, 0, 1, 0.96])
 
-fig.savefig(os.path.join(OUT_DIR, 'fig_composite_all.png'), dpi=DPI)
-fig.savefig(os.path.join(OUT_DIR, 'fig_composite_all.pdf'))
+fig.savefig(OUT_DIR / 'fig_composite_all.png', dpi=DPI)
+fig.savefig(OUT_DIR / 'fig_composite_all.pdf')
 plt.close(fig)
 
 # ── Cleanup temp file ─────────────────────────────────────────────
-temp_path = r"C:\Models\CardioOracle\data\_temp_html_predictions.json"
-if os.path.exists(temp_path):
-    os.remove(temp_path)
+temp_path = PROJECT_ROOT / "data" / "_temp_html_predictions.json"
+if temp_path.exists():
+    temp_path.unlink()
 
 # ── Summary ───────────────────────────────────────────────────────
 print("\n" + "=" * 60)
 print("DONE - All figures generated")
 print("=" * 60)
 print(f"Output directory: {OUT_DIR}")
-for fname in sorted(os.listdir(OUT_DIR)):
-    fpath = os.path.join(OUT_DIR, fname)
-    size_kb = os.path.getsize(fpath) / 1024
-    print(f"  {fname:40s} {size_kb:7.1f} KB")
+for artifact in sorted(OUT_DIR.iterdir()):
+    if artifact.is_file():
+        size_kb = artifact.stat().st_size / 1024
+        print(f"  {artifact.name:40s} {size_kb:7.1f} KB")
 print(f"\nKey metrics (recalibrated, Platt scaling):")
 print(f"  AUC:               {auc_val:.4f}")
 print(f"  Brier score:       {test_metrics['brier']:.4f}")

@@ -19,7 +19,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
 
-from shared import (
+from .shared import (
     DRUG_CLASS_MAP,
     classify_drug,
     classify_endpoint,
