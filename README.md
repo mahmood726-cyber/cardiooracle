@@ -58,17 +58,19 @@ No installation, no server, no dependencies. Everything runs in your browser.
 
 ## Curation Pipeline
 
-The `curate/` directory contains the Python pipeline for refreshing training data:
+The `curate/` directory contains the Python pipeline for refreshing training data.
+Register a free AACT account at https://aact.ctti-clinicaltrials.org/users/sign_up,
+then copy `.env.example` to `.env` and fill in `AACT_USER` / `AACT_PASSWORD`.
+Run from the repo root so `curate` resolves as a package:
 
 ```bash
 pip install -r curate/requirements.txt
-python curate/extract_aact.py --output data/raw_trials.json
-python curate/label_outcomes.py --input data/raw_trials.json --output data/labeled_trials.json
-python curate/fit_model.py --input data/labeled_trials.json --output data/model_coefficients.json
-python curate/export_training.py --labeled data/labeled_trials.json --output data/training_data.json
+cp .env.example .env   # then edit .env with your AACT credentials
+python -m curate.extract_aact --output data/raw_trials.json
+python -m curate.label_outcomes --input data/raw_trials.json --output data/labeled_trials.json
+python -m curate.fit_model --input data/labeled_trials.json --output data/model_coefficients.json
+python -m curate.export_training --labeled data/labeled_trials.json --output data/training_data.json
 ```
-
-Requires free AACT credentials from the official AACT sign-up page.
 
 ## Tests
 

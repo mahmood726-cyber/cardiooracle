@@ -11,3 +11,10 @@ sentinel-findings.md
 sentinel-findings.jsonl
 review-findings.md
 review-findings.jsonl
+
+# Overmind nightly verifier auto-generated log
+DECISIONS.md
+
+# Pytest runtime artifacts
+.pytest_cache/
+.pytest_tmp/

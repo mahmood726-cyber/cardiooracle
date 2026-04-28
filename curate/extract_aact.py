@@ -4,9 +4,9 @@ extract_aact.py — CardioOracle curation pipeline.
 Queries the AACT PostgreSQL database for Phase 3 cardiovascular RCTs with
 results, assembles each trial into a structured record, and writes JSON output.
 
-Usage:
-    python curate/extract_aact.py [--output data/raw_trials.json] [--limit N]
-    python curate/extract_aact.py --condition-pattern "%(coronary|angina)%" \\
+Usage (run from the repo root):
+    python -m curate.extract_aact [--output data/raw_trials.json] [--limit N]
+    python -m curate.extract_aact --condition-pattern "%(coronary|angina)%" \\
                                    --output data/raw_cad_trials.json
 """
 

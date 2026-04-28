@@ -1041,7 +1041,7 @@
 
           <div class="param-group">
             <label>
-              <input type="checkbox" id="designMultiRegional" checked>
+              <input type="checkbox" id="designMultiRegional" aria-label="Multi-regional trial" checked>
               Multi-regional trial
             </label>
           </div>
@@ -1049,11 +1049,11 @@
           <div class="param-group">
             <label>Population Tags</label>
             <div class="checkbox-group">
-              <label><input type="checkbox" id="designTagHFrEF"> HFrEF</label>
-              <label><input type="checkbox" id="designTagHFpEF"> HFpEF</label>
-              <label><input type="checkbox" id="designTagDiabetic"> Diabetic</label>
-              <label><input type="checkbox" id="designTagCKD"> CKD</label>
-              <label><input type="checkbox" id="designTagElderly"> Elderly</label>
+              <label><input type="checkbox" id="designTagHFrEF" aria-label="Population tag HFrEF"> HFrEF</label>
+              <label><input type="checkbox" id="designTagHFpEF" aria-label="Population tag HFpEF"> HFpEF</label>
+              <label><input type="checkbox" id="designTagDiabetic" aria-label="Population tag diabetic"> Diabetic</label>
+              <label><input type="checkbox" id="designTagCKD" aria-label="Population tag CKD"> CKD</label>
+              <label><input type="checkbox" id="designTagElderly" aria-label="Population tag elderly"> Elderly</label>
             </div>
           </div>
 
@@ -5180,19 +5180,19 @@ function pvUpdateResolveQueue() {
       '<label><strong>' + pvEsc(entry.nct_id) + '</strong> — ' + pvEsc(entry.trial_snapshot.title) +
       ' <span class="pv-badge pv-badge--' + (isSafetyTerminated ? 'terminated' : 'completed') + '">' + pvEsc(entry.status) + '</span></label>' +
       '<div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">' +
-        '<label>Outcome: <select class="pv-resolve-outcome">' +
+        '<label>Outcome: <select class="pv-resolve-outcome" aria-label="Resolution outcome">' +
           '<option value="">Select</option>' +
           '<option value="SUCCESS">Success</option>' +
           '<option value="FAILURE">Failure</option>' +
           '<option value="SAFETY_FAILURE"' + (isSafetyTerminated ? ' selected' : '') + '>Safety Failure</option>' +
         '</select></label>' +
-        '<label>p-value: <input type="text" class="pv-resolve-pval" placeholder="e.g. 0.003" style="width:80px"></label>' +
-        '<label>Effect (HR/OR): <input type="text" class="pv-resolve-effect" placeholder="e.g. 0.82" style="width:80px"></label>' +
-        '<label>CI lower: <input type="text" class="pv-resolve-ci-lo" placeholder="0.72" style="width:70px"></label>' +
-        '<label>CI upper: <input type="text" class="pv-resolve-ci-hi" placeholder="0.94" style="width:70px"></label>' +
+        '<label>p-value: <input type="text" class="pv-resolve-pval" aria-label="Resolution p-value" placeholder="e.g. 0.003" style="width:80px"></label>' +
+        '<label>Effect (HR/OR): <input type="text" class="pv-resolve-effect" aria-label="Resolution effect estimate" placeholder="e.g. 0.82" style="width:80px"></label>' +
+        '<label>CI lower: <input type="text" class="pv-resolve-ci-lo" aria-label="Resolution confidence interval lower bound" placeholder="0.72" style="width:70px"></label>' +
+        '<label>CI upper: <input type="text" class="pv-resolve-ci-hi" aria-label="Resolution confidence interval upper bound" placeholder="0.94" style="width:70px"></label>' +
       '</div>' +
-      '<label>DOI / Source: <input type="text" class="pv-resolve-doi" placeholder="https://doi.org/..." style="width:100%"></label>' +
-      '<label>Notes: <textarea class="pv-resolve-notes" placeholder="Optional evidence notes"></textarea></label>' +
+      '<label>DOI / Source: <input type="text" class="pv-resolve-doi" aria-label="Resolution DOI or source" placeholder="https://doi.org/..." style="width:100%"></label>' +
+      '<label>Notes: <textarea class="pv-resolve-notes" aria-label="Resolution notes" placeholder="Optional evidence notes"></textarea></label>' +
       '<button class="search-btn pv-resolve-confirm" type="button" style="align-self:flex-start">Confirm Resolution</button>';
     list.appendChild(div);
     div.querySelector('.pv-resolve-confirm').addEventListener('click', () => pvConfirmResolution(entry.nct_id, div));
