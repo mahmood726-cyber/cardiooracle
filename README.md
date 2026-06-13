@@ -1,6 +1,6 @@
 # CardioOracle
 
-**The first open-access tool for predicting cardiovascular trial outcomes.**
+**An open-access tool for predicting cardiovascular trial outcomes.**
 
 CardioOracle is a browser-based prediction tool that estimates the probability a cardiovascular clinical trial will meet its primary endpoint. It combines Bayesian historical borrowing, conditional power analysis, and logistic meta-regression into a transparent, validated ensemble.
 

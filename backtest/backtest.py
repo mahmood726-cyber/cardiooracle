@@ -19,8 +19,9 @@ import csv
 from pathlib import Path
 from collections import Counter
 
-DATA_PATH = Path(r'C:\Models\CardioOracle\data\training_data.json')
-OUTPUT_DIR = Path(r'C:\Models\CardioOracle\backtest')
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_PATH = _REPO_ROOT / 'data' / 'training_data.json'
+OUTPUT_DIR = _REPO_ROOT / 'backtest'
 
 
 def load_data():
