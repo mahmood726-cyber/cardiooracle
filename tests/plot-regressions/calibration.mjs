@@ -8,6 +8,19 @@ try{for(const width of [1280,390])for(const config of ['cardiorenal','cad','af']
   await page.goto('http://127.0.0.1:8080/e156-submission/assets/CardioOracle.html?config='+config,{waitUntil:'load'});
   await page.evaluate(()=>{if(typeof dismissTutorial==='function')dismissTutorial();});
   const before=await page.evaluate(()=>JSON.stringify(MODEL));await page.locator('#tab-calibration').click();
+  if(config==='af') {
+    expect(await page.evaluate(()=>!!MODEL.temporal_validation)).toBe(false);
+    for(const id of ['calibPlotDiv','rocPlotDiv']) {
+      await expect(page.locator('#'+id)).toHaveAttribute('data-plot-state','unavailable');
+      await expect(page.locator('#'+id)).toContainText('Temporal validation predictions are not included');
+      await expect(page.locator('#'+id+' svg')).toHaveCount(0);
+    }
+    expect(await page.evaluate(()=>JSON.stringify(MODEL))).toBe(before);
+    expect(errors).toEqual([]);
+    await page.screenshot({path:out+'/'+config+'-'+width+'.png',fullPage:true});
+    checks.push({config,width,passed:true,state:'explicit missing-validation prerequisite'});
+    continue;
+  }
   for(const id of ['calibPlotDiv','rocPlotDiv']){const chart=page.locator('#'+id);await expect(chart.locator('svg.main-svg').first()).toBeVisible();await expect.poll(()=>chart.evaluate(e=>e.data?.length||0)).toBeGreaterThan(1);expect(await chart.evaluate(e=>e.data.flatMap(t=>[...(t.x||[]),...(t.y||[])]).every(Number.isFinite))).toBe(true);}
   await expect(page.locator('#calibAucValue')).not.toHaveText('—');
   const chartData=await page.evaluate(()=>JSON.stringify(['calibPlotDiv','rocPlotDiv'].map(id=>document.getElementById(id).data)));

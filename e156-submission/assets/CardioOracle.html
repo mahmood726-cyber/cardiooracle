@@ -3925,7 +3925,22 @@ function _clearSnapshots() {
 
   /* ── 9G: Main render orchestrator ───────────────────────────── */
   function renderCalibration() {
-    if (!window.MODEL || !MODEL.temporal_validation) return;
+    // MODEL is lexical. Never substitute in-sample data for missing validation.
+    if (typeof MODEL === 'undefined' || !MODEL.temporal_validation || !Array.isArray(MODEL.temporal_validation.trial_predictions)) {
+      for (const id of ['calibPlotDiv', 'rocPlotDiv']) {
+        const plot = document.getElementById(id);
+        if (!plot) continue;
+        if (typeof Plotly !== 'undefined' && plot.data) Plotly.purge(plot);
+        plot.replaceChildren();
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.style.cssText = 'padding:1.5rem;line-height:1.6';
+        message.textContent = 'Temporal validation predictions are not included for this model. Calibration and ROC plots require held-out predictions and outcomes; no substitute or demonstration plot is shown.';
+        plot.appendChild(message);
+        plot.dataset.plotState = 'unavailable';
+      }
+      return;
+    }
     const tv          = MODEL.temporal_validation;
     const predictions = tv.trial_predictions;
     const isDark      = document.documentElement.getAttribute('data-theme') === 'dark';
