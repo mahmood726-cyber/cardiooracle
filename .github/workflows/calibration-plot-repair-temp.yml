@@ -13,18 +13,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: fix/calibration-plot-scope-20261012
-      - name: Apply exact model-scope repair
+      - name: Apply exact model-scope and missing-data repair
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib
-          p=Path('e156-submission/assets/CardioOracle.html');raw=p.read_bytes()
-          assert hashlib.sha1(f'blob {len(raw)}\0'.encode()+raw).hexdigest()=='0faa6383d223a068b3f6465746956eb004baa578'
-          text=raw.decode();old='if (!window.MODEL || !MODEL.temporal_validation) return;'
-          assert text.count(old)==1
-          text=text.replace(old,"if (typeof MODEL === 'undefined' || !MODEL.temporal_validation) return; // lexical MODEL, not window.MODEL",1)
-          p.write_bytes(text.encode())
-          PY
+          python scripts/repair-calibration-plots.py
           git -c core.whitespace=cr-at-eol diff --check
       - uses: actions/checkout@v4
         with:
@@ -43,12 +34,12 @@ jobs:
           python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/plot-server.log 2>&1 &
           cd .plot-test-harness/tests/playwright
           node calibration.mjs
-      - name: Commit only verified source correction
+      - name: Commit only verified source and tests
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add e156-submission/assets/CardioOracle.html
-          git commit -m 'fix: render calibration and ROC from the actual lexical MODEL'
+          git add e156-submission/assets/CardioOracle.html tests/plot-regressions/calibration.mjs
+          git commit -m 'fix: render actual validation plots and explain unavailable model data'
           git push origin HEAD:fix/calibration-plot-scope-20261012
       - if: always()
         uses: actions/upload-artifact@v4
