@@ -22,10 +22,10 @@ jobs:
           assert hashlib.sha1(f'blob {len(raw)}\0'.encode()+raw).hexdigest()=='0faa6383d223a068b3f6465746956eb004baa578'
           text=raw.decode();old='if (!window.MODEL || !MODEL.temporal_validation) return;'
           assert text.count(old)==1
-          text=text.replace(old,"// MODEL is a top-level lexical constant, not a window property.\n    if (typeof MODEL === 'undefined' || !MODEL.temporal_validation) return;",1)
+          text=text.replace(old,"if (typeof MODEL === 'undefined' || !MODEL.temporal_validation) return; // lexical MODEL, not window.MODEL",1)
           p.write_bytes(text.encode())
           PY
-          git diff --check
+          git -c core.whitespace=cr-at-eol diff --check
       - uses: actions/checkout@v4
         with:
           repository: mahmood726-cyber/allmeta
