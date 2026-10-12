@@ -1,0 +1,58 @@
+name: Calibration plot repair (temporary)
+on:
+  push:
+    branches: [fix/calibration-plot-scope-20261012]
+    paths: [.github/workflows/calibration-plot-repair-temp.yml]
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/calibration-plot-scope-20261012
+      - name: Apply exact model-scope repair
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('e156-submission/assets/CardioOracle.html');raw=p.read_bytes()
+          assert hashlib.sha1(f'blob {len(raw)}\0'.encode()+raw).hexdigest()=='0faa6383d223a068b3f6465746956eb004baa578'
+          text=raw.decode();old='if (!window.MODEL || !MODEL.temporal_validation) return;'
+          assert text.count(old)==1
+          text=text.replace(old,"// MODEL is a top-level lexical constant, not a window property.\n    if (typeof MODEL === 'undefined' || !MODEL.temporal_validation) return;",1)
+          p.write_bytes(text.encode())
+          PY
+          git diff --check
+      - uses: actions/checkout@v4
+        with:
+          repository: mahmood726-cyber/allmeta
+          ref: 42938c1bfec0af24fbdec359476f0332515e0577
+          path: .plot-test-harness
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: .plot-test-harness/tests/playwright
+      - name: Exercise all three model configurations at two screen widths
+        run: |
+          cp tests/plot-regressions/calibration.mjs .plot-test-harness/tests/playwright/
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/plot-server.log 2>&1 &
+          cd .plot-test-harness/tests/playwright
+          node calibration.mjs
+      - name: Commit only verified source correction
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add e156-submission/assets/CardioOracle.html
+          git commit -m 'fix: render calibration and ROC from the actual lexical MODEL'
+          git push origin HEAD:fix/calibration-plot-scope-20261012
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibration-plot-regressions
+          path: .plot-test-harness/tests/playwright/artifacts/calibration-plots/
+          retention-days: 7
