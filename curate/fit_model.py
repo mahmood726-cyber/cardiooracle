@@ -4,7 +4,7 @@ fit_model.py — CardioOracle logistic regression model fitting with temporal va
 Fits a logistic regression model on labeled trial features and exports:
   - model coefficients
   - in-sample metrics (AUC, Brier score)
-  - temporal split metrics (train/test by primary_completion_date)
+  - independent retrospective temporal holdout metrics (training-only refit)
 
 Usage:
     python curate/fit_model.py --input data/labeled_trials.json \\
@@ -193,33 +193,40 @@ def prepare_feature_matrix(trials: list) -> tuple:
 
 
 def _compute_auc(y_true: np.ndarray, y_prob: np.ndarray) -> float:
-    """Compute AUC via trapezoidal rule (no sklearn required)."""
-    # Sort by descending predicted probability
-    order = np.argsort(-y_prob)
-    y_true_sorted = y_true[order]
+    """Area under the ROC curve with correct 0.5 credit for tied scores.
 
-    n_pos = float(y_true.sum())
-    n_neg = float(len(y_true) - n_pos)
+    AUC is the probability a randomly drawn positive has a higher score than
+    a randomly drawn negative, plus half the probability of a tie. Iterating
+    individual records after sorting incorrectly depends on row order for ties.
+    """
+    y_true = np.asarray(y_true)
+    y_prob = np.asarray(y_prob, dtype=float)
+    if y_true.ndim != 1 or y_prob.ndim != 1 or len(y_true) != len(y_prob):
+        raise ValueError("AUC inputs must be equally sized 1-D arrays")
+    if not np.all(np.isin(y_true, [0, 1])) or not np.all(np.isfinite(y_prob)):
+        raise ValueError("AUC requires binary labels and finite probabilities")
 
-    if n_pos == 0 or n_neg == 0:
+    n_pos = int(np.count_nonzero(y_true == 1))
+    n_neg = len(y_true) - n_pos
+    if not n_pos or not n_neg:
         return float("nan")
 
-    tp = 0.0
-    fp = 0.0
-    auc = 0.0
-    prev_fp = 0.0
-
-    for yt in y_true_sorted:
-        if yt == 1:
-            tp += 1
-        else:
-            fp += 1
-            auc += tp  # trapezoidal increment
-
-    # Normalise
-    auc = auc / (n_pos * n_neg)
-    return float(auc)
-
+    order = np.argsort(-y_prob, kind="stable")
+    scores = y_prob[order]
+    labels = y_true[order]
+    concordant_pairs = 0.0
+    positives_above = 0
+    i = 0
+    while i < len(scores):
+        j = i + 1
+        while j < len(scores) and scores[j] == scores[i]:
+            j += 1
+        positives_tied = int(np.count_nonzero(labels[i:j] == 1))
+        negatives_tied = (j - i) - positives_tied
+        concordant_pairs += negatives_tied * (positives_above + 0.5 * positives_tied)
+        positives_above += positives_tied
+        i = j
+    return float(concordant_pairs / (n_pos * n_neg))
 
 def _brier_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     """Mean squared error between predicted probabilities and outcomes."""
@@ -310,6 +317,53 @@ def fit_logistic_model(
     }
 
 
+def _historical_rates_from_reference(
+    reference_trials: list,
+    prediction_trials: list,
+    leave_one_out: bool = False,
+) -> list:
+    """Assign drug-class rates using *only* reference (training) outcomes.
+
+    During model fitting each reference record gets a leave-one-out rate,
+    avoiding direct target encoding of its own outcome. Holdout rows get the
+    rate from the pre-cutoff training cohort only. Pre-existing
+    historical_class_rate fields are not trusted because they may have been
+    computed across a temporal split.
+    """
+    counts = {}
+    successes = 0
+    for trial in reference_trials:
+        if trial.get("label") not in ("success", "failure", "safety_failure"):
+            raise ValueError("Reference labels must be verified binary outcomes")
+        cls = trial.get("drug_class") or "other"
+        if cls not in counts:
+            counts[cls] = [0, 0]
+        outcome = int(trial["label"] == "success")
+        counts[cls][0] += 1
+        counts[cls][1] += outcome
+        successes += outcome
+
+    total = len(reference_trials)
+    mapped = []
+    for trial in prediction_trials:
+        cls = trial.get("drug_class") or "other"
+        cls_n, cls_success = counts.get(cls, [0, 0])
+        global_n, global_success = total, successes
+        if leave_one_out:
+            if trial.get("label") not in ("success", "failure", "safety_failure"):
+                raise ValueError("Leave-one-out rates require training labels")
+            this_success = int(trial["label"] == "success")
+            cls_n -= 1
+            cls_success -= this_success
+            global_n -= 1
+            global_success -= this_success
+
+        rate = (cls_success / cls_n if cls_n > 0 else
+                global_success / global_n if global_n > 0 else 0.5)
+        mapped.append({**trial, "historical_class_rate": rate})
+    return mapped
+
+
 # ---------------------------------------------------------------------------
 # Temporal split metrics
 # ---------------------------------------------------------------------------
@@ -329,24 +383,29 @@ def _parse_date(raw) -> Optional[date]:
 
 
 def _calibration_slope(y_true: np.ndarray, y_prob: np.ndarray) -> Optional[float]:
-    """Ordinary least squares calibration slope (regress y_true on logit(y_prob)).
+    """Logistic calibration slope: coefficient of logit(prediction) in y ~ logit(p).
 
-    Returns None if fewer than 2 observations or all predictions are 0/1.
+    Ordinary least-squares regression of a binary outcome on the logit is not
+    a logistic calibration slope and must not be reported as one.
     """
-    if len(y_true) < 2:
+    from sklearn.linear_model import LogisticRegression
+
+    y_true = np.asarray(y_true, dtype=float)
+    y_prob = np.asarray(y_prob, dtype=float)
+    if (len(y_true) < 3 or len(np.unique(y_true)) < 2
+            or not np.all(np.isfinite(y_prob))):
         return None
 
-    eps = 1e-7
-    logit_prob = np.log(np.clip(y_prob, eps, 1 - eps) / (1 - np.clip(y_prob, eps, 1 - eps)))
-
-    # OLS: slope = cov(x, y) / var(x)
-    var_x = np.var(logit_prob)
-    if var_x < 1e-12:
+    clipped = np.clip(y_prob, 1e-7, 1 - 1e-7)
+    logits = np.log(clipped / (1 - clipped))
+    if np.var(logits) < 1e-12:
         return None
 
-    cov_xy = np.mean((logit_prob - logit_prob.mean()) * (y_true - y_true.mean()))
-    return float(cov_xy / var_x)
-
+    recal = LogisticRegression(penalty=None, solver="lbfgs", max_iter=2000,
+                              tol=1e-9)
+    recal.fit(logits.reshape(-1, 1), y_true)
+    slope = float(recal.coef_[0, 0])
+    return slope if math.isfinite(slope) else None
 
 def compute_temporal_split_metrics(
     trials: list,
@@ -354,86 +413,88 @@ def compute_temporal_split_metrics(
     feature_names: list,
     split_date: str = "2020-01-01",
 ) -> dict:
-    """Evaluate model on temporal train/test split.
+    """True held-out temporal evaluation, refitting only on pre-cutoff trials.
 
-    Parameters
-    ----------
-    trials : list
-        Labeled trial records.
-    coefficients : dict
-        Coefficient dict from fit_logistic_model (keyed by feature name + "intercept").
-    feature_names : list[str]
-        Ordered list matching coefficient keys (excluding intercept).
-    split_date : str
-        ISO date string 'YYYY-MM-DD'. Trials before → train; on/after → test.
+    The coefficients argument is accepted only for legacy caller compatibility.
+    It is deliberately NOT used: coefficients fitted on the complete cohort
+    would leak future test outcomes into the supposed temporal validation.
 
-    Returns
-    -------
-    dict with keys:
-        split_date, n_train, n_test,
-        test_metrics: {auc, brier, calibration_slope},
-        trial_predictions: list of {nct_id, y_true, y_prob, split}
+    Primary completion date is an imperfect availability proxy, not proof
+    that the trial results were publicly known by the cutoff. Therefore this
+    is a retrospective temporal holdout, not prospective validation.
     """
     cutoff = _parse_date(split_date)
     if cutoff is None:
         raise ValueError(f"Cannot parse split_date: {split_date!r}")
 
-    train_trials = []
-    test_trials = []
-
-    for t in trials:
-        pc_date = _parse_date(t.get("primary_completion_date"))
-        if pc_date is not None and pc_date < cutoff:
-            train_trials.append(t)
+    train_trials, test_trials, missing_date = [], [], 0
+    for trial in trials:
+        completed = _parse_date(trial.get("primary_completion_date"))
+        if completed is None:
+            missing_date += 1
+        elif completed < cutoff:
+            train_trials.append(trial)
         else:
-            test_trials.append(t)
+            test_trials.append(trial)
 
-    # Build weight vector from coefficients
-    intercept = coefficients.get("intercept", 0.0)
-    coef_vec = np.array([coefficients.get(fn, 0.0) for fn in feature_names], dtype=float)
-
-    def _predict(trial_list):
-        if not trial_list:
-            return np.array([]), np.array([])
-        X, y, _ = prepare_feature_matrix(trial_list)
-        logit = X @ coef_vec + intercept
-        prob = 1.0 / (1.0 + np.exp(-logit))
-        return y, prob
-
-    y_test, p_test = _predict(test_trials)
-
-    # Per-trial predictions for Calibration tab
-    trial_predictions = []
-    for split_label, trial_list in [("train", train_trials), ("test", test_trials)]:
-        for i, t in enumerate(trial_list):
-            X_single, y_single, _ = prepare_feature_matrix([t])
-            logit_val = float(X_single[0] @ coef_vec + intercept)
-            prob_val = 1.0 / (1.0 + math.exp(-logit_val))
-            trial_predictions.append(
-                {
-                    "nct_id": t.get("nct_id", ""),
-                    "y_true": int(y_single[0]),
-                    "y_prob": prob_val,
-                    "split": split_label,
-                }
-            )
-
-    test_metrics = {}
-    if len(y_test) > 0:
-        test_metrics["auc"] = _compute_auc(y_test, p_test)
-        test_metrics["brier"] = _brier_score(y_test, p_test)
-        test_metrics["calibration_slope"] = _calibration_slope(y_test, p_test)
-    else:
-        test_metrics = {"auc": None, "brier": None, "calibration_slope": None}
-
-    return {
+    empty_metrics = {"auc": None, "brier": None, "calibration_slope": None}
+    result = {
         "split_date": split_date,
         "n_train": len(train_trials),
         "n_test": len(test_trials),
-        "test_metrics": test_metrics,
-        "trial_predictions": trial_predictions,
+        "n_excluded_missing_date": missing_date,
+        "method": "refit_pre_cutoff_only; class rates train-only; unknown dates excluded",
+        "caveat": ("Primary completion date does not establish public result "
+                   "availability; this is retrospective, not prospective validation."),
+        "test_metrics": dict(empty_metrics),
+        "trial_predictions": [],
     }
+    if len(train_trials) < 3 or not test_trials:
+        result["validation_status"] = "insufficient_split_data"
+        return result
 
+    safe_train = _historical_rates_from_reference(
+        train_trials, train_trials, leave_one_out=True
+    )
+    safe_test = _historical_rates_from_reference(train_trials, test_trials)
+    X_train, y_train, actual_names = prepare_feature_matrix(safe_train)
+    if actual_names != feature_names:
+        raise ValueError("Feature names do not match model training schema")
+    if len(np.unique(y_train)) < 2:
+        result["validation_status"] = "single_class_training_cohort"
+        return result
+
+    # Fit a separate model. Never evaluate the all-cohort deployed model here.
+    heldout_model = fit_logistic_model(X_train, y_train, feature_names)
+    fitted = heldout_model["coefficients"]
+    weight_vec = np.array([fitted[name] for name in feature_names], dtype=float)
+    intercept = fitted["intercept"]
+
+    for group_name, rows in (("train", safe_train), ("test", safe_test)):
+        X_group, y_group, _ = prepare_feature_matrix(rows)
+        logits = np.clip(X_group @ weight_vec + intercept, -500, 500)
+        probs = 1.0 / (1.0 + np.exp(-logits))
+        for trial, outcome, probability in zip(rows, y_group, probs):
+            result["trial_predictions"].append({
+                "nct_id": trial.get("nct_id", ""),
+                "y_true": int(outcome),
+                "y_prob": float(probability),
+                "split": group_name,
+            })
+        if group_name == "test":
+            result["test_metrics"]["brier"] = _brier_score(y_group, probs)
+            if len(np.unique(y_group)) >= 2:
+                result["test_metrics"]["auc"] = _compute_auc(y_group, probs)
+                result["test_metrics"]["calibration_slope"] = _calibration_slope(
+                    y_group, probs
+                )
+
+    result["validation_status"] = (
+        "ok" if result["test_metrics"]["auc"] is not None
+        else "single_class_test_cohort"
+    )
+    result["test_metrics"]["calibration_slope_method"] = "logistic"
+    return result
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -475,7 +536,10 @@ def main(argv=None) -> None:
         trials = json.load(fh)
     log.info("Loaded %d labeled trials from %s", len(trials), args.input)
 
-    X, y, feature_names = prepare_feature_matrix(trials)
+    # Fit the released model on the full corpus, but leave each trial's own
+    # outcome out of its drug-class historical success rate.
+    training_views = _historical_rates_from_reference(trials, trials, leave_one_out=True)
+    X, y, feature_names = prepare_feature_matrix(training_views)
     log.info("Feature matrix: X=%s  y=%s (%.1f%% success)", X.shape, y.shape, 100 * y.mean())
 
     model = fit_logistic_model(X, y, feature_names)

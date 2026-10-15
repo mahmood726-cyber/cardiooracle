@@ -41,12 +41,26 @@ No installation, no server, no dependencies. Everything runs in your browser.
 - **Size:** 784 cardiorenal + 90 CAD labeled trials
 - **Labeling:** 3-tier system (p-value automated, CI-based heuristic, 29 landmark manual)
 
-### Validation
+### Validation status (under correction)
 
-| Metric | In-sample (n=784) | Temporal test (n=133, post-2020) |
-|--------|-------------------|----------------------------------|
-| AUC | 0.787 | 0.745 |
-| Brier | 0.169 | 0.196 |
+**Important methodological notice, 15 October 2026:** The historical numbers below are
+**not independent temporal-validation estimates**. An earlier implementation fitted
+regression coefficients using **all trials** before evaluating the nominal post-2020
+cohort; outcome-derived historical class rates could also leak labels. This must
+not be presented as a genuinely out-of-sample or prospective result.
+
+| Reported historical metric | Value | Status |
+|----------------------------|-------|--------|
+| In-sample AUC (n=784) | 0.787 | Apparent performance only |
+| Earlier so-called temporal AUC (n=133) | 0.745 | **Invalid as held-out validation; superseded** |
+| Earlier so-called temporal Brier score | 0.196 | **Invalid as held-out validation; superseded** |
+
+The updated source pipeline now refits on pre-cutoff data only, uses training-only
+historical rates, correctly handles ROC ties, and calculates a logistic calibration
+slope. The existing checked-in JSON, HTML-embedded predictions and figures were
+produced before these corrections and **have not yet been regenerated or independently
+validated**. Treat all displayed probabilities as experimental, not clinically
+validated estimates. See [validation audit](docs/validation-audit-2026-10-15.md).
 
 ## Technology
 
