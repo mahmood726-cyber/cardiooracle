@@ -52,7 +52,7 @@ def test_roc_auc_ties_equal_half_and_independent_of_row_order():
                         np.array([0.1, 0.5, 0.5, 0.9])) == pytest.approx(0.875)
     assert _compute_auc(np.array([1, 0]), np.array([0.9, 0.1])) == 1.0
     assert _compute_auc(np.array([1, 0]), np.array([0.1, 0.9])) == 0.0
-    assert np.isnan(_compute_auc(np.array([1, 1]), np.array([0.4, 0.6]))
+    assert np.isnan(_compute_auc(np.array([1, 1]), np.array([0.4, 0.6])))
 
 
 @pytest.mark.parametrize("scores", [[0.5, float("nan")], [0.3, float("inf")]])
