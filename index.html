@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CardioOracle: Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis (AUC 0.787)</title>
+<title>CardioOracle: Experimental Cardiovascular Trial Outcome Predictor</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,serif;background:#FDFCFA;color:#1a1a1a;line-height:1.7}
@@ -25,9 +25,13 @@ h1{font-size:1.8rem;margin-bottom:.5rem}
 <body>
 <div class="page">
   <div class="badge">E156 Project</div>
-  <h1>CardioOracle: Predicting Cardiovascular Trial Outcomes Using Bayesian Historical Borrowing and Design Feature Analysis (AUC 0.787)</h1>
+  <h1>CardioOracle: Experimental Cardiovascular Trial Outcome Predictor</h1>
   <div class="meta">Mahmood Ahmad &middot; Methods &middot; 2026-03-26</div>
-  <p class="summary">An ensemble of Bayesian borrowing, conditional power, and meta-regression predicts cardiovascular trial success with AUC 0.787 in-sample and 0.745 on temporal holdout.</p>
+  <p class="summary">An experimental cardiovascular trial outcome forecasting tool. Earlier validation figures are under methodological review.</p>
+  <p role="alert" style="margin:1rem 0 1.5rem;padding:1rem 1.15rem;border:2px solid #9A6325;background:#FFF5DF;color:#443018;font-family:system-ui,sans-serif;font-size:.9rem;line-height:1.6">
+    <strong>Validation correction — 15 October 2026:</strong> Previously reported temporal AUC and Brier values were calculated with a model fitted on the supposed test set. They are <strong>not valid independent holdout estimates</strong>. The live application and manuscript contain older, uncorrected model outputs and must not be used for clinical or investment decisions.
+    <a href="https://github.com/mahmood726-cyber/cardiooracle/blob/master/docs/validation-audit-2026-10-15.md" style="color:#124B7C">Read the validation audit.</a>
+  </p>
   <div class="links">
     <a href="e156-submission/index.html" class="card">E156 Micro-Paper (interactive reader)</a>
     <a href="e156-submission/assets/CardioOracle.html" class="card app">Cardiooracle (interactive app)</a>
