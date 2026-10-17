@@ -36,3 +36,16 @@ jobs:
           node-version: '22'
       - name: Validate ClinicalTrials.gov v2 masking contract
         run: node --test tests/clinicaltrials_masking_v2.test.cjs
+
+  historical-model-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify immutable March 2026 evidence and historical source identity
+        run: node --test tests/historical_model_identity.test.cjs
