@@ -70,9 +70,9 @@ test('source-pinned deployed JS demonstrates original tie/order defect without m
     stdio:['ignore','pipe','pipe'],timeout:20000,maxBuffer:16*1024*1024
   });
   const sha=crypto.createHash('sha1')
-    .update(Buffer.from('blob '+html.length+'\\0')).update(html).digest('hex');
+    .update(Buffer.from('blob '+html.length+'\0')).update(html).digest('hex');
   assert.equal(sha,'a52f055dae8c5f672b9d8498f7e79e966458e414');
-  const match=html.toString('utf8').match(/function pvComputeAUC\\(yTrue, yProb\\) \\{[\\s\\S]*?\\n\\}/);
+  const match=html.toString('utf8').match(/function pvComputeAUC\(yTrue, yProb\) \{[\s\S]*?\n\}/);
   assert.ok(match,'exact historical prospective AUC function found');
   const old=vm.runInNewContext('('+match[0]+')');
   const probabilities=Array(5).fill(0.5);
@@ -83,7 +83,7 @@ test('source-pinned deployed JS demonstrates original tie/order defect without m
 });
 test('actual 493-case frozen backtest sample confirms ties and order-invariant reference', () => {
   // Archived labels are mostly unadjudicated; this only checks arithmetic.
-  const lines=fs.readFileSync('backtest/backtest_results.csv','utf8').trim().split(/\\r?\\n/);
+  const lines=fs.readFileSync('backtest/backtest_results.csv','utf8').trim().split(/\r?\n/);
   assert.equal(lines[0],'nct_id,year,actual,predicted,p_bayes,p_power,p_reg,drug_class,endpoint_type,n_train');
   const rows=lines.slice(1).map(line=>line.split(','));
   assert.equal(rows.length,493);
