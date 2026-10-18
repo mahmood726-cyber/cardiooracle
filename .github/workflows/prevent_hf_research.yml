@@ -1,0 +1,33 @@
+name: Frozen PREVENT-HF research-only source checks
+
+on:
+  pull_request:
+    paths:
+      - 'tests/prevent_hf_prelock_source_concordance_research.test.cjs'
+      - '.github/workflows/prevent_hf_research.yml'
+      - 'prospective_predictions_20260325.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prevent-hf-source-concordance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout literal pull request head with all history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Assert checkout is literal current PR head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test frozen 25 source-concordance controls (NOT clinical validation)
+        run: node --test tests/prevent_hf_prelock_source_concordance_research.test.cjs
