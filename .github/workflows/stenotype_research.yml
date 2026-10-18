@@ -1,0 +1,32 @@
+name: STENOTYPE frozen-25 source research gate
+on:
+  push:
+    branches:
+      - audit/frozen25-stenotype-asof-endpoint-20261018
+  pull_request:
+    paths:
+      - 'tests/stenotype_prelock_comparator_af_research.test.cjs'
+      - '.github/workflows/stenotype_research.yml'
+      - 'prospective_predictions_20260325.json'
+permissions:
+  contents: read
+jobs:
+  stenotype-asof-documentary-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Verify literal checked-out branch or PR head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git show --format='%H' --no-patch HEAD
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run pinned original frozen-25 research checks (not clinical certification)
+        run: node --test tests/stenotype_prelock_comparator_af_research.test.cjs
